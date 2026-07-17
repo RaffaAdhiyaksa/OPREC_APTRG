@@ -59,7 +59,7 @@ function validateImageFile(file: File): string | null {
 }
 
 function buildStoragePath(whatsapp: string, prefix: string, originalName: string): string {
-  const safe = originalName.replace(/\s+/g, "_");
+  const safe = originalName.replace(/[^a-zA-Z0-9.\-]/g, "_");
   const ts = Date.now();
   return `${whatsapp}/${prefix}_${ts}_${safe}`;
 }

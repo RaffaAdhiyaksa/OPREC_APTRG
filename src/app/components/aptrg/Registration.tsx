@@ -74,8 +74,9 @@ function validateFile(file: File): string | null {
  * Karakter spasi diganti underscore agar aman sebagai path.
  */
 function buildStoragePath(nim: string, originalName: string): string {
-  const safeName = originalName.replace(/\s+/g, "_");
-  return `${nim}/${nim}_${safeName}`;
+  const safeNim = nim.replace(/[^a-zA-Z0-9]/g, "");
+  const safeName = originalName.replace(/[^a-zA-Z0-9.\-]/g, "_");
+  return `${safeNim}/${safeNim}_${safeName}`;
 }
 
 /* ── Komponen utama ──────────────────────────────────────── */
@@ -224,16 +225,17 @@ export function Registration({
       const { error: insertError } = await supabase.from("applicants").insert(payload);
 
       if (insertError) {
+        // Jika file sudah terlanjur diupload, hapus agar tidak orphan di kasus apapun
+        if (cvPath) {
+          await supabase.storage.from(CV_BUCKET).remove([cvPath]);
+        }
+
         // PostgreSQL error code 23505 = unique_violation (NIM sudah terdaftar)
         if (
           insertError.code === "23505" ||
           insertError.message.toLowerCase().includes("unique") ||
           insertError.message.toLowerCase().includes("duplicate")
         ) {
-          // Jika file sudah terlanjur diupload, hapus agar tidak orphan
-          if (cvPath) {
-            await supabase.storage.from(CV_BUCKET).remove([cvPath]);
-          }
           throw new Error(
             "NIM ini sudah terdaftar di sistem. Setiap NIM hanya dapat mendaftar satu kali."
           );
@@ -324,8 +326,7 @@ export function Registration({
                   value={form.nama}
                   onChange={(e) => set("nama", e.target.value)}
                   placeholder="Nama lengkap"
-                  disabled
-                  className="bg-white/60 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="bg-white/60"
                 />
               </Field>
               <Field label="NIM">
@@ -342,8 +343,7 @@ export function Registration({
                   onChange={(e) => set("email", e.target.value)}
                   placeholder="nama@student.ac.id"
                   type="email"
-                  disabled
-                  className="bg-white/60 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="bg-white/60"
                 />
               </Field>
               <Field label="No. HP">

@@ -40,7 +40,8 @@ export type Screen =
   | "lolos-admin"
   | "undangan-wawancara"
   | "diterima"
-  | "cek-pengumuman";
+  | "cek-pengumuman"
+  | "logging-out";
 
 export type Role = "magang" | "asisten" | "admin";
 

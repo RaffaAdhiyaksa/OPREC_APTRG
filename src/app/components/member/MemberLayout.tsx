@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { Bell } from "lucide-react";
+import { ReactNode, useState } from "react";
+import { Bell, Menu } from "lucide-react";
 import { Screen, Role, RED, AMBER } from "../aptrg/shared";
 import { Sidebar } from "./Sidebar";
 import { useAuthContext } from "../../context/AuthContext";
@@ -68,21 +68,37 @@ export function MemberLayout({
     ?? user?.email
     ?? "Pengguna";
   const initials = getInitials(user?.email);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="relative z-10 min-h-screen">
-      <Sidebar active={active} role={role} onNavigate={onNavigate} />
-      <div className="pl-[260px]">
+      <Sidebar
+        active={active}
+        role={role}
+        onNavigate={onNavigate}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      <div className="flex w-full flex-1 flex-col transition-all md:pl-[260px]">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 px-6 pt-4">
-          <div className="relative flex items-center justify-between gap-4 overflow-hidden rounded-[18px] border border-white/60 bg-white/70 px-6 py-3.5 backdrop-blur-xl shadow-[0_8px_30px_-12px_rgba(80,40,40,0.22)]">
+        <header className="sticky top-0 z-30 px-4 pt-4 md:px-6">
+          <div className="relative flex items-center justify-between gap-4 overflow-hidden rounded-[18px] border border-white/60 bg-white/70 px-4 py-3.5 backdrop-blur-xl shadow-[0_8px_30px_-12px_rgba(80,40,40,0.22)] md:px-6">
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent" />
-            <div className="min-w-0">
-              <h1 className="truncate text-[18px] font-extrabold tracking-tight text-[#2a2320]">
-                {title}
-              </h1>
-              <p className="truncate text-[13px] text-[#857a75]">{subtitle}</p>
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="flex flex-none items-center justify-center rounded-[10px] bg-white/50 p-2 text-[#2a2320] transition hover:bg-white/80 md:hidden"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <div className="min-w-0">
+                <h1 className="truncate text-[16px] md:text-[18px] font-extrabold tracking-tight text-[#2a2320]">
+                  {title}
+                </h1>
+                <p className="truncate text-[12px] md:text-[13px] text-[#857a75]">{subtitle}</p>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <button className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/60 transition hover:bg-white/80">
                 <Bell className="h-[18px] w-[18px] text-[#5a504b]" />
                 <span
@@ -90,14 +106,14 @@ export function MemberLayout({
                   style={{ background: RED }}
                 />
               </button>
-              <div className="flex items-center gap-2.5 rounded-full border border-white/70 bg-white/60 py-1 pl-1 pr-3.5">
+              <div className="flex items-center gap-2.5 rounded-full border border-white/70 bg-white/60 py-1 pl-1 pr-3.5 max-w-[160px] md:max-w-xs lg:max-w-md">
                 <Avatar initials={initials} size={32} />
-                <div className="leading-tight">
-                  <div className="text-[13px] font-semibold text-[#2a2320]">
+                <div className="flex flex-1 min-w-0 flex-col leading-tight lg:flex-row lg:items-center lg:gap-2">
+                  <div className="truncate text-[13px] font-semibold text-[#2a2320]">
                     {displayName}
                   </div>
                   <div
-                    className="text-[11px] font-medium"
+                    className="truncate text-[11px] font-medium"
                     style={{ color: me.color }}
                   >
                     {me.label}
@@ -108,7 +124,7 @@ export function MemberLayout({
           </div>
         </header>
 
-        <main className="px-6 py-6">{children}</main>
+        <main className="px-4 py-6 md:px-8 lg:px-10">{children}</main>
       </div>
     </div>
   );

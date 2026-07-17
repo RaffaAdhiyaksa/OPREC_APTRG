@@ -46,14 +46,30 @@ export function Sidebar({
   active,
   role,
   onNavigate,
+  isOpen,
+  onClose,
 }: {
   active: Screen;
   role: Role;
   onNavigate: (s: Screen) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }) {
   const nav = role === "admin" ? ADMIN_NAV : MEMBER_NAV;
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col p-4">
+    <>
+      {/* Overlay background for mobile */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm md:hidden"
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col p-4 transform transition-transform duration-300 md:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
       <div className="relative flex h-full flex-col overflow-hidden rounded-[18px] border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_10px_40px_-14px_rgba(80,40,40,0.28)]">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent" />
         <div className="px-5 pt-6 pb-5">
@@ -90,7 +106,7 @@ export function Sidebar({
         <div className="p-3">
           <button
             onClick={() => {
-              onNavigate("landing");
+              onNavigate("logging-out");
             }}
             className="flex w-full items-center gap-3 rounded-[12px] px-3.5 py-2.5 text-[14px] font-medium text-[#5a504b] transition hover:bg-white/70"
           >
@@ -99,5 +115,6 @@ export function Sidebar({
         </div>
       </div>
     </aside>
+    </>
   );
 }

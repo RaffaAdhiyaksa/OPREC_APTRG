@@ -8,7 +8,6 @@ import { supabase } from "../../../lib/supabaseClient";
 const LINKS = [
   { label: "Beranda", target: "hero" },
   { label: "Kenapa APTRG", target: "why" },
-  { label: "Timeline", target: "timeline" },
   { label: "Divisi", target: "divisi" },
 ];
 
@@ -33,9 +32,8 @@ export function Navbar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    onNavigate("landing");
+  const handleLogout = () => {
+    onNavigate("logging-out");
   };
 
   const goToDashboard = () => {

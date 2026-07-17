@@ -456,16 +456,16 @@ export function DashboardAdmin() {
       {/* ── Stats cards ── */}
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((s) => (
-          <GlassCard key={s.label} className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-[13px] text-[#857a75]">{s.label}</div>
-                <div className="mt-1 text-[28px] font-extrabold tracking-tight text-[#2a2320]">
+          <GlassCard key={s.label} className="p-5 md:p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[13px] text-[#857a75]">{s.label}</div>
+                <div className="mt-1 truncate text-[24px] md:text-[28px] font-extrabold tracking-tight text-[#2a2320]">
                   {s.value}
                 </div>
               </div>
               <div
-                className="flex h-12 w-12 items-center justify-center rounded-[14px] text-white shadow"
+                className="flex h-12 w-12 flex-none items-center justify-center rounded-[14px] text-white shadow"
                 style={{ background: s.color }}
               >
                 <s.Icon className="h-6 w-6" />

@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import {
   FlaskConical,
   Trophy,
@@ -50,20 +51,30 @@ export function Landing({
     <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-32">
       {/* Hero */}
       <section id="hero" className="grid items-center gap-8 md:grid-cols-[1.1fr_0.9fr]">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/60 px-4 py-1.5 text-[13px] font-medium text-[#c81e2c] backdrop-blur-xl">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.15 },
+            },
+          }}
+        >
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/60 px-4 py-1.5 text-[13px] font-medium text-[#c81e2c] backdrop-blur-xl">
             <span className="h-2 w-2 rounded-full" style={{ background: RED }} />
             Pendaftaran Dibuka
-          </div>
-          <h1 className="mt-5 text-[44px] font-extrabold leading-[1.08] tracking-tight text-[#2a2320]">
+          </motion.div>
+          <motion.h1 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="mt-5 text-[44px] font-extrabold leading-[1.08] tracking-tight text-[#2a2320]">
             Open Recruitment{" "}
             <span style={{ color: RED }}>APTRG 2026</span>
-          </h1>
-          <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-[#5a504b]">
+          </motion.h1>
+          <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="mt-5 max-w-lg text-[16px] leading-relaxed text-[#5a504b]">
             Bergabunglah dengan Aeromodelling & Payload Telemetry Research Group.
             Rancang, bangun, dan terbangkan UAV bersama tim riset terbaik kampus.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center gap-3">
+          </motion.p>
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="mt-7 flex flex-wrap items-center gap-3">
             {user ? (
               <button
                 onClick={goToDashboard}
@@ -87,8 +98,8 @@ export function Landing({
                 </button>
               </>
             )}
-          </div>
-          <div className="mt-8 flex gap-8">
+          </motion.div>
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="mt-8 flex gap-8">
             {[
               { n: "4", l: "Divisi Riset" },
               { n: "5", l: "Tahap Seleksi" },
@@ -99,8 +110,8 @@ export function Landing({
                 <div className="text-[13px] text-[#857a75]">{s.l}</div>
               </div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
         <GlassCard className="p-8">
           <div
             className="flex h-14 w-14 items-center justify-center rounded-[16px] text-white shadow-md"
@@ -157,39 +168,7 @@ export function Landing({
         </div>
       </section>
 
-      {/* Timeline */}
-      <section id="timeline" className="mt-24">
-        <SectionHeading
-          kicker="Alur Rekrutmen"
-          title="Tahapan Open Recruitment"
-        />
-        <GlassCard className="mt-8 p-8">
-          <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
-            {STAGES.map((stage, i) => (
-              <div
-                key={stage}
-                className="relative flex flex-1 flex-row items-center gap-4 md:flex-col md:text-center"
-              >
-                <div
-                  className="z-10 flex h-11 w-11 flex-none items-center justify-center rounded-full text-[15px] font-bold text-white shadow-md"
-                  style={{ background: i === 0 ? RED : "rgba(200,30,44,0.35)" }}
-                >
-                  {i + 1}
-                </div>
-                {i < STAGES.length - 1 && (
-                  <div className="absolute left-[21px] top-11 h-full w-px bg-[rgba(200,30,44,0.25)] md:left-auto md:top-[21px] md:h-px md:w-full md:translate-x-[50%]" />
-                )}
-                <div className="md:mt-3">
-                  <div className="text-[14px] font-semibold text-[#2a2320]">
-                    {stage}
-                  </div>
-                  <div className="text-[12px] text-[#857a75]">Tahap {i + 1}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </GlassCard>
-      </section>
+
 
       {/* Divisions */}
       <section id="divisi" className="mt-24">
@@ -199,7 +178,7 @@ export function Landing({
         />
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {DIVISIONS.map((d) => (
-            <GlassCard key={d.id} className="group p-6 transition hover:-translate-y-1">
+            <GlassCard key={d.id} className="group p-6 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-xl hover:shadow-red-500/10 cursor-pointer">
               <div
                 className="flex h-12 w-12 items-center justify-center rounded-[14px] text-white shadow"
                 style={{ background: `linear-gradient(135deg, ${RED}, ${RED})` }}

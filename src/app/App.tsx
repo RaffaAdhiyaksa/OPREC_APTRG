@@ -31,6 +31,9 @@ import { Placeholder } from "./components/member/Placeholder";
 import { KelolaOprec } from "./components/member/KelolaOprec";
 import { DashboardPendaftar } from "./components/member/DashboardPendaftar";
 import { AuthProvider, useAuthContext } from "./context/AuthContext";
+import { AnimatePresence, motion } from "motion/react";
+import { supabase } from "../lib/supabaseClient";
+import { LoadingScreen } from "./components/aptrg/LoadingScreen";
 
 /* ── OpenMindSuccess ─────────────────────────────────────── */
 
@@ -207,6 +210,13 @@ function RoleGuard({
 }) {
   const { user, loading } = useAuthContext();
 
+  useEffect(() => {
+    if (!loading && !user) {
+      // Sesi habis atau belum login — kembali ke layar login
+      onNavigate("login");
+    }
+  }, [user, loading, onNavigate]);
+
   if (loading) {
     return (
       <div className="relative z-10 flex min-h-screen items-center justify-center gap-3 text-[#857a75]">
@@ -217,8 +227,6 @@ function RoleGuard({
   }
 
   if (!user) {
-    // Sesi habis atau belum login — kembali ke layar login
-    onNavigate("login");
     return null;
   }
 
@@ -272,7 +280,46 @@ function AppInner() {
   /** Bangku yang dikonfirmasi — dipakai di halaman sukses (disimpan di session agar aman reload) */
   const [confirmedSeat, setConfirmedSeat] = useSessionStorage<string | null>("app_confirmed_seat", null);
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "") as Screen;
+      if (hash && hash !== screen) {
+        setScreen(hash);
+      }
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, [screen, setScreen]);
+
+  useEffect(() => {
+    if (window.location.hash !== `#${screen}`) {
+      window.history.pushState(null, "", `#${screen}`);
+    }
+  }, [screen]);
+
   const { user, role, loading } = useAuthContext();
+  const [isGlobalLoading, setIsGlobalLoading] = useState(true);
+
+  useEffect(() => {
+    if (screen === "logging-out") {
+      const doLogout = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        await supabase.auth.signOut();
+        setScreen("landing");
+      };
+      doLogout();
+    }
+  }, [screen, setScreen]);
+
+  useEffect(() => {
+    const checkAuthAndLoad = async () => {
+      const authPromise = supabase.auth.getSession();
+      const delayPromise = new Promise((resolve) => setTimeout(resolve, 1500));
+      await Promise.all([authPromise, delayPromise]);
+      setIsGlobalLoading(false);
+    };
+    checkAuthAndLoad();
+  }, []);
 
   /* ── Route Protection ──────────────────────────────────── */
   useEffect(() => {
@@ -378,7 +425,19 @@ function AppInner() {
       <Toaster richColors position="top-right" />
       <GlassBackground />
 
-      {screen === "landing" && (
+      <AnimatePresence mode="wait">
+        {isGlobalLoading ? (
+          <LoadingScreen key="global-loading" />
+        ) : (
+          <motion.div
+            key={screen}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="w-full min-h-screen flex flex-col"
+          >
+            {screen === "landing" && (
         <>
           <Navbar onNavigate={navigate} onSection={scrollToSection} />
           <Landing onNavigate={navigate} />
@@ -390,7 +449,7 @@ function AppInner() {
         <DashboardUser onNavigate={navigate} />
       )}
 
-
+      {screen === "logging-out" && <LoadingScreen />}
 
       {screen === "form-open-mind" && (
         <FormOpenMind
@@ -478,9 +537,12 @@ function AppInner() {
             subtitle={MEMBER_META[screen].subtitle}
           >
             {renderMemberContent()}
-          </MemberLayout>
-        </RoleGuard>
-      )}
+            </MemberLayout>
+          </RoleGuard>
+        )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

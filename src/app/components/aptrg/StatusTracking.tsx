@@ -33,7 +33,7 @@ export function StatusTracking({
             </p>
           </div>
           <button
-            onClick={() => onNavigate("login")}
+            onClick={() => onNavigate("logging-out")}
             className="inline-flex items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-4 py-2 text-[14px] font-medium text-[#2a2320] backdrop-blur-xl transition hover:bg-white/80"
           >
             <LogOut className="h-4 w-4" /> Keluar
