@@ -41,7 +41,7 @@ export function Landing({
   onNavigate: (s: Screen) => void;
 }) {
   const { user, role } = useAuthContext();
-  
+
   const goToDashboard = () => {
     const target = role === "admin" || role === "asisten" ? "dashboard" : "dashboard-user";
     onNavigate(target);
@@ -102,8 +102,8 @@ export function Landing({
           <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="mt-8 flex gap-8">
             {[
               { n: "4", l: "Divisi Riset" },
-              { n: "5", l: "Tahap Seleksi" },
-              { n: "2026", l: "Angkatan" },
+              { n: "5", l: "Tim Kompetisi" },
+              { n: "99+", l: "Prestasi" },
             ].map((s) => (
               <div key={s.l}>
                 <div className="text-[26px] font-extrabold text-[#2a2320]">{s.n}</div>
