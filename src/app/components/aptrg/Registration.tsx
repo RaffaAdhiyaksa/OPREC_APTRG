@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -111,6 +111,22 @@ export function Registration({
   const [submitError, setSubmitError] = useState<string | null>(null);
   /** Pesan progres tahap upload/insert yang ditampilkan di UI */
   const [submitStage, setSubmitStage] = useState<string>("");
+
+  useEffect(() => {
+    supabase
+      .from("events")
+      .select("is_active")
+      .eq("event_key", "open_recruitment")
+      .maybeSingle<{ is_active: boolean }>()
+      .then(({ data, error }) => {
+        if (!error && data !== null && !data.is_active) {
+          toast.error("Pendaftaran ditutup", {
+            description: "Sesi Open Recruitment saat ini sedang tidak menerima pendaftar baru.",
+          });
+          onNavigate("dashboard-user");
+        }
+      });
+  }, [onNavigate]);
 
   const set = (k: keyof typeof form, v: string) =>
     setForm((f) => ({ ...f, [k]: v }));

@@ -8,7 +8,7 @@ import {
   Check,
   Plane,
 } from "lucide-react";
-import { GlassCard, DIVISIONS, STAGES, Screen, RED, AMBER } from "./shared";
+import { GlassCard, DIVISIONS, Screen, RED, AMBER } from "./shared";
 import { useAuthContext } from "../../context/AuthContext";
 
 

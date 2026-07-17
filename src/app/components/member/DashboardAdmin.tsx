@@ -10,9 +10,9 @@ import {
   RefreshCw,
   Power,
   FileText,
+  Trash2,
 } from "lucide-react";
-import { GlassCard, RED, AMBER } from "../aptrg/shared";
-import { Avatar } from "./MemberLayout";
+import { GlassCard } from "../aptrg/shared";
 import { MEMBERS, PROJECTS } from "./data";
 import * as Switch from "@radix-ui/react-switch";
 import { toast } from "sonner";
@@ -153,16 +153,16 @@ function RegistrationToggle() {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-start gap-3">
           <div
-            className="mt-0.5 flex h-10 w-10 flex-none items-center justify-center rounded-[12px] text-white shadow"
-            style={{ background: isOpen ? "#3aa66f" : "#857a75" }}
+            className="mt-0.5 flex h-10 w-10 flex-none items-center justify-center rounded-xl text-white shadow-sm"
+            style={{ background: isOpen ? "#10b981" : "#94a3b8" }}
           >
             <Power className="h-5 w-5" />
           </div>
           <div>
-            <div className="text-[15px] font-bold text-[#2a2320]">
+            <div className="text-[15px] font-bold text-slate-900">
               Status Pendaftaran OPREC
             </div>
-            <div className="mt-0.5 text-[13px] text-[#857a75]">
+            <div className="mt-0.5 text-[13px] text-slate-500">
               {isOpen === null
                 ? "Memuat status..."
                 : isOpen
@@ -188,9 +188,9 @@ function RegistrationToggle() {
               onCheckedChange={handleToggle}
               disabled={isOpen === null}
               id="registration-toggle"
-              className="relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full outline-none transition focus-visible:ring-2 focus-visible:ring-[#c81e2c] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full outline-none transition focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               style={{
-                background: isOpen ? "#3aa66f" : "rgba(133,122,117,0.4)",
+                background: isOpen ? "#10b981" : "#e2e8f0",
               }}
             >
               <Switch.Thumb className="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-md ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0.5" />
@@ -213,19 +213,30 @@ function ApplicantsTable({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState<Record<string, boolean>>({});
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; id: string | null; name: string }>({
+    isOpen: false,
+    id: null,
+    name: "",
+  });
+  const [activeTab, setActiveTab] = useState<"oprec" | "openmind">("oprec");
 
   const fetchApplicants = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    /**
-     * Query semua kolom yang dibutuhkan dari tabel applicants,
-     * diurutkan dari tanggal terbaru.
-     */
-    const { data, error: sbError } = await supabase
+    let query = supabase
       .from("applicants")
       .select("id, nama, nim, email, divisi, status, tanggal_daftar, cv_path")
       .order("tanggal_daftar", { ascending: false });
+
+    if (activeTab === "oprec") {
+      // Menggunakan in untuk menangkap variasi penulisan Open Mind
+      query = query.not("divisi", "in", '("Open Mind","open mind","open-mind")');
+    } else {
+      query = query.in("divisi", ["Open Mind", "open mind", "open-mind"]);
+    }
+
+    const { data, error: sbError } = await query;
 
     if (sbError) {
       const isNetwork =
@@ -244,7 +255,7 @@ function ApplicantsTable({
     setApplicants(rows);
     onApplicantsLoaded(rows); // kirim data ke parent untuk komputasi pipeline
     setLoading(false);
-  }, [onApplicantsLoaded]);
+  }, [onApplicantsLoaded, activeTab]);
 
   useEffect(() => {
     fetchApplicants();
@@ -280,25 +291,71 @@ function ApplicantsTable({
     }
   };
 
+  const confirmDelete = async (id: string, nama: string) => {
+    try {
+      const { error } = await supabase.from("applicants").delete().eq("id", id);
+      if (error) throw error;
+      
+      const newApplicants = applicants.filter((a) => a.id !== id);
+      setApplicants(newApplicants);
+      onApplicantsLoaded(newApplicants);
+      toast.success(`Data ${nama} berhasil dihapus.`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error tidak diketahui";
+      console.error("[confirmDelete]", msg);
+      toast.error("Gagal menghapus data. Coba lagi.");
+    } finally {
+      setDeleteModal({ isOpen: false, id: null, name: "" });
+    }
+  };
+
+  const handleDeleteClick = (id: string, nama: string) => {
+    setDeleteModal({ isOpen: true, id, name: nama });
+  };
+
   return (
+    <>
     <GlassCard className="p-6">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between">
         <div>
-          <h2 className="text-[16px] font-bold text-[#2a2320]">
+          <h2 className="text-base font-bold text-slate-900">
             Data Pendaftar OPREC
           </h2>
-          <p className="text-[13px] text-[#857a75]">
+          <p className="text-sm text-slate-500">
             Daftar lengkap calon anggota yang mendaftar.
           </p>
         </div>
         <button
           onClick={fetchApplicants}
           disabled={loading}
-          className="flex items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3.5 py-2 text-[13px] font-medium text-[#2a2320] transition hover:bg-white/80 disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-[13px] font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
           title="Muat ulang data"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           Refresh
+        </button>
+      </div>
+
+      <div className="mb-5 flex gap-3">
+        <button
+          onClick={() => setActiveTab("oprec")}
+          className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${
+            activeTab === "oprec"
+              ? "bg-indigo-600 text-white shadow-sm"
+              : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
+          }`}
+        >
+          Pendaftar OPREC
+        </button>
+        <button
+          onClick={() => setActiveTab("openmind")}
+          className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${
+            activeTab === "openmind"
+              ? "bg-indigo-600 text-white shadow-sm"
+              : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
+          }`}
+        >
+          Pendaftar Open Mind
         </button>
       </div>
 
@@ -334,24 +391,24 @@ function ApplicantsTable({
       {/* Empty state */}
       {!loading && !error && applicants.length === 0 && (
         <div className="flex flex-col items-center gap-2 py-10 text-center">
-          <Users className="h-10 w-10 text-[#857a75] opacity-40" />
-          <p className="text-[14px] text-[#857a75]">
-            Belum ada pendaftar yang masuk.
+          <Users className="h-10 w-10 text-slate-300" />
+          <p className="text-sm text-slate-500">
+            Belum ada pendaftar di kategori ini.
           </p>
         </div>
       )}
 
       {/* Table */}
       {!loading && !error && applicants.length > 0 && (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
           <table className="w-full text-[13px]">
             <thead>
-              <tr className="border-b border-white/60">
-                {["Nama", "NIM", "Email", "Divisi", "Status", "Tgl Daftar", "Berkas"].map(
-                  (h) => (
+              <tr className="border-b border-slate-200 bg-slate-50">
+                {["Nama", "NIM", "Email", "Divisi", "Status", "Tgl Daftar", "Berkas", ""].map(
+                  (h, idx) => (
                     <th
-                      key={h}
-                      className="pb-3 pr-4 text-left text-[12px] font-semibold uppercase tracking-wide text-[#857a75] last:pr-0"
+                      key={idx}
+                      className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
                     >
                       {h}
                     </th>
@@ -360,40 +417,39 @@ function ApplicantsTable({
               </tr>
             </thead>
             <tbody>
-              {applicants.map((a, i) => (
+              {applicants.map((a) => (
                 <tr
                   key={a.id}
-                  className="border-b border-white/40 last:border-0"
-                  style={{ background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.25)" }}
+                  className="border-b border-slate-200 last:border-0 hover:bg-slate-50/50 transition-colors"
                 >
-                  <td className="py-3 pr-4 font-medium text-[#2a2320]">
+                  <td className="px-4 py-3 font-medium text-slate-900">
                     {a.nama}
                   </td>
-                  <td className="py-3 pr-4 font-mono text-[#5a504b]">
+                  <td className="px-4 py-3 font-mono text-slate-500">
                     {a.nim}
                   </td>
-                  <td className="py-3 pr-4 text-[#5a504b]">{a.email}</td>
-                  <td className="py-3 pr-4">
-                    <span className="rounded-full bg-[rgba(200,30,44,0.1)] px-2.5 py-0.5 text-[11px] font-semibold capitalize text-[#c81e2c]">
+                  <td className="px-4 py-3 text-slate-500">{a.email}</td>
+                  <td className="px-4 py-3">
+                    <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold capitalize text-indigo-700">
                       {a.divisi}
                     </span>
                   </td>
-                  <td className="py-3 pr-4">
+                  <td className="px-4 py-3">
                     <span
-                      className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-white"
+                      className="rounded-full px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm"
                       style={{ background: STATUS_COLOR[a.status] }}
                     >
                       {STATUS_LABEL[a.status]}
                     </span>
                   </td>
-                  <td className="py-3 pr-4 text-[#857a75]">
+                  <td className="px-4 py-3 text-slate-500">
                     {a.tanggal_daftar}
                   </td>
-                  <td className="py-3">
+                  <td className="px-4 py-3">
                     <button
                       onClick={() => openSignedUrl(a)}
                       disabled={loadingUrl[a.id]}
-                      className="inline-flex items-center gap-1 rounded-[8px] border border-white/70 bg-white/60 px-2.5 py-1.5 text-[12px] font-medium text-[#2a2320] transition hover:bg-white/90 disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
                       title={
                         a.cv_path
                           ? `Lihat CV ${a.nama}`
@@ -401,15 +457,24 @@ function ApplicantsTable({
                       }
                     >
                       {loadingUrl[a.id] ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
                         <FileText
-                          className="h-3 w-3"
-                          style={{ color: a.cv_path ? "#c81e2c" : "#857a75" }}
+                          className="h-3.5 w-3.5"
+                          style={{ color: a.cv_path ? "#4f46e5" : "#94a3b8" }}
                         />
                       )}
-                      <ExternalLink className="h-3 w-3" />
+                      <ExternalLink className="h-3.5 w-3.5" />
                       CV
+                    </button>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => handleDeleteClick(a.id, a.nama)}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                      title={`Hapus ${a.nama}`}
+                    >
+                      <Trash2 className="h-4.5 w-4.5" />
                     </button>
                   </td>
                 </tr>
@@ -419,6 +484,35 @@ function ApplicantsTable({
         </div>
       )}
     </GlassCard>
+
+    {/* Custom Delete Modal */}
+    {deleteModal.isOpen && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+        <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
+          <h3 className="text-lg font-bold text-slate-900">
+            Konfirmasi Hapus
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            Apakah kamu yakin ingin menghapus data <strong className="text-slate-900">{deleteModal.name}</strong>? Aksi ini tidak dapat dibatalkan.
+          </p>
+          <div className="mt-6 flex items-center justify-end gap-3">
+            <button
+              onClick={() => setDeleteModal({ isOpen: false, id: null, name: "" })}
+              className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+            >
+              Batal
+            </button>
+            <button
+              onClick={() => deleteModal.id && confirmDelete(deleteModal.id, deleteModal.name)}
+              className="rounded-xl bg-red-600 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-red-700"
+            >
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
@@ -439,33 +533,33 @@ export function DashboardAdmin() {
 
   const totalPendaftar = pipeline[0]?.count ?? 0;
   const stats = [
-    { label: "Total Pendaftar OPREC", value: `${totalPendaftar}`, Icon: Users, color: RED },
-    { label: "Total Anggota Aktif", value: `${activeMembers}`, Icon: UserCheck, color: AMBER },
-    { label: "Rapat Bulan Ini", value: "9", Icon: CalendarDays, color: "#2f7dd1" },
-    { label: "Tubes Berjalan", value: `${runningTubes}`, Icon: KanbanSquare, color: "#3aa66f" },
+    { label: "Total Pendaftar OPREC", value: `${totalPendaftar}`, Icon: Users, color: "#4f46e5" }, // indigo-600
+    { label: "Total Anggota Aktif", value: `${activeMembers}`, Icon: UserCheck, color: "#0ea5e9" }, // sky-500
+    { label: "Rapat Bulan Ini", value: "9", Icon: CalendarDays, color: "#8b5cf6" }, // violet-500
+    { label: "Tubes Berjalan", value: `${runningTubes}`, Icon: KanbanSquare, color: "#10b981" }, // emerald-500
   ];
 
   const maxCount = pipeline[0]?.count || 1;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
 
       {/* ── Toggle buka/tutup pendaftaran ── */}
       <RegistrationToggle />
 
       {/* ── Stats cards ── */}
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((s) => (
-          <GlassCard key={s.label} className="p-5 md:p-6">
+          <GlassCard key={s.label} className="p-6">
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] text-[#857a75]">{s.label}</div>
-                <div className="mt-1 truncate text-[24px] md:text-[28px] font-extrabold tracking-tight text-[#2a2320]">
+                <div className="truncate text-sm font-semibold text-slate-500">{s.label}</div>
+                <div className="mt-1.5 truncate text-3xl font-bold tracking-tight text-slate-900">
                   {s.value}
                 </div>
               </div>
               <div
-                className="flex h-12 w-12 flex-none items-center justify-center rounded-[14px] text-white shadow"
+                className="flex h-12 w-12 flex-none items-center justify-center rounded-xl text-white shadow-sm"
                 style={{ background: s.color }}
               >
                 <s.Icon className="h-6 w-6" />
@@ -478,25 +572,24 @@ export function DashboardAdmin() {
       {/* ── Pipeline funnel (computed dari data applicants) ── */}
       {pipeline.length > 0 && (
         <GlassCard className="p-6">
-          <h2 className="text-[16px] font-bold text-[#2a2320]">Pipeline OPREC</h2>
-          <p className="text-[13px] text-[#857a75]">Konversi pendaftar per tahap seleksi.</p>
-          <div className="mt-5 space-y-3">
+          <h2 className="text-base font-bold text-slate-900">Pipeline OPREC</h2>
+          <p className="text-sm text-slate-500">Konversi pendaftar per tahap seleksi.</p>
+          <div className="mt-6 space-y-4">
             {pipeline.map((p, i) => {
               const pct = (p.count / maxCount) * 100;
               return (
                 <div key={p.stage}>
-                  <div className="mb-1 flex items-center justify-between text-[13px]">
-                    <span className="font-medium text-[#2a2320]">
+                  <div className="mb-1.5 flex items-center justify-between text-sm">
+                    <span className="font-semibold text-slate-700">
                       {i + 1}. {p.stage}
                     </span>
-                    <span className="font-semibold text-[#c81e2c]">{p.count}</span>
+                    <span className="font-bold text-indigo-600">{p.count}</span>
                   </div>
-                  <div className="h-7 overflow-hidden rounded-[10px] bg-[rgba(200,30,44,0.08)]">
+                  <div className="h-6 overflow-hidden rounded-full bg-slate-100">
                     <div
-                      className="flex h-full items-center justify-end rounded-[10px] pr-2 text-[11px] font-semibold text-white transition-all duration-700"
+                      className="flex h-full items-center justify-end rounded-full pr-3 text-xs font-bold text-white transition-all duration-700 bg-indigo-600"
                       style={{
                         width: `${Math.max(pct, 4)}%`,
-                        background: `linear-gradient(90deg, ${RED}, ${AMBER})`,
                       }}
                     >
                       {Math.round(pct)}%

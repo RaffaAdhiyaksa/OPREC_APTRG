@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   ArrowLeft,
   UploadCloud,
@@ -199,6 +199,22 @@ export function FormOpenMind({
   /* Submission state */
   const [submitting, setSubmitting] = useState(false);
   const [stage, setStage] = useState("");
+
+  useEffect(() => {
+    supabase
+      .from("events")
+      .select("is_active")
+      .eq("event_key", "open_mind")
+      .maybeSingle<{ is_active: boolean }>()
+      .then(({ data, error }) => {
+        if (!error && data !== null && !data.is_active) {
+          toast.error("Pendaftaran ditutup", {
+            description: "Sesi Open Mind saat ini sedang tidak menerima pendaftar baru.",
+          });
+          onNavigate("dashboard-user");
+        }
+      });
+  }, [onNavigate]);
 
   /* ── Validation ──────────────────────────────────────── */
 

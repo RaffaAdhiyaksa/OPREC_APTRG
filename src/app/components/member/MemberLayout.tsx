@@ -81,40 +81,37 @@ export function MemberLayout({
       />
       <div className="flex w-full flex-1 flex-col transition-all md:pl-[260px]">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 px-4 pt-4 md:px-6">
-          <div className="relative flex items-center justify-between gap-4 overflow-hidden rounded-[18px] border border-white/60 bg-white/70 px-4 py-3.5 backdrop-blur-xl shadow-[0_8px_30px_-12px_rgba(80,40,40,0.22)] md:px-6">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent" />
+        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white px-4 py-3 md:px-8">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="flex flex-none items-center justify-center rounded-[10px] bg-white/50 p-2 text-[#2a2320] transition hover:bg-white/80 md:hidden"
+                className="flex flex-none items-center justify-center rounded-xl bg-slate-100 p-2 text-slate-900 transition hover:bg-slate-200 md:hidden"
               >
                 <Menu className="h-5 w-5" />
               </button>
               <div className="min-w-0">
-                <h1 className="truncate text-[16px] md:text-[18px] font-extrabold tracking-tight text-[#2a2320]">
+                <h1 className="truncate text-lg md:text-xl font-bold tracking-tight text-slate-900">
                   {title}
                 </h1>
-                <p className="truncate text-[12px] md:text-[13px] text-[#857a75]">{subtitle}</p>
+                <p className="truncate text-xs md:text-sm font-semibold text-slate-500">{subtitle}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 md:gap-3">
-              <button className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/60 transition hover:bg-white/80">
-                <Bell className="h-[18px] w-[18px] text-[#5a504b]" />
+            <div className="flex items-center gap-2 md:gap-4">
+              <button className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm transition hover:bg-slate-50">
+                <Bell className="h-5 w-5 text-slate-500" />
                 <span
-                  className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full ring-2 ring-white"
-                  style={{ background: RED }}
+                  className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full ring-2 ring-white bg-indigo-600"
                 />
               </button>
-              <div className="flex items-center gap-2.5 rounded-full border border-white/70 bg-white/60 py-1 pl-1 pr-3.5 max-w-[160px] md:max-w-xs lg:max-w-md">
+              <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-4 shadow-sm max-w-[160px] md:max-w-xs lg:max-w-md">
                 <Avatar initials={initials} size={32} />
-                <div className="flex flex-1 min-w-0 flex-col leading-tight lg:flex-row lg:items-center lg:gap-2">
-                  <div className="truncate text-[13px] font-semibold text-[#2a2320]">
+                <div className="flex flex-1 min-w-0 flex-col leading-tight lg:flex-row lg:items-center lg:gap-3">
+                  <div className="truncate text-sm font-semibold text-slate-900">
                     {displayName}
                   </div>
                   <div
-                    className="truncate text-[11px] font-medium"
-                    style={{ color: me.color }}
+                    className="truncate text-xs font-semibold text-slate-500"
                   >
                     {me.label}
                   </div>
@@ -124,7 +121,7 @@ export function MemberLayout({
           </div>
         </header>
 
-        <main className="px-4 py-6 md:px-8 lg:px-10">{children}</main>
+        <main className="flex-1 p-6 md:p-10 lg:p-12">{children}</main>
       </div>
     </div>
   );

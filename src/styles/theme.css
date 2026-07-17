@@ -2,38 +2,40 @@
 
 :root {
   --font-size: 16px;
-  --background: #f6f2f0;
-  --foreground: #2a2320;
-  --card: rgba(255, 255, 255, 0.72);
-  --card-foreground: #2a2320;
+  --background: #f8fafc; /* slate-50 */
+  --foreground: #0f172a; /* slate-900 */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
   --popover: #ffffff;
-  --popover-foreground: #2a2320;
-  --primary: #c81e2c;
+  --popover-foreground: #0f172a;
+  --primary: #4f46e5; /* indigo-600 */
   --primary-foreground: #ffffff;
-  --secondary: rgba(255, 255, 255, 0.6);
-  --secondary-foreground: #2a2320;
-  --muted: rgba(140, 120, 115, 0.12);
-  --muted-foreground: #857a75;
-  --accent: #e3a548;
-  --accent-foreground: #2a2320;
-  --destructive: #c81e2c;
+  --secondary: #f1f5f9; /* slate-100 */
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b; /* slate-500 */
+  --accent: #f8fafc;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444; /* red-500 */
   --destructive-foreground: #ffffff;
-  --border: rgba(255, 255, 255, 0.6);
-  --input: transparent;
-  --input-background: rgba(255, 255, 255, 0.55);
-  --switch-background: #cbced4;
-  --font-weight-medium: 600;
+  --border: #e2e8f0; /* slate-200 */
+  --input: #e2e8f0;
+  --input-background: #ffffff;
+  --switch-background: #cbd5e1; /* slate-300 */
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
   --font-weight-normal: 400;
-  --ring: #c81e2c;
+  --ring: #4f46e5;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 1.125rem;
-  --brand-red: #c81e2c;
-  --brand-red-deep: #a3151f;
-  --brand-amber: #e3a548;
+  --radius: 0.75rem; /* rounded-xl base */
+  --brand-red: #ef4444;
+  --brand-red-deep: #dc2626;
+  --brand-amber: #f59e0b;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: #030213;
@@ -82,6 +84,7 @@
 }
 
 @theme inline {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -142,44 +145,34 @@
   }
 
   h1 {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    @apply text-2xl font-bold text-slate-900;
   }
 
   h2 {
-    font-size: var(--text-xl);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    @apply text-xl font-bold text-slate-900;
   }
 
   h3 {
-    font-size: var(--text-lg);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    @apply text-lg font-bold text-slate-900;
   }
 
   h4 {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    @apply text-base font-semibold text-slate-900;
+  }
+
+  p {
+    @apply text-base text-slate-700;
   }
 
   label {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    @apply text-sm font-semibold text-slate-500;
   }
 
   button {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-family: inherit;
   }
 
   input {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-normal);
-    line-height: 1.5;
+    font-family: inherit;
   }
 }
