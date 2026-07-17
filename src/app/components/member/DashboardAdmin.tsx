@@ -12,7 +12,6 @@ import {
   FileText,
 } from "lucide-react";
 import { GlassCard, RED, AMBER } from "../aptrg/shared";
-import { Avatar } from "./MemberLayout";
 import { MEMBERS, PROJECTS } from "./data";
 import * as Switch from "@radix-ui/react-switch";
 import { toast } from "sonner";

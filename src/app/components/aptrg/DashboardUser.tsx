@@ -1,7 +1,7 @@
 import { useAuthContext } from "../../context/AuthContext";
 import { GlassCard, Screen, RED, GlassBackground } from "./shared";
 import { Navbar } from "./Navbar";
-import { ArrowRight, Ticket, UserPlus, LogOut } from "lucide-react";
+import { ArrowRight, Ticket, UserPlus, LogOut, UserCircle2 } from "lucide-react";
 
 export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const { profile } = useAuthContext();
@@ -26,12 +26,20 @@ export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void 
                   Selamat datang di Portal Pendaftaran APTRG. Silakan pilih jalur pendaftaran Anda.
                 </p>
               </div>
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white/60 px-5 py-2.5 text-[14px] font-semibold text-[#c81e2c] shadow-sm transition hover:bg-red-50"
-              >
-                <LogOut className="h-4 w-4" /> Keluar
-              </button>
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => onNavigate("profil-user")}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/60 px-5 py-2.5 text-[14px] font-semibold text-[#2a2320] shadow-sm transition hover:bg-white/85"
+                >
+                  <UserCircle2 className="h-4 w-4" /> Profil Saya
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white/60 px-5 py-2.5 text-[14px] font-semibold text-[#c81e2c] shadow-sm transition hover:bg-red-50"
+                >
+                  <LogOut className="h-4 w-4" /> Keluar
+                </button>
+              </div>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">

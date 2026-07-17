@@ -19,16 +19,32 @@ function getInitials(email: string | undefined): string {
   return name.slice(0, 2).toUpperCase();
 }
 
-/* Shared avatar chip */
+/* Shared avatar chip — nampilin foto asli (`src`) kalau ada, fallback ke inisial */
 export function Avatar({
   initials,
   size = 28,
   ring = true,
+  src,
 }: {
   initials: string;
   size?: number;
   ring?: boolean;
+  /** URL foto profil dari Supabase Storage. Kalau null/undefined, fallback ke inisial. */
+  src?: string | null;
 }) {
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt="Foto profil"
+        className={`flex-none rounded-full object-cover shadow-sm ${
+          ring ? "ring-2 ring-white/80" : ""
+        }`}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+
   return (
     <div
       className={`flex flex-none items-center justify-center rounded-full text-white shadow-sm ${
@@ -63,10 +79,8 @@ export function MemberLayout({
   children: ReactNode;
 }) {
   const me = ROLE_INFO[role];
-  const { user } = useAuthContext();
-  const displayName = user?.user_metadata?.full_name as string | undefined
-    ?? user?.email
-    ?? "Pengguna";
+  const { user, profile } = useAuthContext();
+  const displayName = profile?.nama || user?.email || "Pengguna";
   const initials = getInitials(user?.email);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -106,9 +120,12 @@ export function MemberLayout({
                   style={{ background: RED }}
                 />
               </button>
-              <div className="flex items-center gap-2.5 rounded-full border border-white/70 bg-white/60 py-1 pl-1 pr-3.5 max-w-[160px] md:max-w-xs lg:max-w-md">
-                <Avatar initials={initials} size={32} />
-                <div className="flex flex-1 min-w-0 flex-col leading-tight lg:flex-row lg:items-center lg:gap-2">
+              <button
+                onClick={() => onNavigate("profil")}
+                className="flex items-center gap-2.5 rounded-full border border-white/70 bg-white/60 py-1 pl-1 pr-3.5 max-w-[160px] transition hover:bg-white/85 md:max-w-xs lg:max-w-md"
+              >
+                <Avatar initials={initials} size={32} src={profile?.avatar_url} />
+                <div className="flex flex-1 min-w-0 flex-col items-start leading-tight lg:flex-row lg:items-center lg:gap-2">
                   <div className="truncate text-[13px] font-semibold text-[#2a2320]">
                     {displayName}
                   </div>
@@ -119,7 +136,7 @@ export function MemberLayout({
                     {me.label}
                   </div>
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </header>

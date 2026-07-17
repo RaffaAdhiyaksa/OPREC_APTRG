@@ -30,6 +30,7 @@ import { StrukturOrganisasi } from "./components/member/StrukturOrganisasi";
 import { Placeholder } from "./components/member/Placeholder";
 import { KelolaOprec } from "./components/member/KelolaOprec";
 import { DashboardPendaftar } from "./components/member/DashboardPendaftar";
+import { Profile } from "./components/member/Profile";
 import { AuthProvider, useAuthContext } from "./context/AuthContext";
 import { AnimatePresence, motion } from "motion/react";
 import { supabase } from "../lib/supabaseClient";
@@ -326,7 +327,7 @@ function AppInner() {
     if (loading) return;
 
     // 1. Lindungi halaman yang butuh login
-    const protectedScreens: Screen[] = ["form-open-mind", "register", "pilih-bangku", "dashboard-user", "dashboard", "member-detail"];
+    const protectedScreens: Screen[] = ["form-open-mind", "register", "pilih-bangku", "dashboard-user", "profil-user", "dashboard", "member-detail"];
     if (!user && protectedScreens.includes(screen)) {
       setScreen("login");
       setTimeout(() => toast.error("Silakan masuk terlebih dahulu untuk mengakses halaman ini."), 100);
@@ -415,6 +416,8 @@ function AppInner() {
         return <KelolaOprec />;
       case "dashboard-pendaftar":
         return <DashboardPendaftar />;
+      case "profil":
+        return <Profile />;
       default:
         return <Placeholder title={MEMBER_META[screen].title} />;
     }
@@ -447,6 +450,25 @@ function AppInner() {
 
       {screen === "dashboard-user" && (
         <DashboardUser onNavigate={navigate} />
+      )}
+
+      {screen === "profil-user" && (
+        <div className="relative min-h-screen w-full overflow-x-hidden bg-[#f6f2f0]">
+          <GlassBackground />
+          <Navbar onNavigate={navigate} onSection={() => {}} />
+          <div className="relative z-10 mx-auto w-full max-w-3xl px-4 pb-24 pt-32">
+            <button
+              onClick={() => navigate("dashboard-user")}
+              className="mb-6 inline-flex items-center gap-1.5 text-[14px] font-medium text-[#5a504b] transition hover:text-[#2a2320]"
+            >
+              ← Kembali
+            </button>
+            <h1 className="mb-6 text-[26px] font-extrabold tracking-tight text-[#2a2320]">
+              Profil Saya
+            </h1>
+            <Profile />
+          </div>
+        </div>
       )}
 
       {screen === "logging-out" && <LoadingScreen />}

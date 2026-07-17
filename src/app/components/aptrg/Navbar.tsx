@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { Logo, Screen, RED } from "./shared";
 import { useAuthContext } from "../../context/AuthContext";
 import { User, LogOut } from "lucide-react";
-import { supabase } from "../../../lib/supabaseClient";
 
 
 const LINKS = [
