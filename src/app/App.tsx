@@ -337,9 +337,8 @@ function AppInner() {
     if (user) {
       const isAdmin = role === "admin" || role === "asisten";
       
-      if (isAdmin && screen === "dashboard-user") {
-        setScreen("dashboard");
-      } else if (!isAdmin && (screen === "dashboard" || screen === "member-detail")) {
+      // Mencegah user biasa masuk ke dashboard admin
+      if (!isAdmin && (screen === "dashboard" || screen === "member-detail")) {
         setScreen("dashboard-user");
       }
       

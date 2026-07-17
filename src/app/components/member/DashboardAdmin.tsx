@@ -12,7 +12,6 @@ import {
   FileText,
 } from "lucide-react";
 import { GlassCard, RED, AMBER } from "../aptrg/shared";
-import { Avatar } from "./MemberLayout";
 import { MEMBERS, PROJECTS } from "./data";
 import * as Switch from "@radix-ui/react-switch";
 import { toast } from "sonner";
@@ -213,19 +212,27 @@ function ApplicantsTable({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState<Record<string, boolean>>({});
+  const [activeTab, setActiveTab] = useState<"oprec" | "openmind">("oprec");
 
   const fetchApplicants = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     /**
-     * Query semua kolom yang dibutuhkan dari tabel applicants,
-     * diurutkan dari tanggal terbaru.
+     * Query data pendaftar difilter berdasarkan activeTab
      */
-    const { data, error: sbError } = await supabase
+    let query = supabase
       .from("applicants")
       .select("id, nama, nim, email, divisi, status, tanggal_daftar, cv_path")
       .order("tanggal_daftar", { ascending: false });
+
+    if (activeTab === "oprec") {
+      query = query.not("divisi", "in", '("Open Mind","open mind","open-mind")');
+    } else {
+      query = query.in("divisi", ["Open Mind", "open mind", "open-mind"]);
+    }
+
+    const { data, error: sbError } = await query;
 
     if (sbError) {
       const isNetwork =
@@ -244,7 +251,7 @@ function ApplicantsTable({
     setApplicants(rows);
     onApplicantsLoaded(rows); // kirim data ke parent untuk komputasi pipeline
     setLoading(false);
-  }, [onApplicantsLoaded]);
+  }, [onApplicantsLoaded, activeTab]);
 
   useEffect(() => {
     fetchApplicants();
@@ -282,10 +289,10 @@ function ApplicantsTable({
 
   return (
     <GlassCard className="p-6">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between">
         <div>
           <h2 className="text-[16px] font-bold text-[#2a2320]">
-            Data Pendaftar OPREC
+            Data Pendaftar {activeTab === "oprec" ? "OPREC" : "Open Mind"}
           </h2>
           <p className="text-[13px] text-[#857a75]">
             Daftar lengkap calon anggota yang mendaftar.
@@ -299,6 +306,29 @@ function ApplicantsTable({
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           Refresh
+        </button>
+      </div>
+
+      <div className="mb-5 flex gap-3">
+        <button
+          onClick={() => setActiveTab("oprec")}
+          className={`rounded-full px-4 py-2 text-[13px] font-semibold transition-all ${
+            activeTab === "oprec"
+              ? "bg-[#c81e2c] text-white shadow"
+              : "bg-white/50 text-[#857a75] hover:bg-white/80"
+          }`}
+        >
+          Pendaftar OPREC
+        </button>
+        <button
+          onClick={() => setActiveTab("openmind")}
+          className={`rounded-full px-4 py-2 text-[13px] font-semibold transition-all ${
+            activeTab === "openmind"
+              ? "bg-[#c81e2c] text-white shadow"
+              : "bg-white/50 text-[#857a75] hover:bg-white/80"
+          }`}
+        >
+          Pendaftar Open Mind
         </button>
       </div>
 
@@ -439,7 +469,7 @@ export function DashboardAdmin() {
 
   const totalPendaftar = pipeline[0]?.count ?? 0;
   const stats = [
-    { label: "Total Pendaftar OPREC", value: `${totalPendaftar}`, Icon: Users, color: RED },
+    { label: "Total Pendaftar", value: `${totalPendaftar}`, Icon: Users, color: RED },
     { label: "Total Anggota Aktif", value: `${activeMembers}`, Icon: UserCheck, color: AMBER },
     { label: "Rapat Bulan Ini", value: "9", Icon: CalendarDays, color: "#2f7dd1" },
     { label: "Tubes Berjalan", value: `${runningTubes}`, Icon: KanbanSquare, color: "#3aa66f" },

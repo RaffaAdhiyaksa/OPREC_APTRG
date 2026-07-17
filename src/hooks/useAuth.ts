@@ -48,7 +48,7 @@ async function fetchProfileData(userId: string): Promise<{ role: Role; profile: 
 
   const rawRole = data?.role;
   const validRole: Role = (rawRole === "asisten" || rawRole === "admin") ? rawRole : "magang";
-  
+
   const profile = data ? { nama: data.nama, email: data.email } : null;
 
   return { role: validRole, profile };
