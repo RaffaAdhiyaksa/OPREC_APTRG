@@ -20,6 +20,7 @@ export type Screen =
   | "status"
   | "dashboard"
   | "dashboard-user"
+  | "profil-user"
   | "dashboard-pendaftar"
   | "progress"
   | "jadwal"

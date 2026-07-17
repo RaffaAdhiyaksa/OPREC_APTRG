@@ -19,21 +19,35 @@ function getInitials(email: string | undefined): string {
   return name.slice(0, 2).toUpperCase();
 }
 
-/* Shared avatar chip */
+/* Shared avatar chip — nampilin foto asli (`src`) kalau ada, fallback ke inisial */
 export function Avatar({
   initials,
   size = 28,
   ring = true,
+  src,
 }: {
   initials: string;
   size?: number;
   ring?: boolean;
+  /** URL foto profil dari Supabase Storage. Kalau null/undefined, fallback ke inisial. */
+  src?: string | null;
 }) {
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt="Foto profil"
+        className={`flex-none rounded-full object-cover shadow-sm ${ring ? "ring-2 ring-white/80" : ""
+          }`}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+
   return (
     <div
-      className={`flex flex-none items-center justify-center rounded-full text-white shadow-sm ${
-        ring ? "ring-2 ring-white/80" : ""
-      }`}
+      className={`flex flex-none items-center justify-center rounded-full text-white shadow-sm ${ring ? "ring-2 ring-white/80" : ""
+        }`}
       style={{
         width: size,
         height: size,
@@ -63,10 +77,8 @@ export function MemberLayout({
   children: ReactNode;
 }) {
   const me = ROLE_INFO[role];
-  const { user } = useAuthContext();
-  const displayName = user?.user_metadata?.full_name as string | undefined
-    ?? user?.email
-    ?? "Pengguna";
+  const { user, profile } = useAuthContext();
+  const displayName = profile?.nama || user?.email || "Pengguna";
   const initials = getInitials(user?.email);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 

@@ -133,7 +133,7 @@ export function Registration({
 
   const canNext =
     step === 0
-      ? form.nama && form.nim && form.email
+      ? form.nama && form.nim && form.email && form.hp
       : step === 1
       ? !!division
       : step === 2
@@ -260,6 +260,20 @@ export function Registration({
         throw new Error(`Gagal menyimpan pendaftaran: ${insertError.message}`);
       }
 
+      // ── TAHAP 3: Sinkronkan nama & No. HP ke tabel profiles ──
+      // Best-effort — kalau gagal, tidak menggagalkan pendaftaran yang sudah
+      // berhasil tersimpan di atas. Tujuannya supaya halaman Profil langsung
+      // terisi tanpa user perlu input ulang.
+      if (user?.id) {
+        const { error: profileSyncError } = await supabase
+          .from("profiles")
+          .update({ nama: form.nama.trim(), hp: form.hp.trim() || null })
+          .eq("id", user.id);
+        if (profileSyncError) {
+          console.warn("[Registration] Gagal sync ke profiles:", profileSyncError.message);
+        }
+      }
+
       // ── SUKSES ──────────────────────────────────────────
       toast.success("Pendaftaran berhasil dikirim! Pantau statusnya di halaman Cek Pengumuman.");
       onSubmitSuccess(division);
@@ -367,6 +381,7 @@ export function Registration({
                   value={form.hp}
                   onChange={(e) => set("hp", e.target.value)}
                   placeholder="08xxxxxxxxxx"
+                  type="tel"
                   className="bg-white/60"
                 />
               </Field>

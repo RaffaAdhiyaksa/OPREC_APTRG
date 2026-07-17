@@ -12,6 +12,7 @@ const AuthContext = createContext<AuthState>({
   profile: null,
   loading: true,
   error: null,
+  refreshProfile: async () => {},
 });
 
 /**

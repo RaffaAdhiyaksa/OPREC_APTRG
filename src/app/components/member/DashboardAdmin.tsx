@@ -166,8 +166,8 @@ function RegistrationToggle() {
               {isOpen === null
                 ? "Memuat status..."
                 : isOpen
-                ? "Pendaftaran sedang dibuka. Calon anggota dapat mendaftar sekarang."
-                : "Pendaftaran ditutup. Calon anggota tidak dapat mengirimkan formulir baru."}
+                  ? "Pendaftaran sedang dibuka. Calon anggota dapat mendaftar sekarang."
+                  : "Pendaftaran ditutup. Calon anggota tidak dapat mengirimkan formulir baru."}
             </div>
           </div>
         </div>
@@ -295,7 +295,7 @@ function ApplicantsTable({
     try {
       const { error } = await supabase.from("applicants").delete().eq("id", id);
       if (error) throw error;
-      
+
       const newApplicants = applicants.filter((a) => a.id !== id);
       setApplicants(newApplicants);
       onApplicantsLoaded(newApplicants);
@@ -315,203 +315,201 @@ function ApplicantsTable({
 
   return (
     <>
-    <GlassCard className="p-6">
-      <div className="mb-2 flex items-center justify-between">
-        <div>
-          <h2 className="text-base font-bold text-slate-900">
-            Data Pendaftar OPREC
-          </h2>
-          <p className="text-sm text-slate-500">
-            Daftar lengkap calon anggota yang mendaftar.
-          </p>
-        </div>
-        <button
-          onClick={fetchApplicants}
-          disabled={loading}
-          className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-[13px] font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
-          title="Muat ulang data"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-          Refresh
-        </button>
-      </div>
-
-      <div className="mb-5 flex gap-3">
-        <button
-          onClick={() => setActiveTab("oprec")}
-          className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${
-            activeTab === "oprec"
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
-          }`}
-        >
-          Pendaftar OPREC
-        </button>
-        <button
-          onClick={() => setActiveTab("openmind")}
-          className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${
-            activeTab === "openmind"
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
-          }`}
-        >
-          Pendaftar Open Mind
-        </button>
-      </div>
-
-      {/* Loading skeleton */}
-      {loading && (
-        <div className="space-y-2.5">
-          {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className="h-12 animate-pulse rounded-[10px] bg-[rgba(133,122,117,0.12)]"
-              style={{ opacity: 1 - i * 0.15 }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Error state */}
-      {!loading && error && (
-        <div className="flex flex-col items-center gap-3 py-8 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-red-50 text-red-500">
-            <AlertCircle className="h-6 w-6" />
+      <GlassCard className="p-6">
+        <div className="mb-2 flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-bold text-slate-900">
+              Data Pendaftar OPREC
+            </h2>
+            <p className="text-sm text-slate-500">
+              Daftar lengkap calon anggota yang mendaftar.
+            </p>
           </div>
-          <p className="text-[14px] text-[#5a504b]">{error}</p>
           <button
             onClick={fetchApplicants}
-            className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-4 py-2 text-[13px] font-medium text-[#2a2320] transition hover:bg-white/80"
+            disabled={loading}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-[13px] font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
+            title="Muat ulang data"
           >
-            <RefreshCw className="h-3.5 w-3.5" /> Coba Lagi
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+            Refresh
           </button>
         </div>
-      )}
 
-      {/* Empty state */}
-      {!loading && !error && applicants.length === 0 && (
-        <div className="flex flex-col items-center gap-2 py-10 text-center">
-          <Users className="h-10 w-10 text-slate-300" />
-          <p className="text-sm text-slate-500">
-            Belum ada pendaftar di kategori ini.
-          </p>
+        <div className="mb-5 flex gap-3">
+          <button
+            onClick={() => setActiveTab("oprec")}
+            className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${activeTab === "oprec"
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
+              }`}
+          >
+            Pendaftar OPREC
+          </button>
+          <button
+            onClick={() => setActiveTab("openmind")}
+            className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${activeTab === "openmind"
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
+              }`}
+          >
+            Pendaftar Open Mind
+          </button>
         </div>
-      )}
 
-      {/* Table */}
-      {!loading && !error && applicants.length > 0 && (
-        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                {["Nama", "NIM", "Email", "Divisi", "Status", "Tgl Daftar", "Berkas", ""].map(
-                  (h, idx) => (
-                    <th
-                      key={idx}
-                      className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
-                    >
-                      {h}
-                    </th>
-                  )
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {applicants.map((a) => (
-                <tr
-                  key={a.id}
-                  className="border-b border-slate-200 last:border-0 hover:bg-slate-50/50 transition-colors"
-                >
-                  <td className="px-4 py-3 font-medium text-slate-900">
-                    {a.nama}
-                  </td>
-                  <td className="px-4 py-3 font-mono text-slate-500">
-                    {a.nim}
-                  </td>
-                  <td className="px-4 py-3 text-slate-500">{a.email}</td>
-                  <td className="px-4 py-3">
-                    <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold capitalize text-indigo-700">
-                      {a.divisi}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className="rounded-full px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm"
-                      style={{ background: STATUS_COLOR[a.status] }}
-                    >
-                      {STATUS_LABEL[a.status]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-slate-500">
-                    {a.tanggal_daftar}
-                  </td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => openSignedUrl(a)}
-                      disabled={loadingUrl[a.id]}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
-                      title={
-                        a.cv_path
-                          ? `Lihat CV ${a.nama}`
-                          : `CV ${a.nama} belum tersedia`
-                      }
-                    >
-                      {loadingUrl[a.id] ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <FileText
-                          className="h-3.5 w-3.5"
-                          style={{ color: a.cv_path ? "#4f46e5" : "#94a3b8" }}
-                        />
-                      )}
-                      <ExternalLink className="h-3.5 w-3.5" />
-                      CV
-                    </button>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => handleDeleteClick(a.id, a.nama)}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-                      title={`Hapus ${a.nama}`}
-                    >
-                      <Trash2 className="h-4.5 w-4.5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </GlassCard>
+        {/* Loading skeleton */}
+        {loading && (
+          <div className="space-y-2.5">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="h-12 animate-pulse rounded-[10px] bg-[rgba(133,122,117,0.12)]"
+                style={{ opacity: 1 - i * 0.15 }}
+              />
+            ))}
+          </div>
+        )}
 
-    {/* Custom Delete Modal */}
-    {deleteModal.isOpen && (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
-        <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
-          <h3 className="text-lg font-bold text-slate-900">
-            Konfirmasi Hapus
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-slate-500">
-            Apakah kamu yakin ingin menghapus data <strong className="text-slate-900">{deleteModal.name}</strong>? Aksi ini tidak dapat dibatalkan.
-          </p>
-          <div className="mt-6 flex items-center justify-end gap-3">
+        {/* Error state */}
+        {!loading && error && (
+          <div className="flex flex-col items-center gap-3 py-8 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-red-50 text-red-500">
+              <AlertCircle className="h-6 w-6" />
+            </div>
+            <p className="text-[14px] text-[#5a504b]">{error}</p>
             <button
-              onClick={() => setDeleteModal({ isOpen: false, id: null, name: "" })}
-              className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              onClick={fetchApplicants}
+              className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-4 py-2 text-[13px] font-medium text-[#2a2320] transition hover:bg-white/80"
             >
-              Batal
-            </button>
-            <button
-              onClick={() => deleteModal.id && confirmDelete(deleteModal.id, deleteModal.name)}
-              className="rounded-xl bg-red-600 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-red-700"
-            >
-              Hapus
+              <RefreshCw className="h-3.5 w-3.5" /> Coba Lagi
             </button>
           </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && !error && applicants.length === 0 && (
+          <div className="flex flex-col items-center gap-2 py-10 text-center">
+            <Users className="h-10 w-10 text-slate-300" />
+            <p className="text-sm text-slate-500">
+              Belum ada pendaftar di kategori ini.
+            </p>
+          </div>
+        )}
+
+        {/* Table */}
+        {!loading && !error && applicants.length > 0 && (
+          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+            <table className="w-full text-[13px]">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  {["Nama", "NIM", "Email", "Divisi", "Status", "Tgl Daftar", "Berkas", ""].map(
+                    (h, idx) => (
+                      <th
+                        key={idx}
+                        className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
+                      >
+                        {h}
+                      </th>
+                    )
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {applicants.map((a) => (
+                  <tr
+                    key={a.id}
+                    className="border-b border-slate-200 last:border-0 hover:bg-slate-50/50 transition-colors"
+                  >
+                    <td className="px-4 py-3 font-medium text-slate-900">
+                      {a.nama}
+                    </td>
+                    <td className="px-4 py-3 font-mono text-slate-500">
+                      {a.nim}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500">{a.email}</td>
+                    <td className="px-4 py-3">
+                      <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold capitalize text-indigo-700">
+                        {a.divisi}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className="rounded-full px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm"
+                        style={{ background: STATUS_COLOR[a.status] }}
+                      >
+                        {STATUS_LABEL[a.status]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-500">
+                      {a.tanggal_daftar}
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => openSignedUrl(a)}
+                        disabled={loadingUrl[a.id]}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
+                        title={
+                          a.cv_path
+                            ? `Lihat CV ${a.nama}`
+                            : `CV ${a.nama} belum tersedia`
+                        }
+                      >
+                        {loadingUrl[a.id] ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <FileText
+                            className="h-3.5 w-3.5"
+                            style={{ color: a.cv_path ? "#4f46e5" : "#94a3b8" }}
+                          />
+                        )}
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        CV
+                      </button>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => handleDeleteClick(a.id, a.nama)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                        title={`Hapus ${a.nama}`}
+                      >
+                        <Trash2 className="h-4.5 w-4.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </GlassCard>
+
+      {/* Custom Delete Modal */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-slate-900">
+              Konfirmasi Hapus
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-500">
+              Apakah kamu yakin ingin menghapus data <strong className="text-slate-900">{deleteModal.name}</strong>? Aksi ini tidak dapat dibatalkan.
+            </p>
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setDeleteModal({ isOpen: false, id: null, name: "" })}
+                className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => deleteModal.id && confirmDelete(deleteModal.id, deleteModal.name)}
+                className="rounded-xl bg-red-600 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-red-700"
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    )}
+      )}
     </>
   );
 }

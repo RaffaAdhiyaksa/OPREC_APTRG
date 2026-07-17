@@ -66,7 +66,7 @@ export function Navbar({
           >
             Cek Pengumuman
           </button>
-          
+
           {user ? (
             <div className="relative" ref={menuRef}>
               <button
@@ -75,7 +75,7 @@ export function Navbar({
               >
                 {initials}
               </button>
-              
+
               {menuOpen && (
                 <div className="absolute right-0 mt-2 w-48 z-[60] rounded-[14px] border border-white/60 bg-white/90 p-2 backdrop-blur-xl shadow-[0_8px_30px_-10px_rgba(80,40,40,0.25)]">
                   <button
