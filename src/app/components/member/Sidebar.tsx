@@ -12,6 +12,7 @@ import {
   UserCog,
   CalendarCog,
   LogOut,
+  Home,
 } from "lucide-react";
 import { Logo, Screen, Role, RED } from "../aptrg/shared";
 
@@ -103,14 +104,23 @@ export function Sidebar({
             );
           })}
         </nav>
-        <div className="p-3">
+        <div className="flex gap-2 p-3">
+          <button
+            onClick={() => {
+              onNavigate("landing");
+            }}
+            className="flex flex-1 items-center gap-3 rounded-[12px] px-3.5 py-2.5 text-[14px] font-medium text-[#5a504b] transition hover:bg-white/70"
+          >
+            <Home className="h-[18px] w-[18px] text-[#857a75]" /> Kembali ke Beranda
+          </button>
           <button
             onClick={() => {
               onNavigate("logging-out");
             }}
-            className="flex w-full items-center gap-3 rounded-[12px] px-3.5 py-2.5 text-[14px] font-medium text-[#5a504b] transition hover:bg-white/70"
+            title="Keluar dari akun"
+            className="flex flex-none items-center justify-center rounded-[12px] px-3 py-2.5 text-[#857a75] transition hover:bg-red-50 hover:text-[#c81e2c]"
           >
-            <LogOut className="h-[18px] w-[18px] text-[#857a75]" /> Keluar
+            <LogOut className="h-[18px] w-[18px]" />
           </button>
         </div>
       </div>

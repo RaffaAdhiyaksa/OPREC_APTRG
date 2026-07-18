@@ -95,7 +95,7 @@ export function Registration({
     nama: profile?.nama || "",
     nim: "",
     email: user?.email || profile?.email || "",
-    hp: "",
+    hp: profile?.hp || "",
     jurusan: "",
     angkatan: "",
     motivasi: "",

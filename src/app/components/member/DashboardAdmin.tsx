@@ -213,30 +213,19 @@ function ApplicantsTable({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState<Record<string, boolean>>({});
-  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; id: string | null; name: string }>({
-    isOpen: false,
-    id: null,
-    name: "",
-  });
-  const [activeTab, setActiveTab] = useState<"oprec" | "openmind">("oprec");
 
   const fetchApplicants = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    let query = supabase
+    /**
+     * Query semua kolom yang dibutuhkan dari tabel applicants,
+     * diurutkan dari tanggal terbaru.
+     */
+    const { data, error: sbError } = await supabase
       .from("applicants")
       .select("id, nama, nim, email, divisi, status, tanggal_daftar, cv_path")
       .order("tanggal_daftar", { ascending: false });
-
-    if (activeTab === "oprec") {
-      // Menggunakan in untuk menangkap variasi penulisan Open Mind
-      query = query.not("divisi", "in", '("Open Mind","open mind","open-mind")');
-    } else {
-      query = query.in("divisi", ["Open Mind", "open mind", "open-mind"]);
-    }
-
-    const { data, error: sbError } = await query;
 
     if (sbError) {
       const isNetwork =
@@ -314,48 +303,26 @@ function ApplicantsTable({
   };
 
   return (
-    <>
-      <GlassCard className="p-6">
-        <div className="mb-2 flex items-center justify-between">
-          <div>
-            <h2 className="text-base font-bold text-slate-900">
-              Data Pendaftar OPREC
-            </h2>
-            <p className="text-sm text-slate-500">
-              Daftar lengkap calon anggota yang mendaftar.
-            </p>
-          </div>
-          <button
-            onClick={fetchApplicants}
-            disabled={loading}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-[13px] font-medium text-slate-900 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
-            title="Muat ulang data"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </button>
+    <GlassCard className="p-6">
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <h2 className="text-[16px] font-bold text-[#2a2320]">
+            Data Pendaftar OPREC
+          </h2>
+          <p className="text-[13px] text-[#857a75]">
+            Daftar lengkap calon anggota yang mendaftar.
+          </p>
         </div>
-
-        <div className="mb-5 flex gap-3">
-          <button
-            onClick={() => setActiveTab("oprec")}
-            className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${activeTab === "oprec"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
-              }`}
-          >
-            Pendaftar OPREC
-          </button>
-          <button
-            onClick={() => setActiveTab("openmind")}
-            className={`rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all ${activeTab === "openmind"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
-              }`}
-          >
-            Pendaftar Open Mind
-          </button>
-        </div>
+        <button
+          onClick={fetchApplicants}
+          disabled={loading}
+          className="flex items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3.5 py-2 text-[13px] font-medium text-[#2a2320] transition hover:bg-white/80 disabled:opacity-50"
+          title="Muat ulang data"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+          Refresh
+        </button>
+      </div>
 
         {/* Loading skeleton */}
         {loading && (
@@ -531,10 +498,10 @@ export function DashboardAdmin() {
 
   const totalPendaftar = pipeline[0]?.count ?? 0;
   const stats = [
-    { label: "Total Pendaftar OPREC", value: `${totalPendaftar}`, Icon: Users, color: "#4f46e5" }, // indigo-600
-    { label: "Total Anggota Aktif", value: `${activeMembers}`, Icon: UserCheck, color: "#0ea5e9" }, // sky-500
-    { label: "Rapat Bulan Ini", value: "9", Icon: CalendarDays, color: "#8b5cf6" }, // violet-500
-    { label: "Tubes Berjalan", value: `${runningTubes}`, Icon: KanbanSquare, color: "#10b981" }, // emerald-500
+    { label: "Total Pendaftar OPREC", value: `${totalPendaftar}`, Icon: Users, color: RED },
+    { label: "Total Anggota Aktif", value: `${activeMembers}`, Icon: UserCheck, color: AMBER },
+    { label: "Rapat Bulan Ini", value: "9", Icon: CalendarDays, color: "#2f7dd1" },
+    { label: "Tubes Berjalan", value: `${runningTubes}`, Icon: KanbanSquare, color: "#3aa66f" },
   ];
 
   const maxCount = pipeline[0]?.count || 1;

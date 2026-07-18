@@ -20,6 +20,7 @@ export function Login({
   const [mode, setMode] = useState<"login" | "register">("login");
   const [nama, setNama] = useState("");
   const [email, setEmail] = useState("");
+  const [hp, setHp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -78,6 +79,10 @@ export function Login({
         setError("Nama lengkap wajib diisi.");
         return;
       }
+      if (!hp.trim()) {
+        setError("Nomor telepon wajib diisi.");
+        return;
+      }
       if (password.length < 6) {
         setError("Password minimal 6 karakter.");
         return;
@@ -103,6 +108,7 @@ export function Login({
             id: data.user.id,
             nama: nama.trim(),
             email: trimmedEmail,
+            hp: hp.trim() || null,
             role: "magang",
           });
           if (profileError) throw profileError;
@@ -171,6 +177,23 @@ export function Login({
                   value={nama}
                   onChange={(e) => {
                     setNama(e.target.value);
+                    if (error) setError(null);
+                  }}
+                  className="bg-white/60"
+                  disabled={loading}
+                />
+              </div>
+            )}
+            {mode === "register" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="login-hp">No. Telepon</Label>
+                <Input
+                  id="login-hp"
+                  type="tel"
+                  placeholder="08xxxxxxxxxx"
+                  value={hp}
+                  onChange={(e) => {
+                    setHp(e.target.value);
                     if (error) setError(null);
                   }}
                   className="bg-white/60"
