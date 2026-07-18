@@ -24,6 +24,7 @@ import { JadwalRapat } from "./components/member/JadwalRapat";
 import { TubesProyek } from "./components/member/TubesProyek";
 import { Anggota } from "./components/member/Anggota";
 import { MemberProfile } from "./components/member/MemberProfile";
+import { Profile } from "./components/member/Profile";
 import { Materi } from "./components/member/Materi";
 import { Pengumuman } from "./components/member/Pengumuman";
 import { StrukturOrganisasi } from "./components/member/StrukturOrganisasi";
@@ -341,6 +342,14 @@ function AppInner() {
       if (!isAdmin && (screen === "dashboard" || screen === "member-detail")) {
         setScreen("dashboard-user");
       }
+
+      // Self-heal: kalau admin/asisten kepeleset (misal race condition pas
+      // klik "Buka Dashboard" sebelum role selesai di-fetch) nyangkut di
+      // dashboard-user, tarik balik ke dashboard yang benar begitu role
+      // sudah pasti diketahui.
+      if (isAdmin && screen === "dashboard-user") {
+        setScreen("dashboard");
+      }
       
       if (screen === "login") {
         setScreen("landing");
@@ -414,6 +423,8 @@ function AppInner() {
         return <KelolaOprec />;
       case "dashboard-pendaftar":
         return <DashboardPendaftar />;
+      case "profil":
+        return <Profile />;
       default:
         return <Placeholder title={MEMBER_META[screen].title} />;
     }

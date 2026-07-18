@@ -17,7 +17,7 @@ export function Navbar({
   onNavigate: (s: Screen) => void;
   onSection: (id: string) => void;
 }) {
-  const { user, profile, role } = useAuthContext();
+  const { user, profile, role, loading } = useAuthContext();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +36,8 @@ export function Navbar({
   };
 
   const goToDashboard = () => {
-    const target = role === "admin" || role === "asisten" ? "dashboard" : "dashboard-user";
+    if (loading) return;
+    const target = role === "admin" || role === "asisten" || role === null ? "dashboard" : "dashboard-user";
     onNavigate(target);
   };
 

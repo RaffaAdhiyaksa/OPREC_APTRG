@@ -40,10 +40,15 @@ export function Landing({
 }: {
   onNavigate: (s: Screen) => void;
 }) {
-  const { user, role } = useAuthContext();
+  const { user, role, loading } = useAuthContext();
 
   const goToDashboard = () => {
-    const target = role === "admin" || role === "asisten" ? "dashboard" : "dashboard-user";
+    // Cuma tunggu selama loading AWAL (initial fetch belum selesai sama
+    // sekali). Kalau loading udah selesai tapi role tetap null (query gagal),
+    // jangan nyangkut nunggu selamanya — arahkan ke "dashboard", yang sudah
+    // punya tampilan error yang jelas buat kasus ini (lihat Dashboard.tsx).
+    if (loading) return;
+    const target = role === "admin" || role === "asisten" || role === null ? "dashboard" : "dashboard-user";
     onNavigate(target);
   };
 
@@ -78,9 +83,10 @@ export function Landing({
             {user ? (
               <button
                 onClick={goToDashboard}
-                className="inline-flex items-center rounded-full bg-[#c81e2c] px-6 py-3 text-[14px] font-bold text-white shadow-lg transition hover:bg-[#a11420] sm:px-8 sm:py-4"
+                disabled={loading}
+                className="inline-flex items-center rounded-full bg-[#c81e2c] px-6 py-3 text-[14px] font-bold text-white shadow-lg transition hover:bg-[#a11420] disabled:cursor-wait disabled:opacity-70 sm:px-8 sm:py-4"
               >
-                Buka Dashboard <ArrowRight className="ml-1.5 h-4 w-4" />
+                {loading ? "Memuat…" : "Buka Dashboard"} <ArrowRight className="ml-1.5 h-4 w-4" />
               </button>
             ) : (
               <>

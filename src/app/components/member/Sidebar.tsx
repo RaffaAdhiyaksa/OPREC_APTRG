@@ -107,7 +107,7 @@ export function Sidebar({
         <div className="flex gap-2 p-3">
           <button
             onClick={() => {
-              onNavigate("dashboard-user");
+              onNavigate("landing");
             }}
             className="flex flex-1 items-center gap-3 rounded-[12px] px-3.5 py-2.5 text-[14px] font-medium text-[#5a504b] transition hover:bg-white/70"
           >
