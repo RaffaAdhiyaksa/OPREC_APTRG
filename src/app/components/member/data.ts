@@ -465,6 +465,91 @@ export const ORG = {
   ],
 };
 
+/* ---------- Struktur Panitia OPREC 2026 ---------- */
+// Catatan: ini struktur panitia open recruitment (PDD, Acara, Logistik,
+// Medpart), BEDA dengan struktur divisi riset lab (Mekanik/Sistem/GCS/
+// Non-Technical) di atas. Makanya dikasih tipe & warna sendiri, gak numpang
+// ke DivKey/DIV_COLORS supaya gak bentrok sama data Member/Meeting/Project.
+export type OprecDivKey = "PDD" | "Acara" | "Logistik" | "Medpart";
+
+export const OPREC_DIV_COLORS: Record<OprecDivKey, string> = {
+  PDD: "#c81e2c",
+  Acara: "#2f7dd1",
+  Logistik: "#3aa66f",
+  Medpart: "#e3a548",
+};
+
+export type OrgPerson = { name: string; role: string; initials: string };
+
+export const STRUKTUR_OPREC: {
+  head: OrgPerson;
+  divisions: {
+    name: OprecDivKey;
+    ketua: OrgPerson;
+    wakil?: OrgPerson;
+    staff: OrgPerson[];
+  }[];
+} = {
+  head: { name: "Afif Afsaruddin", role: "Ketua OPREC 2026", initials: "AA" },
+  divisions: [
+    {
+      name: "PDD",
+      ketua: { name: "Almer", role: "Ketua Divisi", initials: "AL" },
+      staff: [
+        { name: "Sherly", role: "Staff", initials: "SH" },
+        { name: "Icha", role: "Staff", initials: "IC" },
+        { name: "Mirza", role: "Staff", initials: "MI" },
+        { name: "Natan", role: "Staff", initials: "NA" },
+        { name: "Wafa", role: "Staff", initials: "WA" },
+        { name: "Bani", role: "Staff", initials: "BA" },
+      ],
+    },
+    {
+      name: "Acara",
+      ketua: { name: "Daffa", role: "Ketua Divisi", initials: "DA" },
+      wakil: { name: "Deden", role: "Wakil Ketua", initials: "DE" },
+      staff: [
+        { name: "Alfa", role: "Staff", initials: "AL" },
+        { name: "Aldo", role: "Staff", initials: "AD" },
+        { name: "Zieta", role: "Staff", initials: "ZI" },
+        { name: "Azky", role: "Staff", initials: "AZ" },
+        { name: "Dean", role: "Staff", initials: "DN" },
+        { name: "Richo", role: "Staff", initials: "RI" },
+        { name: "Frans", role: "Staff", initials: "FR" },
+      ],
+    },
+    {
+      name: "Logistik",
+      ketua: { name: "Ardika", role: "Ketua Divisi", initials: "AR" },
+      wakil: { name: "Sulthon", role: "Wakil Ketua", initials: "SU" },
+      staff: [
+        { name: "Vacha", role: "Staff", initials: "VA" },
+        { name: "Patar", role: "Staff", initials: "PA" },
+        { name: "Nino", role: "Staff", initials: "NI" },
+        { name: "Albin", role: "Staff", initials: "AB" },
+        { name: "Ersha", role: "Staff", initials: "ER" },
+        { name: "Alfi", role: "Staff", initials: "AF" },
+        { name: "Rasyid", role: "Staff", initials: "RS" },
+        { name: "Arfa", role: "Staff", initials: "AF" },
+      ],
+    },
+    {
+      name: "Medpart",
+      ketua: { name: "Achmad Raffa", role: "Ketua Divisi", initials: "AR" },
+      wakil: { name: "Azriel", role: "Wakil Ketua", initials: "AZ" },
+      staff: [
+        { name: "Rega", role: "Staff", initials: "RE" },
+        { name: "Darma", role: "Staff", initials: "DR" },
+        { name: "Doni", role: "Staff", initials: "DO" },
+        { name: "Adit", role: "Staff", initials: "AD" },
+        { name: "Glad", role: "Staff", initials: "GL" },
+        { name: "Arkan", role: "Staff", initials: "AK" },
+        { name: "Hafiz", role: "Staff", initials: "HF" },
+      ],
+    },
+  ],
+};
+
 /* ---------- Asisten Lab: mentees ---------- */
 export const MENTEES = MEMBERS.filter((m) => m.status === "magang").map((m) => ({
   id: m.id,

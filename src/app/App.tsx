@@ -31,7 +31,6 @@ import { StrukturOrganisasi } from "./components/member/StrukturOrganisasi";
 import { Placeholder } from "./components/member/Placeholder";
 import { KelolaOprec } from "./components/member/KelolaOprec";
 import { DashboardPendaftar } from "./components/member/DashboardPendaftar";
-import { Profile } from "./components/member/Profile";
 import { AuthProvider, useAuthContext } from "./context/AuthContext";
 import { AnimatePresence, motion } from "motion/react";
 import { supabase } from "../lib/supabaseClient";

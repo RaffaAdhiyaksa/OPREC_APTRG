@@ -12,7 +12,7 @@ import {
   FileText,
   Trash2,
 } from "lucide-react";
-import { GlassCard } from "../aptrg/shared";
+import { GlassCard, RED, AMBER } from "../aptrg/shared";
 import { MEMBERS, PROJECTS } from "./data";
 import * as Switch from "@radix-ui/react-switch";
 import { toast } from "sonner";
@@ -213,6 +213,11 @@ function ApplicantsTable({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState<Record<string, boolean>>({});
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; id: string | null; name: string }>({
+    isOpen: false,
+    id: null,
+    name: "",
+  });
 
   const fetchApplicants = useCallback(async () => {
     setLoading(true);
@@ -244,7 +249,7 @@ function ApplicantsTable({
     setApplicants(rows);
     onApplicantsLoaded(rows); // kirim data ke parent untuk komputasi pipeline
     setLoading(false);
-  }, [onApplicantsLoaded, activeTab]);
+  }, [onApplicantsLoaded]);
 
   useEffect(() => {
     fetchApplicants();
@@ -303,6 +308,7 @@ function ApplicantsTable({
   };
 
   return (
+    <>
     <GlassCard className="p-6">
       <div className="mb-5 flex items-center justify-between">
         <div>
