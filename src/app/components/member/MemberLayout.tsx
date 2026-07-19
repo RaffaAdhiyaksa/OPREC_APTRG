@@ -70,7 +70,7 @@ export function MemberLayout({
   const me = ROLE_INFO[role];
   const { user, profile } = useAuthContext();
   const displayName = profile?.nama || user?.email || "Pengguna";
-  const initials = getInitials(user?.email);
+  const initials = profile?.nama ? profile.nama.slice(0, 2).toUpperCase() : getInitials(user?.email);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -122,7 +122,7 @@ export function MemberLayout({
                   />
                 </button>
                 <div className="flex items-center gap-2.5 rounded-full border border-gray-100 bg-white/80 py-1.5 pl-1.5 pr-4 max-w-[160px] md:max-w-xs lg:max-w-md">
-                  <Avatar initials={initials} size={32} />
+                  <Avatar initials={initials} size={32} imgUrl={profile?.avatar_url ?? undefined} />
                   <div className="flex flex-1 min-w-0 flex-col leading-tight lg:flex-row lg:items-center lg:gap-2">
                     <div className="truncate text-[13px] font-semibold text-[#1a1614]">
                       {displayName}
