@@ -3,7 +3,6 @@ import { Logo, Screen, RED } from "./shared";
 import { useAuthContext } from "../../context/AuthContext";
 import { User, LogOut, Globe } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { ThemeToggle } from "./ThemeToggle";
 
 
 const LINKS = [
@@ -85,14 +84,14 @@ export function Navbar({
             {i18n.language.toUpperCase()}
           </button>
           
-          <ThemeToggle />
+
 
           {user ? (
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
 
-                className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#f6f2f0] text-[13px] font-bold text-[#2a2320] shadow-sm transition hover:bg-[#e0dcd9] focus:outline-none focus:ring-2 focus:ring-[#c81e2c]"
+                className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#f6f2f0] text-[13px] font-bold text-[#2a2320] shadow-sm transition hover:bg-[#e0dcd9] focus:outline-none focus:ring-2 focus:ring-[#c81e2c] dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-700"
 
               >
                 {profile?.avatar_url ? (

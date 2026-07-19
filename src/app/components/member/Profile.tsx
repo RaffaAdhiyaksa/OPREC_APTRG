@@ -86,11 +86,11 @@ function InfoRow({
   value: string;
 }) {
   return (
-    <div className="flex items-start gap-2.5 rounded-[12px] border border-white/60 bg-white/40 px-4 py-3 text-[14px] text-[#5a504b]">
-      <Icon className="mt-0.5 h-4 w-4 flex-none text-[#c81e2c]" />
+    <div className="flex items-start gap-2.5 rounded-[12px] border border-white/60 bg-white/40 px-4 py-3 text-[14px] text-[#5a504b] dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+      <Icon className="mt-0.5 h-4 w-4 flex-none text-[#c81e2c] dark:text-red-400" />
       <div className="min-w-0">
-        <div className="text-[11px] font-medium uppercase tracking-wide text-[#a79c96]">{label}</div>
-        <div className="truncate font-semibold text-[#2a2320]">{value || "-"}</div>
+        <div className="text-[11px] font-medium uppercase tracking-wide text-[#a79c96] dark:text-zinc-500">{label}</div>
+        <div className="truncate font-semibold text-[#2a2320] dark:text-zinc-50">{value || "-"}</div>
       </div>
     </div>
   );
@@ -263,8 +263,8 @@ export function Profile() {
 
       {/* Data Diri (editable) */}
       <GlassCard className="p-6">
-        <h3 className="text-[15px] font-bold text-[#2a2320]">Data Diri</h3>
-        <p className="mt-1 text-[13px] text-[#857a75]">Kelola informasi akun kamu.</p>
+        <h3 className="text-[15px] font-bold text-[#2a2320] dark:text-zinc-50">Data Diri</h3>
+        <p className="mt-1 text-[13px] text-[#857a75] dark:text-zinc-400">Kelola informasi akun kamu.</p>
 
         <div className="mt-5 flex items-center gap-5">
           <div className="relative">
@@ -323,10 +323,10 @@ export function Profile() {
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-2.5 rounded-[12px] border border-white/60 bg-white/40 px-4 py-3 text-[14px] text-[#857a75]">
+        <div className="mt-4 flex items-center gap-2.5 rounded-[12px] border border-white/60 bg-white/40 px-4 py-3 text-[14px] text-[#857a75] dark:border-white/10 dark:bg-white/5 dark:text-zinc-400">
           <Mail className="h-4 w-4 flex-none" />
           <span>{user?.email}</span>
-          <span className="ml-auto text-[12px] text-[#a79c96]">Email tidak bisa diubah</span>
+          <span className="ml-auto text-[12px] text-[#a79c96] dark:text-zinc-500">Email tidak bisa diubah</span>
         </div>
 
         <Button
@@ -365,7 +365,7 @@ export function Profile() {
       {!loadingApplicant && applicant && (
         <GlassCard className="p-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-[15px] font-bold text-[#2a2320]">Data Pendaftaran OPREC</h3>
+            <h3 className="text-[15px] font-bold text-[#2a2320] dark:text-zinc-50">Data Pendaftaran OPREC</h3>
             <StatusPill status={applicant.status} />
           </div>
 
@@ -390,8 +390,8 @@ export function Profile() {
 
           {applicant.motivasi && (
             <div className="mt-4">
-              <h4 className="text-[13px] font-semibold text-[#5a504b]">Motivasi</h4>
-              <p className="mt-1.5 rounded-[12px] border border-white/60 bg-white/40 p-4 text-[14px] leading-relaxed text-[#5a504b]">
+              <h4 className="text-[13px] font-semibold text-[#5a504b] dark:text-zinc-50">Motivasi</h4>
+              <p className="mt-1.5 rounded-[12px] border border-white/60 bg-white/40 p-4 text-[14px] leading-relaxed text-[#5a504b] dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
                 {applicant.motivasi}
               </p>
             </div>

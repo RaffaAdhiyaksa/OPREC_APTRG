@@ -15,7 +15,6 @@ import {
   Home,
 } from "lucide-react";
 import { Logo, Screen, Role, RED } from "../aptrg/shared";
-import { ThemeToggle } from "../aptrg/ThemeToggle";
 
 type NavItem = { id: Screen; label: string; Icon: typeof LayoutDashboard };
 
@@ -119,7 +118,7 @@ export function Sidebar({
           >
             <Home className="h-[18px] w-[18px] text-[#857a75] dark:text-zinc-400" /> Kembali ke Beranda
           </button>
-          <ThemeToggle />
+
           <button
             onClick={() => {
               onNavigate("logging-out");

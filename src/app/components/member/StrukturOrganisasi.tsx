@@ -16,7 +16,7 @@ function NodeCard({
       <div className="flex items-center gap-3">
         <Avatar initials={node.initials} size={40} />
         <div className="min-w-0">
-          <div className="truncate text-[14px] font-bold text-[#2a2320]" title={node.name}>
+          <div className="truncate text-[14px] font-bold text-[#2a2320] dark:text-zinc-50" title={node.name}>
             {node.name}
           </div>
           <div className="truncate text-[12px] font-medium" style={{ color: accent }}>
@@ -32,8 +32,8 @@ export function StrukturOrganisasi() {
   return (
     <div className="flex flex-col items-center">
       <div className="mb-6 text-center">
-        <h2 className="text-[18px] font-bold text-[#2a2320]">Struktur Panitia OPREC 2026</h2>
-        <p className="mt-1 text-[13px] text-[#857a75]">Susunan kepanitiaan open recruitment per divisi.</p>
+        <h2 className="text-[18px] font-bold text-[#2a2320] dark:text-zinc-50">Struktur Panitia OPREC 2026</h2>
+        <p className="mt-1 text-[13px] text-[#857a75] dark:text-zinc-400">Susunan kepanitiaan open recruitment per divisi.</p>
       </div>
 
       <NodeCard node={STRUKTUR_OPREC.head} accent={RED} wide />

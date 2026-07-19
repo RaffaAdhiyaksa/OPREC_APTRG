@@ -581,7 +581,7 @@ function AppInner() {
 
 export default function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
       <AuthProvider>
         <AppInner />
       </AuthProvider>

@@ -123,10 +123,10 @@ export function MemberLayout({
                     className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full ring-2 ring-white bg-indigo-600"
                   />
                 </button>
-                <div className="flex items-center gap-2.5 rounded-full border border-gray-100 bg-white/80 py-1.5 pl-1.5 pr-4 max-w-[160px] md:max-w-xs lg:max-w-md">
+                <div className="flex items-center gap-2.5 rounded-full border border-gray-100 bg-white/80 py-1.5 pl-1.5 pr-4 max-w-[160px] md:max-w-xs lg:max-w-md dark:border-white/10 dark:bg-zinc-900/60 dark:text-zinc-50">
                   <Avatar initials={initials} size={32} imgUrl={profile?.avatar_url ?? undefined} />
                   <div className="flex flex-1 min-w-0 flex-col leading-tight lg:flex-row lg:items-center lg:gap-2">
-                    <div className="truncate text-[13px] font-semibold text-[#1a1614]">
+                    <div className="truncate text-[13px] font-semibold text-[#1a1614] dark:text-zinc-50">
                       {displayName}
                     </div>
                     <div className="text-[11px] font-bold uppercase tracking-widest text-[#c81e2c] dark:text-red-400 transition-colors duration-500">
