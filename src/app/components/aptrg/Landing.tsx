@@ -75,13 +75,13 @@ export function Landing({
 
   return (
     <>
-      <div className="fixed inset-0 z-0 pointer-events-none bg-[#f6f2f0] dark:bg-zinc-950 transition-colors duration-500">
+      <div className="fixed inset-0 z-0 pointer-events-none bg-[#f6f2f0] transition-colors duration-500">
         <img
           src="/assets/Foto Anggota.webp"
           alt="Latar Belakang Anggota"
-          className="w-full h-full object-cover object-[center_20%] opacity-20 dark:opacity-50 transition-opacity duration-500"
+          className="w-full h-full object-cover object-[center_20%] opacity-20 transition-opacity duration-500"
         />
-        <div className="absolute inset-0 bg-white/20 dark:bg-black/50 backdrop-blur-[3px] transition-colors duration-500" />
+        <div className="absolute inset-0 bg-white/20 backdrop-blur-[3px] transition-colors duration-500" />
         <HeroParticles />
       </div>
       <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 pt-32 pb-32">
@@ -134,37 +134,35 @@ export function Landing({
                   </button>
                 </>
               )}
-            </motion.div>
-            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-12 flex gap-10 border-t border-gray-200 dark:border-white/10 pt-8 transition-colors duration-500">
+            </motion.div>            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-12 flex gap-10 border-t border-gray-200 pt-8 transition-colors duration-500">
               {[
                 { n: "4", l: t("stats.divisions") },
                 { n: "5", l: t("stats.teams") },
                 { n: "99+", l: t("stats.achievements") },
               ].map((s) => (
                 <div key={s.l}>
-                  <div className="text-3xl font-extrabold tracking-tight text-[#1a1614] dark:text-zinc-50 transition-colors duration-500">{s.n}</div>
-                  <div className="mt-1 text-sm font-medium text-gray-500 dark:text-zinc-400 transition-colors duration-500">{s.l}</div>
+                  <div className="text-3xl font-extrabold tracking-tight text-[#1a1614] transition-colors duration-500">{s.n}</div>
+                  <div className="mt-1 text-sm font-medium text-gray-500 transition-colors duration-500">{s.l}</div>
                 </div>
               ))}
             </motion.div>
           </motion.div>
-
           {/* Hero Card */}
-          <div className="relative z-10 overflow-hidden rounded-2xl border border-gray-50 dark:border-white/10 bg-white/90 dark:bg-zinc-900/60 p-10 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-md dark:shadow-black/50 transition-colors duration-500">
+          <div className="relative z-10 overflow-hidden rounded-2xl border border-gray-50 bg-white/90 p-10 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-colors duration-500">
             <div
               className="flex h-16 w-16 items-center justify-center rounded-[1.25rem] text-white shadow-md"
               style={{ background: `linear-gradient(135deg, ${RED}, ${AMBER})` }}
             >
               <Plane className="h-8 w-8" />
             </div>
-            <h3 className="mt-8 text-2xl font-bold tracking-tight text-[#1a1614] dark:text-zinc-50 transition-colors duration-500">{t("heroCard.title")}</h3>
-            <p className="mt-3 text-base leading-relaxed text-gray-500 dark:text-zinc-400 transition-colors duration-500">
+            <h3 className="mt-8 text-2xl font-bold tracking-tight text-[#1a1614] transition-colors duration-500">{t("heroCard.title")}</h3>
+            <p className="mt-3 text-base leading-relaxed text-gray-500 transition-colors duration-500">
               {t("heroCard.desc")}
             </p>
             <ul className="mt-8 space-y-4">
               {(t("heroCard.list", { returnObjects: true }) as string[]).map((tItem) => (
-                <li key={tItem} className="flex items-center gap-3 text-base font-medium text-[#1a1614] dark:text-zinc-400 transition-colors duration-500">
-                  <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-red-50 dark:bg-red-500/10 text-[#c81e2c]">
+                <li key={tItem} className="flex items-center gap-3 text-base font-medium text-[#1a1614] transition-colors duration-500">
+                  <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-red-50 text-[#c81e2c]">
                     <Plane className="h-3.5 w-3.5" />
                   </span>
                   {tItem}
@@ -191,16 +189,28 @@ export function Landing({
                 transition={{ delay: i * 0.1, duration: 0.6, ease: "linear" }}
                 className="relative overflow-hidden [transform:translateZ(0)] group rounded-2xl aspect-square lg:aspect-auto lg:h-[420px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] cursor-pointer"
               >
-                <img loading="lazy" width="800" height="800" src={`/assets/${r.img}.webp`} alt={t(`reasons.items.${r.id}.title`)} className="absolute inset-0 w-full h-full object-cover object-center transition-transform ease-linear duration-700 group-hover:scale-100" />
-                <div className="absolute inset-0 bg-black/50 transition-opacity ease-linear duration-500 group-hover:opacity-20 z-0"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 z-0"></div>
+                <img loading="lazy" width="800" height="800" src={`/assets/${r.img}.webp`} alt={t(`reasons.items.${r.id}.title`)} className="absolute inset-0 w-full h-full object-cover object-center transition-transform ease-linear duration-700 lg:group-hover:scale-105" />
+                
+                {/* Mobile Overlay: Unblurs when card is focused in viewport */}
+                <motion.div 
+                  initial={{ opacity: 1 }}
+                  whileInView={{ opacity: 0.2 }}
+                  transition={{ duration: 0.5 }}
+                  viewport={{ amount: 0.5 }}
+                  className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0 lg:hidden"
+                ></motion.div>
 
-                <div className="absolute bottom-0 left-0 p-6 lg:p-8 flex flex-col items-start justify-end w-full z-10 transition-transform ease-linear duration-500 group-hover:-translate-y-2 text-left">
-                  <div className="flex flex-none h-12 w-12 lg:h-16 lg:w-16 items-center justify-center rounded-full bg-white/25 backdrop-blur-md text-white mb-0 mt-0 shadow-lg border border-white/20">
-                    <r.Icon className="h-5 w-5 lg:h-8 lg:w-8 drop-shadow-md" />
+                {/* Desktop Overlay: Unblurs on hover */}
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity ease-linear duration-500 group-hover:opacity-20 z-0 hidden lg:block"></div>
+
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1a1614]/90 via-[#1a1614]/50 to-transparent opacity-90 z-0 pointer-events-none"></div>
+
+                <div className="absolute bottom-0 left-0 p-8 lg:p-10 flex flex-col items-start justify-end w-full z-10 transition-transform ease-linear duration-500 lg:group-hover:-translate-y-2 text-left pointer-events-none">
+                  <div className="flex flex-none h-12 w-12 lg:h-16 lg:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white mb-4 shadow-lg border border-white/20">
+                    <r.Icon className="h-5 w-5 lg:h-8 lg:w-8" />
                   </div>
-                  <h3 className="text-xl lg:text-2xl font-bold tracking-tight text-white drop-shadow-md leading-tight h-[2.75rem] lg:h-[3.5rem] flex items-end">{t(`reasons.items.${r.id}.title`)}</h3>
-                  <p className="mt-1 text-sm lg:text-base leading-relaxed text-gray-100 drop-shadow-md h-[4.5rem] lg:h-[5rem] line-clamp-3">
+                  <h3 className="text-xl lg:text-2xl font-extrabold tracking-tight text-white leading-tight">{t(`reasons.items.${r.id}.title`)}</h3>
+                  <p className="mt-3 text-sm lg:text-base leading-[1.6] text-gray-200 line-clamp-3">
                     {t(`reasons.items.${r.id}.desc`)}
                   </p>
                 </div>
@@ -242,22 +252,22 @@ export function Landing({
                       </button>
 
                       {/* Header Image */}
-                      <div className="relative h-[250px] w-full shrink-0">
+                      <div className="relative h-[250px] md:h-[300px] w-full shrink-0">
                         <img loading="lazy" src={`/assets/${r.img}.webp`} alt={t(`reasons.items.${r.id}.title`)} className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
-                        <div className="absolute inset-0 bg-black/40 z-0 pointer-events-none"></div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1614] dark:from-zinc-950 via-[#1a1614]/80 dark:via-zinc-950/80 to-transparent z-0 pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm z-0 pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1614] via-[#1a1614]/80 to-transparent z-0 pointer-events-none"></div>
 
-                        <div className="absolute bottom-0 left-0 p-8 flex flex-col justify-end w-full z-10 translate-y-6">
-                          <div className="flex flex-none h-14 w-14 items-center justify-center rounded-full bg-[#c81e2c] backdrop-blur-md text-white mb-0 mt-0 shadow-lg border border-red-400/30">
-                            <r.Icon className="h-6 w-6 drop-shadow-md" />
+                        <div className="absolute bottom-0 left-0 p-8 md:p-10 flex flex-col justify-end w-full z-10 translate-y-6">
+                          <div className="flex flex-none h-14 w-14 items-center justify-center rounded-full bg-[#c81e2c] backdrop-blur-md text-white shadow-lg border border-red-400/30">
+                            <r.Icon className="h-6 w-6" />
                           </div>
                         </div>
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 overflow-y-auto p-8 pt-8 text-left">
-                        <h3 className="text-3xl font-bold tracking-tight text-white dark:text-zinc-50 drop-shadow-md leading-tight">{t(`reasons.items.${r.id}.title`)}</h3>
-                        <p className="mt-6 text-base leading-relaxed text-gray-300 dark:text-zinc-400 drop-shadow-md">
+                      <div className="flex-1 overflow-y-auto p-8 md:p-10 pt-8 text-left">
+                        <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">{t(`reasons.items.${r.id}.title`)}</h3>
+                        <p className="mt-6 text-sm md:text-base leading-[1.6] text-gray-300">
                           {t(`reasons.items.${r.id}.desc`)}
                         </p>
                       </div>

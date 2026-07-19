@@ -194,25 +194,19 @@ export function Registration({
 
         setSubmitStage("Mengunggah berkas CV...");
 
-        const storagePath = buildStoragePath(form.nim.trim(), cvFile.name);
+        // Buat nama file unik dengan timestamp agar tidak bentrok (already exists)
+        const fileExt = cvFile.name.split('.').pop();
+        const uniqueFileName = `CV_${form.nim.trim()}_${Date.now()}.${fileExt}`;
+        const storagePath = buildStoragePath(form.nim.trim(), uniqueFileName);
+
         const { error: uploadError } = await supabase.storage
           .from(CV_BUCKET)
           .upload(storagePath, cvFile, {
             cacheControl: "3600",
-            upsert: false, // jangan timpa file yang sudah ada
+            upsert: true, // timpa file lama (jika secara ajaib masih ada konflik nama)
           });
 
         if (uploadError) {
-          // "The resource already exists" → path sudah dipakai
-          if (
-            uploadError.message.toLowerCase().includes("already exists") ||
-            uploadError.message.toLowerCase().includes("duplicate")
-          ) {
-            throw new Error(
-              "Berkas dengan nama yang sama sudah pernah diunggah untuk NIM ini. " +
-                "Ganti nama file lalu coba lagi."
-            );
-          }
           throw new Error(`Gagal mengunggah berkas: ${uploadError.message}`);
         }
 

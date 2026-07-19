@@ -213,7 +213,21 @@ export function PilihBangku({
     if (!selectedSeatNum || !selectedSeat) return;
     setConfirming(true);
     try {
-      // Insert pendaftar ke tabel applicants
+      // 1. Coba lock kursi DULUAN untuk mencegah race condition (double booking)
+      const { data: seatData, error: seatError } = await supabase
+        .from("seats")
+        .update({ is_booked: true })
+        .eq("seat_number", selectedSeatNum)
+        .eq("is_booked", false)
+        .select();
+
+      if (seatError) throw seatError;
+
+      if (!seatData || seatData.length === 0) {
+        throw new Error("Maaf, bangku ini baru saja dipesan oleh orang lain detik ini juga! Silakan pilih bangku lain.");
+      }
+
+      // 2. Insert pendaftar ke tabel applicants
       const payload = {
         user_id: user?.id,
         nama: registrant.nama,

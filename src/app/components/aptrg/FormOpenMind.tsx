@@ -342,7 +342,7 @@ export function FormOpenMind({
                     value={nama}
                     onChange={(e) => setNama(e.target.value)}
                     required
-                    disabled
+                    disabled={!!profile?.nama} // Izinkan isi jika nama kosong dari profil
                     className="rounded-[10px] border-white/70 bg-white/60 text-[14px] text-[#2a2320] placeholder:text-[#b0a49e] focus-visible:ring-1 disabled:opacity-70 disabled:cursor-not-allowed"
                     style={{ "--tw-ring-color": AMBER } as React.CSSProperties}
                   />
@@ -377,7 +377,7 @@ export function FormOpenMind({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    disabled
+                    disabled={!!user?.email} // Izinkan isi jika email kosong dari auth provider
                     className="rounded-[10px] border-white/70 bg-white/60 text-[14px] text-[#2a2320] placeholder:text-[#b0a49e] focus-visible:ring-1 disabled:opacity-70 disabled:cursor-not-allowed"
                     style={{ "--tw-ring-color": AMBER } as React.CSSProperties}
                   />

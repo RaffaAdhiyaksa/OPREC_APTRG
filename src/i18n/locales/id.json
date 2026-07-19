@@ -37,19 +37,19 @@
     "items": {
       "facilities": {
         "title": "Fasilitas Canggih",
-        "desc": "Akses printer 3D, material komposit, peralatan uji avionik, dan ruang kerja khusus untuk mewujudkan ide-ide brilian kamu."
+        "desc": "Bukan hanya sekadar lab, ini playground untuk inovasi kamu. Akses luas terhadap alat fabrikasi, material komposit, hingga perangkat testing avionik standar industri untuk eksekusi ide-ide cemerlang kamu jadi prototipe yang siap terbang. Di sini, kamu punya ruang untuk lampaui batasan teknis hingga menjadi karya nyata."
       },
       "mentorship": {
         "title": "Bimbingan Ahli",
-        "desc": "Belajar langsung dari asisten lab yang berpengalaman menjuarai kompetisi robot terbang tingkat nasional & internasional."
+        "desc": "Di sini, kamu dibimbing langsung sama asisten dan praktisi yang berpengalaman di berbagai kompetisi robot terbang bergengsi. Transfer knowledge yang terstruktur dan to-the-point, membuat kurva belajar kamu melesat jauh lebih cepat."
       },
       "competitions": {
-        "title": "Kompetisi Bergengsi",
-        "desc": "Bawa nama kampus di KRTI, Teknofest, dan ajang bergengsi lainnya. Buktikan kalau riset kamu itu layak jadi juara!"
+        "title": "Juarai Kompetisi",
+        "desc": "Delegasikan diri kamu pada kompetisi nasional dan internasional seperti KRTI atau Teknofest. Kita tidak hanya ikut meramaikan, tetapi datang untuk bawa pulang gelar juara. Selain mengasah skill teknis, kamu akan membangun networking dengan para inovator dan orang-orang hebat lainnya yang membuat riset kamu semakin diakui."
       },
       "career": {
         "title": "Lompatan Karier",
-        "desc": "Dapatkan pengalaman hands-on yang sangat dilirik oleh industri dirgantara, teknologi, hingga pertahanan. Bersiaplah menjadi incaran para rekruter!"
+        "desc": "Bangun portofolio engineering kamu yang solid lewat proyek UAV nyata yang relevan dengan standar industri saat ini. Skill teknis yang kamu dapat di sini adalah aset mahal yang dicari banyak perusahaan besar di sektor aerospace dan pertahanan."
       }
     }
   },
@@ -61,7 +61,7 @@
       "mekanik": {
         "name": "Mekanik",
         "tagline": "AIRFRAME & STRUKTUR",
-        "desc": "Kamu akan memegang kendali penuh dalam merancang wujud fisik UAV. Mulai dari mengulik aerodinamika, eksplorasi komposit, 3D printing, sampai mastiin strukturnya kuat nan stabil pas terbang."
+        "desc": "Kamu akan memegang kendali penuh dalam merancang wujud fisik UAV. Mulai dari mengulik aerodinamika, eksplorasi komposit, 3D printing, hingga memastikan strukturnya kuat dan stabil saat flight."
       },
       "sistem": {
         "name": "Sistem",
@@ -71,7 +71,7 @@
       "gcs": {
         "name": "GCS",
         "tagline": "GROUND CONTROL STATION",
-        "desc": "Markas komandonya ada di sini! Kamu bakal ngembangin nerapin computer vision untuk misi cerdas, mengolah data telemetri, sampai  menerapkan AI untuk analisis data langsung dari darat."
+        "desc": "Markas komandonya ada di sini! Kamu bakal mengembangkan serta nerapin computer vision untuk misi cerdas, mengolah data telemetri, sampai  menerapkan AI untuk analisis data langsung dari darat."
       },
       "non-technical": {
         "name": "Non-Technical",

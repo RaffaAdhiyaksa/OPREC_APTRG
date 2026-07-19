@@ -20,6 +20,7 @@ export type RegistrantStatus = "pending" | "verified" | "rejected";
 
 export type Registrant = {
   id: string;
+  user_id?: string;
   nama: string;
   nim: string;
   email: string;
@@ -94,14 +95,22 @@ export function DashboardPendaftar() {
       if (ticketsError) throw ticketsError;
 
       // 3. Lakukan mapping
+      let availableTickets = [...(ticketsData || [])];
       const mappedData = (applicantsData || []).map((app: any) => {
-        const ticket = (ticketsData || []).find((t: any) => 
+        const tIndex = availableTickets.findIndex((t: any) => 
           (t.user_id && app.user_id && t.user_id === app.user_id) || 
           (t.nim && app.nim && t.nim === app.nim)
         );
+        let seat_number = "-";
+        if (tIndex !== -1) {
+          seat_number = availableTickets[tIndex].seat_number;
+          // Hapus agar tiket tidak terduplikasi ke baris aplikasi lain milik user yang sama
+          availableTickets.splice(tIndex, 1);
+        }
+        
         return {
           ...app,
-          seat_number: ticket ? ticket.seat_number : "-",
+          seat_number,
         };
       });
 
@@ -162,6 +171,21 @@ export function DashboardPendaftar() {
         .update({ status: "rejected" })
         .eq("id", id);
       if (regError) throw regError;
+
+      // Bebaskan bangku jika ada
+      const ticketData = registrants.find(r => r.id === id);
+      if (ticketData && ticketData.seat_number && ticketData.seat_number !== "-") {
+        await supabase
+          .from("seats")
+          .update({ is_booked: false })
+          .eq("seat_number", ticketData.seat_number);
+          
+        await supabase
+          .from("tickets")
+          .delete()
+          .eq("seat_number", ticketData.seat_number)
+          .eq("user_id", ticketData.user_id);
+      }
 
       toast.success("Pendaftar ditolak");
       fetchRegistrants();
