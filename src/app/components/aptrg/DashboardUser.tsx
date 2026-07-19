@@ -45,8 +45,22 @@ export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void 
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-[#f6f2f0]">
-      <GlassBackground />
-      <Navbar onNavigate={onNavigate} onSection={() => {}} />
+      {/* Fixed Background Image */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <img
+          src="/assets/Foto Anggota.JPG"
+          alt="Latar Belakang Anggota"
+          className="w-full h-full object-cover opacity-20"
+        />
+      </div>
+
+      <div className="relative z-10">
+        <GlassBackground />
+      </div>
+
+      <div className="relative z-20">
+        <Navbar onNavigate={onNavigate} onSection={() => { }} />
+      </div>
 
       <div className="relative z-10 mx-auto w-full max-w-4xl px-4 pb-24 pt-32">
         <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
@@ -59,47 +73,36 @@ export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void 
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          {isAdmin ? (
             <button
-              onClick={() => onNavigate("profil-user")}
-              className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/60 px-5 py-2.5 text-[14px] font-semibold text-[#2a2320] shadow-sm transition hover:bg-white/85"
+              onClick={() => onNavigate("logging-out")}
+              className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white/60 px-5 py-2.5 text-[14px] font-semibold text-[#c81e2c] shadow-sm transition hover:bg-red-50"
             >
-              Profil Saya
+              <LogOut className="h-4 w-4" /> Keluar
             </button>
-            {isAdmin ? (
-              <button
-                onClick={() => onNavigate("logging-out")}
-                className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white/60 px-5 py-2.5 text-[14px] font-semibold text-[#c81e2c] shadow-sm transition hover:bg-red-50"
-              >
-                <LogOut className="h-4 w-4" /> Keluar
-              </button>
-            ) : (
-              <button
-                onClick={() => onNavigate("landing")}
-                className="inline-flex items-center gap-2 rounded-full border border-[#857a75]/30 bg-white/60 px-5 py-2.5 text-[14px] font-semibold text-[#5a504b] shadow-sm transition hover:bg-white/90"
-              >
-                <Home className="h-4 w-4" /> Kembali ke Beranda
-              </button>
-            )}
-          </div>
+          ) : (
+            <button
+              onClick={() => onNavigate("landing")}
+              className="inline-flex items-center gap-2 rounded-full border border-[#857a75]/30 bg-white/60 px-5 py-2.5 text-[14px] font-semibold text-[#5a504b] shadow-sm transition hover:bg-white/90"
+            >
+              <Home className="h-4 w-4" /> Kembali ke Beranda
+            </button>
+          )}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           {/* Card Open Mind */}
-          <GlassCard
-            className={`group relative overflow-hidden p-8 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-xl hover:shadow-red-500/10 cursor-pointer ${
-              statusMap.open_mind === false ? "opacity-80 grayscale-[30%]" : ""
-            }`}
-          >
+          <GlassCard className={`group relative overflow-hidden p-8 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-xl hover:shadow-red-500/10 cursor-pointer ${statusMap.open_mind === false ? 'opacity-80 grayscale-[30%]' : ''}`}>
             <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#3aa66f] opacity-10 transition-transform group-hover:scale-150" />
             <div className="relative z-10 flex h-full flex-col">
               <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#3aa66f]/10 text-[#3aa66f]">
                 <Ticket className="h-7 w-7" />
               </div>
-              <h2 className="text-[22px] font-extrabold text-[#2a2320]">Open Mind</h2>
+              <h2 className="text-[22px] font-extrabold text-[#2a2320]">
+                Open Mind
+              </h2>
               <p className="mt-2 flex-1 text-[14px] leading-relaxed text-[#5a504b]">
-                Acara perkenalan lab APTRG untuk seluruh mahasiswa Telkom University. Wajib
-                diikuti sebelum mendaftar OPREC.
+                Acara perkenalan lab APTRG untuk seluruh mahasiswa Telkom University. Wajib diikuti sebelum mendaftar OPREC.
               </p>
 
               {statusMap.open_mind === null ? (
@@ -128,11 +131,7 @@ export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void 
           </GlassCard>
 
           {/* Card OPREC */}
-          <GlassCard
-            className={`group relative overflow-hidden p-8 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-xl hover:shadow-red-500/10 cursor-pointer ${
-              statusMap.oprec === false ? "opacity-80 grayscale-[30%]" : ""
-            }`}
-          >
+          <GlassCard className={`group relative overflow-hidden p-8 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-xl hover:shadow-red-500/10 cursor-pointer ${statusMap.oprec === false ? 'opacity-80 grayscale-[30%]' : ''}`}>
             <div
               className="absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-10 transition-transform group-hover:scale-150"
               style={{ background: RED }}
@@ -144,10 +143,11 @@ export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void 
               >
                 <UserPlus className="h-7 w-7" />
               </div>
-              <h2 className="text-[22px] font-extrabold text-[#2a2320]">Open Recruitment</h2>
+              <h2 className="text-[22px] font-extrabold text-[#2a2320]">
+                Open Recruitment
+              </h2>
               <p className="mt-2 flex-1 text-[14px] leading-relaxed text-[#5a504b]">
-                Pendaftaran resmi menjadi anggota APTRG. Pilih divisi dan jadilah bagian dari
-                riset aeromodelling kami.
+                Pendaftaran resmi menjadi anggota APTRG. Pilih divisi dan jadilah bagian dari riset aeromodelling kami.
               </p>
 
               {statusMap.oprec === null ? (

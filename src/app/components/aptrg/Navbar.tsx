@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { Logo, Screen, RED } from "./shared";
 import { useAuthContext } from "../../context/AuthContext";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Globe } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
 
 const LINKS = [
-  { label: "Beranda", target: "hero" },
-  { label: "Kenapa APTRG", target: "why" },
-  { label: "Divisi", target: "divisi" },
+  { key: "home", target: "hero" },
+  { key: "why", target: "why" },
+  { key: "divisions", target: "divisi" },
 ];
 
 export function Navbar({
@@ -17,8 +19,13 @@ export function Navbar({
   onSection: (id: string) => void;
 }) {
   const { user, profile, role, loading } = useAuthContext();
+  const { t, i18n } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === "en" ? "id" : "en");
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -56,7 +63,7 @@ export function Navbar({
               onClick={() => onSection(l.target)}
               className="pointer-events-auto rounded-full px-3.5 py-2 text-[14px] font-medium text-[#5a504b] transition-colors hover:bg-white/70 hover:text-[#2a2320]"
             >
-              {l.label}
+              {t(`navbar.${l.key}`)}
             </button>
           ))}
         </div>
@@ -65,7 +72,16 @@ export function Navbar({
             onClick={() => onNavigate("cek-pengumuman")}
             className="hidden rounded-full px-3.5 py-2 text-[14px] font-medium text-[#5a504b] transition-colors hover:text-[#2a2320] sm:block"
           >
-            Cek Pengumuman
+            {t("navbar.checkAnnouncements")}
+          </button>
+
+          <button
+            onClick={toggleLanguage}
+            className="flex items-center gap-1 rounded-full px-3 py-2 text-[13px] font-bold text-[#5a504b] transition hover:bg-white/50"
+            title="Change Language"
+          >
+            <Globe className="h-4 w-4" />
+            {i18n.language.toUpperCase()}
           </button>
 
           {user ? (
@@ -83,13 +99,13 @@ export function Navbar({
                     onClick={() => { setMenuOpen(false); goToDashboard(); }}
                     className="flex w-full items-center gap-2 rounded-[10px] px-3 py-2 text-left text-[14px] font-medium text-[#2a2320] transition hover:bg-[#f6f2f0]"
                   >
-                    <User className="h-4 w-4" /> Dashboard Saya
+                    <User className="h-4 w-4" /> {t("navbar.myDashboard")}
                   </button>
                   <button
                     onClick={() => { setMenuOpen(false); handleLogout(); }}
                     className="flex w-full items-center gap-2 rounded-[10px] px-3 py-2 text-left text-[14px] font-medium text-[#c81e2c] transition hover:bg-red-50"
                   >
-                    <LogOut className="h-4 w-4" /> Keluar
+                    <LogOut className="h-4 w-4" /> {t("navbar.logout")}
                   </button>
                 </div>
               )}
@@ -100,14 +116,14 @@ export function Navbar({
                 onClick={() => onNavigate("login")}
                 className="hidden rounded-full px-3.5 py-2 text-[14px] font-medium text-[#5a504b] transition-colors hover:text-[#2a2320] sm:block"
               >
-                Masuk
+                {t("navbar.signIn")}
               </button>
               <button
                 onClick={() => onNavigate("login")}
                 className="rounded-full px-5 py-2 text-[14px] font-semibold text-white shadow-md transition hover:opacity-90"
                 style={{ background: RED }}
               >
-                Daftar Sekarang
+                {t("navbar.register")}
               </button>
             </>
           )}

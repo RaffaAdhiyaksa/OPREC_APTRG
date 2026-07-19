@@ -1,0 +1,87 @@
+{
+  "navbar": {
+    "home": "Beranda",
+    "why": "Kenapa APTRG",
+    "divisions": "Divisi",
+    "signIn": "Masuk",
+    "register": "Gaskeun Daftar",
+    "checkAnnouncements": "Cek Pengumuman",
+    "myDashboard": "Dasbor Saya",
+    "logout": "Keluar"
+  },
+  "hero": {
+    "registrationOpen": "Pendaftaran Udah Dibuka!",
+    "openRecruitment": "Admission Portal",
+    "desc": "Halo Sobat Angkasa! Siap melampaui batas? Yuk, gabung dengan Aeromodelling & Payload Telemetry Research Group. Di sini, kita bareng-bareng merancang, membangun, sampai nerbangin UAV-mu sendiri bersama tim riset kami!",
+    "openDashboard": "Buka Dashboard",
+    "alreadyRegistered": "Sudah daftar? Yuk masuk!"
+  },
+  "stats": {
+    "divisions": "Divisi Riset",
+    "teams": "Tim Kompetisi",
+    "achievements": "Penghargaan"
+  },
+  "heroCard": {
+    "title": "Riset UAV & Payload Telemetry",
+    "desc": "Dari mendesain airframe sampai mengendalikan Ground Control Station (GCS) — rasakan serunya seluruh siklus pengembangan wahana terbang nirawak langsung di dalam satu laboratorium!",
+    "list": [
+      "Akses penuh ke fasilitas fabrikasi & uji terbang",
+      "Garap proyek kolaboratif seru lintas divisi",
+      "Bimbingan intensif buat tembus berbagai kompetisi bergengsi",
+      "Pengalaman hands-on langsung dengan teknologi canggih"
+    ]
+  },
+  "reasons": {
+    "kicker": "KENAPA APTRG?",
+    "title": "Kenapa Sih Harus Gabung Lab Kita?",
+    "items": {
+      "facilities": {
+        "title": "Fasilitas Canggih",
+        "desc": "Akses printer 3D, material komposit, peralatan uji avionik, dan ruang kerja khusus untuk mewujudkan ide-ide brilian kamu."
+      },
+      "mentorship": {
+        "title": "Bimbingan Ahli",
+        "desc": "Belajar langsung dari asisten lab yang berpengalaman menjuarai kompetisi robot terbang tingkat nasional & internasional."
+      },
+      "competitions": {
+        "title": "Kompetisi Bergengsi",
+        "desc": "Bawa nama kampus di KRTI, Teknofest, dan ajang bergengsi lainnya. Buktikan kalau riset kamu itu layak jadi juara!"
+      },
+      "career": {
+        "title": "Lompatan Karier",
+        "desc": "Dapatkan pengalaman hands-on yang sangat dilirik oleh industri dirgantara, teknologi, hingga pertahanan. Bersiaplah menjadi incaran para rekruter!"
+      }
+    }
+  },
+  "divisions": {
+    "kicker": "DIVISI KITA",
+    "title": "Pilih Jalur Riset Favoritmu!",
+    "desc": "APTRG memiliki empat divisi yang saling kolaborasi untuk membangun sistem UAV yang utuh dan canggih.",
+    "items": {
+      "mekanik": {
+        "name": "Mekanik",
+        "tagline": "AIRFRAME & STRUKTUR",
+        "desc": "Kamu akan memegang kendali penuh dalam merancang wujud fisik UAV. Mulai dari mengulik aerodinamika, eksplorasi komposit, 3D printing, sampai mastiin strukturnya kuat nan stabil pas terbang."
+      },
+      "sistem": {
+        "name": "Sistem",
+        "tagline": "AVIONIK & KENDALI",
+        "desc": "Ini dia otaknya UAV! Kita bakal fokus eksplorasi avionik, flight controller, software Mission Planner, sampai membangun sistem telemetri super cepat."
+      },
+      "gcs": {
+        "name": "GCS",
+        "tagline": "GROUND CONTROL STATION",
+        "desc": "Markas komandonya ada di sini! Kamu bakal ngembangin nerapin computer vision untuk misi cerdas, mengolah data telemetri, sampai  menerapkan AI untuk analisis data langsung dari darat."
+      },
+      "non-technical": {
+        "name": "Non-Technical",
+        "tagline": "MANAJEMEN & MEDIA",
+        "desc": "Tulang punggung lab ada di tanganmu! Mulai dari urusan manajerial,  mengurus administrasi kompetisi, sponsorship, mengatur keuangan, sampai bikin konten media sosial untuk branding APTRG."
+      }
+    }
+  },
+  "footer": {
+    "startRegistration": "Gaskeun Daftar",
+    "copyright": "© 2026 Aeromodelling & Payload Telemetry Research Group. Hak cipta dilindungi."
+  }
+}

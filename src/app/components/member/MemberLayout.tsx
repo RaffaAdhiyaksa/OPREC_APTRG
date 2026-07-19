@@ -24,39 +24,30 @@ export function Avatar({
   initials,
   size = 28,
   ring = true,
-  src,
+  imgUrl,
 }: {
   initials: string;
   size?: number;
   ring?: boolean;
-  /** URL foto profil dari Supabase Storage. Kalau null/undefined, fallback ke inisial. */
-  src?: string | null;
+  imgUrl?: string;
 }) {
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt="Foto profil"
-        className={`flex-none rounded-full object-cover shadow-sm ${ring ? "ring-2 ring-white/80" : ""
-          }`}
-        style={{ width: size, height: size }}
-      />
-    );
-  }
-
   return (
     <div
-      className={`flex flex-none items-center justify-center rounded-full text-white shadow-sm ${ring ? "ring-2 ring-white/80" : ""
+      className={`flex flex-none items-center justify-center rounded-full text-white shadow-sm overflow-hidden ${ring ? "ring-2 ring-white/80" : ""
         }`}
       style={{
         width: size,
         height: size,
         fontSize: size * 0.38,
         fontWeight: 700,
-        background: `linear-gradient(135deg, ${RED}, ${AMBER})`,
+        background: imgUrl ? "transparent" : `linear-gradient(135deg, ${RED}, ${AMBER})`,
       }}
     >
-      {initials}
+      {imgUrl ? (
+        <img src={imgUrl} alt={initials} className="h-full w-full object-cover" />
+      ) : (
+        initials
+      )}
     </div>
   );
 }
@@ -83,57 +74,72 @@ export function MemberLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="relative z-10 min-h-screen">
-      <Sidebar
-        active={active}
-        role={role}
-        onNavigate={onNavigate}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-      <div className="flex w-full flex-1 flex-col transition-all md:pl-[260px]">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white px-4 py-3 md:px-8">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="flex flex-none items-center justify-center rounded-xl bg-slate-100 p-2 text-slate-900 transition hover:bg-slate-200 md:hidden"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              <div className="min-w-0">
-                <h1 className="truncate text-lg md:text-xl font-bold tracking-tight text-slate-900">
-                  {title}
-                </h1>
-                <p className="truncate text-xs md:text-sm font-semibold text-slate-500">{subtitle}</p>
+    <div className="relative min-h-screen w-full bg-[#f6f2f0]">
+      {/* Fixed Background Image (User Dashboard only) */}
+      {role !== "admin" && (
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <img
+            src="/assets/Foto Anggota.webp"
+            alt="Latar Belakang Anggota"
+            className="w-full h-full object-cover opacity-40"
+          />
+          <div className="absolute inset-0 bg-[#f6f2f0]/85 backdrop-blur-[2px]" />
+        </div>
+      )}
+
+      <div className="relative z-10 flex w-full min-h-screen">
+        <Sidebar
+          active={active}
+          role={role}
+          onNavigate={onNavigate}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
+        <div className="flex w-full flex-1 flex-col transition-all md:pl-[260px]">
+          {/* Top bar */}
+          <header className="sticky top-0 z-30 px-4 pt-4 md:px-6">
+            <div className="relative flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-white/50 bg-white/75 px-5 py-4 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] md:px-6">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+              <div className="flex items-center gap-3 min-w-0">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="flex flex-none items-center justify-center rounded-xl bg-white/60 p-2.5 text-[#2a2320] transition-all duration-300 hover:bg-white/90 hover:shadow-sm md:hidden"
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+                <div className="min-w-0">
+                  <h1 className="truncate text-[17px] md:text-[19px] font-extrabold tracking-tight text-[#1a1614]">
+                    {title}
+                  </h1>
+                  <p className="truncate text-[12px] md:text-[13px] text-gray-400">{subtitle}</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2 md:gap-4">
-              <button className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm transition hover:bg-slate-50">
-                <Bell className="h-5 w-5 text-slate-500" />
-                <span
-                  className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full ring-2 ring-white bg-indigo-600"
-                />
-              </button>
-              <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-4 shadow-sm max-w-[160px] md:max-w-xs lg:max-w-md">
-                <Avatar initials={initials} size={32} />
-                <div className="flex flex-1 min-w-0 flex-col leading-tight lg:flex-row lg:items-center lg:gap-3">
-                  <div className="truncate text-sm font-semibold text-slate-900">
-                    {displayName}
-                  </div>
-                  <div
-                    className="truncate text-xs font-semibold text-slate-500"
-                  >
-                    {me.label}
+              <div className="flex items-center gap-2 md:gap-3">
+                <button className="relative flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white/80 transition-all duration-300 hover:bg-white hover:shadow-sm">
+                  <Bell className="h-[18px] w-[18px] text-[#5a504b]" />
+                  <span
+                    className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full ring-2 ring-white bg-indigo-600"
+                  />
+                </button>
+                <div className="flex items-center gap-2.5 rounded-full border border-gray-100 bg-white/80 py-1.5 pl-1.5 pr-4 max-w-[160px] md:max-w-xs lg:max-w-md">
+                  <Avatar initials={initials} size={32} />
+                  <div className="flex flex-1 min-w-0 flex-col leading-tight lg:flex-row lg:items-center lg:gap-2">
+                    <div className="truncate text-[13px] font-semibold text-[#1a1614]">
+                      {displayName}
+                    </div>
+                    <div
+                      className="truncate text-xs font-semibold text-slate-500"
+                    >
+                      {me.label}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <main className="flex-1 p-6 md:p-10 lg:p-12">{children}</main>
+          <main className="px-5 py-7 md:px-8 lg:px-12">{children}</main>
+        </div>
       </div>
     </div>
   );
@@ -144,7 +150,7 @@ export function StatusBadge({ status }: { status: "asisten" | "magang" }) {
   const isAsisten = status === "asisten";
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-sm"
+      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold text-white shadow-sm"
       style={{ background: isAsisten ? AMBER : RED }}
     >
       {isAsisten ? "Asisten Lab" : "Magang"}
@@ -156,8 +162,8 @@ export function StatusBadge({ status }: { status: "asisten" | "magang" }) {
 export function DivTag({ label, color }: { label: string; color: string }) {
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
-      style={{ background: `${color}1f`, color }}
+      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold"
+      style={{ background: `${color}14`, color }}
     >
       <span className="h-1.5 w-1.5 rounded-full" style={{ background: color }} />
       {label}
