@@ -16,7 +16,7 @@ import {
   X,
 } from "lucide-react";
 import HeroParticles from "./HeroParticles";
-import { DIVISIONS, Screen, RED, AMBER, Logo } from "./shared";
+import { DIVISIONS, Screen, RED, AMBER } from "./shared";
 import { useAuthContext } from "../../context/AuthContext";
 
 const REASONS_KEYS = [
@@ -75,7 +75,7 @@ export function Landing({
 
   return (
     <>
-      <div className="fixed inset-0 z-0 pointer-events-none bg-[#f6f2f0] dark:bg-[#1a1614] transition-colors duration-500">
+      <div className="fixed inset-0 z-0 pointer-events-none bg-[#f6f2f0] dark:bg-zinc-950 transition-colors duration-500">
         <img
           src="/assets/Foto Anggota.webp"
           alt="Latar Belakang Anggota"
@@ -103,11 +103,11 @@ export function Landing({
               <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: RED }} />
               {t("hero.registrationOpen")}
             </motion.div>
-            <motion.h1 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-8 text-5xl sm:text-6xl font-extrabold leading-[1.1] tracking-tighter text-[#1a1614] dark:text-white transition-colors duration-500">
+            <motion.h1 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-8 text-5xl sm:text-6xl font-extrabold leading-[1.1] tracking-tighter text-[#1a1614] dark:text-zinc-50 transition-colors duration-500">
               {t("hero.openRecruitment")}{" "}
               <span className="text-[#c81e2c]">APTRG 2026</span>
             </motion.h1>
-            <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-6 max-w-lg text-lg leading-relaxed text-gray-600 dark:text-gray-300 transition-colors duration-500">
+            <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-6 max-w-lg text-lg leading-relaxed text-gray-600 dark:text-zinc-400 transition-colors duration-500">
               {t("hero.desc")}
             </motion.p>
             <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-10 flex flex-wrap items-center gap-4">
@@ -142,28 +142,28 @@ export function Landing({
                 { n: "99+", l: t("stats.achievements") },
               ].map((s) => (
                 <div key={s.l}>
-                  <div className="text-3xl font-extrabold tracking-tight text-[#1a1614] dark:text-white transition-colors duration-500">{s.n}</div>
-                  <div className="mt-1 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-500">{s.l}</div>
+                  <div className="text-3xl font-extrabold tracking-tight text-[#1a1614] dark:text-zinc-50 transition-colors duration-500">{s.n}</div>
+                  <div className="mt-1 text-sm font-medium text-gray-500 dark:text-zinc-400 transition-colors duration-500">{s.l}</div>
                 </div>
               ))}
             </motion.div>
           </motion.div>
 
           {/* Hero Card */}
-          <div className="relative z-10 overflow-hidden rounded-2xl border border-gray-50 dark:border-white/10 bg-white/90 dark:bg-[#1a1614]/80 p-10 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none transition-colors duration-500">
+          <div className="relative z-10 overflow-hidden rounded-2xl border border-gray-50 dark:border-white/10 bg-white/90 dark:bg-zinc-900/60 p-10 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-md dark:shadow-black/50 transition-colors duration-500">
             <div
               className="flex h-16 w-16 items-center justify-center rounded-[1.25rem] text-white shadow-md"
               style={{ background: `linear-gradient(135deg, ${RED}, ${AMBER})` }}
             >
               <Plane className="h-8 w-8" />
             </div>
-            <h3 className="mt-8 text-2xl font-bold tracking-tight text-[#1a1614] dark:text-white transition-colors duration-500">{t("heroCard.title")}</h3>
-            <p className="mt-3 text-base leading-relaxed text-gray-500 dark:text-gray-400 transition-colors duration-500">
+            <h3 className="mt-8 text-2xl font-bold tracking-tight text-[#1a1614] dark:text-zinc-50 transition-colors duration-500">{t("heroCard.title")}</h3>
+            <p className="mt-3 text-base leading-relaxed text-gray-500 dark:text-zinc-400 transition-colors duration-500">
               {t("heroCard.desc")}
             </p>
             <ul className="mt-8 space-y-4">
               {(t("heroCard.list", { returnObjects: true }) as string[]).map((tItem) => (
-                <li key={tItem} className="flex items-center gap-3 text-base font-medium text-[#1a1614] dark:text-gray-200 transition-colors duration-500">
+                <li key={tItem} className="flex items-center gap-3 text-base font-medium text-[#1a1614] dark:text-zinc-400 transition-colors duration-500">
                   <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-red-50 dark:bg-red-500/10 text-[#c81e2c]">
                     <Plane className="h-3.5 w-3.5" />
                   </span>
@@ -232,7 +232,7 @@ export function Landing({
                       animate={{ x: 0 }}
                       exit={{ x: "100%" }}
                       transition={{ duration: 0.3, ease: "linear" }}
-                      className="relative h-full w-full md:w-[400px] bg-[#1a1614] shadow-2xl flex flex-col z-10 overflow-hidden"
+                      className="relative h-full w-full md:w-[400px] bg-[#1a1614] dark:bg-zinc-950 shadow-2xl dark:shadow-md dark:shadow-black/50 dark:border-l dark:border-white/10 flex flex-col z-10 overflow-hidden"
                     >
                       <button
                         onClick={() => setSelectedReason(null)}
@@ -245,7 +245,7 @@ export function Landing({
                       <div className="relative h-[250px] w-full shrink-0">
                         <img loading="lazy" src={`/assets/${r.img}.webp`} alt={t(`reasons.items.${r.id}.title`)} className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
                         <div className="absolute inset-0 bg-black/40 z-0 pointer-events-none"></div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1614] via-[#1a1614]/80 to-transparent z-0 pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1614] dark:from-zinc-950 via-[#1a1614]/80 dark:via-zinc-950/80 to-transparent z-0 pointer-events-none"></div>
 
                         <div className="absolute bottom-0 left-0 p-8 flex flex-col justify-end w-full z-10 translate-y-6">
                           <div className="flex flex-none h-14 w-14 items-center justify-center rounded-full bg-[#c81e2c] backdrop-blur-md text-white mb-0 mt-0 shadow-lg border border-red-400/30">
@@ -256,8 +256,8 @@ export function Landing({
 
                       {/* Content */}
                       <div className="flex-1 overflow-y-auto p-8 pt-8 text-left">
-                        <h3 className="text-3xl font-bold tracking-tight text-white drop-shadow-md leading-tight">{t(`reasons.items.${r.id}.title`)}</h3>
-                        <p className="mt-6 text-base leading-relaxed text-gray-300 drop-shadow-md">
+                        <h3 className="text-3xl font-bold tracking-tight text-white dark:text-zinc-50 drop-shadow-md leading-tight">{t(`reasons.items.${r.id}.title`)}</h3>
+                        <p className="mt-6 text-base leading-relaxed text-gray-300 dark:text-zinc-400 drop-shadow-md">
                           {t(`reasons.items.${r.id}.desc`)}
                         </p>
                       </div>
@@ -299,11 +299,11 @@ export function Landing({
                       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-600 backdrop-blur-md text-white mb-6 shadow-xl border border-red-400/30">
                         {d?.Icon && <d.Icon className="h-8 w-8 drop-shadow-md" />}
                       </div>
-                      <h3 className="font-bold tracking-tight text-white drop-shadow-md text-3xl">{t(`divisions.items.${d?.id}.name`)}</h3>
+                      <h3 className="font-bold tracking-tight text-white dark:text-zinc-50 drop-shadow-md text-3xl">{t(`divisions.items.${d?.id}.name`)}</h3>
                       <div className="mt-2 text-sm font-bold uppercase tracking-wider text-red-400 drop-shadow-md">
                         {t(`divisions.items.${d?.id}.tagline`)}
                       </div>
-                      <p className="mt-4 leading-relaxed text-gray-100 drop-shadow-md text-base line-clamp-2">
+                      <p className="mt-4 leading-relaxed text-gray-100 dark:text-zinc-400 drop-shadow-md text-base line-clamp-2">
                         {t(`divisions.items.${d?.id}.desc`)}
                       </p>
                     </div>
@@ -338,11 +338,11 @@ export function Landing({
                       <motion.div layoutId={`icon-${d?.id}`} className="flex h-14 w-14 lg:h-20 lg:w-20 items-center justify-center rounded-full bg-red-600 backdrop-blur-md text-white mb-6 lg:mb-8 shadow-xl border border-red-400/30">
                         {d?.Icon && <d.Icon className="h-6 w-6 lg:h-10 lg:w-10 drop-shadow-md" />}
                       </motion.div>
-                      <motion.h3 layoutId={`title-${d?.id}`} className="text-2xl lg:text-4xl font-bold tracking-tight text-white drop-shadow-md">{t(`divisions.items.${d?.id}.name`)}</motion.h3>
+                      <motion.h3 layoutId={`title-${d?.id}`} className="text-2xl lg:text-4xl font-bold tracking-tight text-white dark:text-zinc-50 drop-shadow-md">{t(`divisions.items.${d?.id}.name`)}</motion.h3>
                       <motion.div layoutId={`tagline-${d?.id}`} className="mt-1.5 lg:mt-2 text-xs lg:text-sm font-bold uppercase tracking-wider text-red-400 drop-shadow-md">
                         {t(`divisions.items.${d?.id}.tagline`)}
                       </motion.div>
-                      <motion.p layoutId={`desc-${d?.id}`} className="mt-3 lg:mt-5 text-sm lg:text-lg leading-relaxed text-gray-100 drop-shadow-md line-clamp-2 lg:line-clamp-3">
+                      <motion.p layoutId={`desc-${d?.id}`} className="mt-3 lg:mt-5 text-sm lg:text-lg leading-relaxed text-gray-100 dark:text-zinc-400 drop-shadow-md line-clamp-2 lg:line-clamp-3">
                         {t(`divisions.items.${d?.id}.desc`)}
                       </motion.p>
                     </div>
@@ -400,7 +400,7 @@ export function Landing({
                                 </div>
                                 <ul className="space-y-4">
                                   {d.software?.map((s, i) => (
-                                    <li key={`s-${i}`} className="text-gray-100 font-semibold tracking-wide">{s}</li>
+                                    <li key={`s-${i}`} className="text-gray-100 dark:text-zinc-400 font-semibold tracking-wide">{s}</li>
                                   ))}
                                 </ul>
                               </motion.div>
@@ -408,7 +408,7 @@ export function Landing({
                               {/* Center Card */}
                               <motion.div
                                 layoutId={expandedDivision === d?.id ? `card-${d?.id}` : undefined}
-                                className="relative w-full md:w-[450px] h-full bg-[#1a1614] overflow-hidden rounded-none md:rounded-[2.5rem] shadow-2xl flex-shrink-0"
+                                className="relative w-full md:w-[450px] h-full bg-[#1a1614] dark:bg-zinc-950 overflow-hidden rounded-none md:rounded-[2.5rem] shadow-2xl dark:shadow-md dark:shadow-black/50 dark:border dark:border-white/10 flex-shrink-0"
                               >
                                 <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
                                 <div className="absolute inset-0 bg-black/20 md:bg-black/10 z-0 pointer-events-none"></div>
@@ -419,11 +419,11 @@ export function Landing({
                                   <motion.div layoutId={expandedDivision === d?.id ? `icon-${d?.id}` : undefined} className="flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full bg-red-600 backdrop-blur-md text-white mb-6 shadow-xl border border-red-400/30 shrink-0">
                                     {d?.Icon && <d.Icon className="h-8 w-8 md:h-10 md:w-10 drop-shadow-md" />}
                                   </motion.div>
-                                  <motion.h3 layoutId={expandedDivision === d?.id ? `title-${d?.id}` : undefined} className="text-3xl md:text-4xl font-bold tracking-tight text-white drop-shadow-md">{t(`divisions.items.${d?.id}.name`)}</motion.h3>
+                                  <motion.h3 layoutId={expandedDivision === d?.id ? `title-${d?.id}` : undefined} className="text-3xl md:text-4xl font-bold tracking-tight text-white dark:text-zinc-50 drop-shadow-md">{t(`divisions.items.${d?.id}.name`)}</motion.h3>
                                   <motion.div layoutId={expandedDivision === d?.id ? `tagline-${d?.id}` : undefined} className="mt-2 text-sm font-bold uppercase tracking-wider text-red-400 drop-shadow-md">
                                     {t(`divisions.items.${d?.id}.tagline`)}
                                   </motion.div>
-                                  <motion.p layoutId={expandedDivision === d?.id ? `desc-${d?.id}` : undefined} className="mt-4 md:mt-6 text-base md:text-lg leading-relaxed text-gray-100 drop-shadow-md">
+                                  <motion.p layoutId={expandedDivision === d?.id ? `desc-${d?.id}` : undefined} className="mt-4 md:mt-6 text-base md:text-lg leading-relaxed text-gray-100 dark:text-zinc-400 drop-shadow-md">
                                     {t(`divisions.items.${d?.id}.desc`)}
                                   </motion.p>
                                   

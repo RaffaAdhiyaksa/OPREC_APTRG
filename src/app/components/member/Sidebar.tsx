@@ -72,7 +72,7 @@ export function Sidebar({
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-      <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/50 bg-white/75 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)]">
+      <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/50 dark:border-white/10 bg-white/75 dark:bg-zinc-900/60 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] dark:shadow-md dark:shadow-black/50 transition-colors duration-500">
         {role === "admin" && (
           <div className="absolute inset-0 z-0 pointer-events-none">
             <img 
@@ -80,10 +80,10 @@ export function Sidebar({
               alt="Admin Sidebar Background" 
               className="w-full h-full object-cover object-[center_20%] opacity-15 mix-blend-overlay" 
             />
-            <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px]" />
+            <div className="absolute inset-0 bg-white/50 dark:bg-black/50 backdrop-blur-[1px] transition-colors duration-500" />
           </div>
         )}
-        <div className="relative z-10 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+        <div className="relative z-10 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 dark:via-white/20 to-transparent transition-colors duration-500" />
         <div className="relative z-10 px-5 pt-6 pb-5">
           <Logo subtitle="Portal Anggota" />
         </div>
@@ -94,11 +94,7 @@ export function Sidebar({
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
-                className="relative flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14px] font-medium transition-all duration-300 ease-in-out hover:bg-white/60"
-                style={{
-                  background: isActive ? "rgba(200,30,44,0.08)" : "transparent",
-                  color: isActive ? "#1a1614" : "#6b6460",
-                }}
+                className={`relative flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14px] font-medium transition-all duration-300 ease-in-out hover:bg-white/60 dark:hover:bg-white/10 ${isActive ? "text-[#1a1614] dark:text-zinc-50 bg-red-600/10" : "text-[#6b6460] dark:text-zinc-400"}`}
               >
                 {isActive && (
                   <span
@@ -107,8 +103,7 @@ export function Sidebar({
                   />
                 )}
                 <item.Icon
-                  className="h-[18px] w-[18px]"
-                  style={{ color: isActive ? RED : "#857a75" }}
+                  className={`h-[18px] w-[18px] ${isActive ? "text-[#c81e2c]" : "text-[#857a75] dark:text-zinc-400"}`}
                 />
                 {item.label}
               </button>
@@ -120,9 +115,9 @@ export function Sidebar({
             onClick={() => {
               onNavigate("landing");
             }}
-            className="flex flex-1 items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14px] font-medium text-[#6b6460] transition-all duration-300 hover:bg-white/60"
+            className="flex flex-1 items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14px] font-medium text-[#6b6460] dark:text-zinc-400 transition-all duration-300 hover:bg-white/60 dark:hover:bg-white/10"
           >
-            <Home className="h-[18px] w-[18px] text-[#857a75]" /> Kembali ke Beranda
+            <Home className="h-[18px] w-[18px] text-[#857a75] dark:text-zinc-400" /> Kembali ke Beranda
           </button>
           <ThemeToggle />
           <button
@@ -130,7 +125,7 @@ export function Sidebar({
               onNavigate("logging-out");
             }}
             title="Keluar dari akun"
-            className="flex flex-none items-center justify-center rounded-xl px-3 py-2.5 text-[#857a75] transition-all duration-300 hover:bg-red-50/80 hover:text-[#c81e2c]"
+            className="flex flex-none items-center justify-center rounded-xl px-3 py-2.5 text-[#857a75] dark:text-zinc-400 transition-all duration-300 hover:bg-red-50/80 dark:hover:bg-red-500/20 hover:text-[#c81e2c]"
           >
             <LogOut className="h-[18px] w-[18px]" />
           </button>

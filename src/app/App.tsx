@@ -55,7 +55,7 @@ function OpenMindSuccess({
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#f6f2f0] print:bg-white print:min-h-0">
+    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#f6f2f0] dark:bg-zinc-950 transition-colors duration-500 print:bg-white print:min-h-0">
       <div className="print:hidden">
         <GlassBackground />
       </div>
@@ -432,7 +432,7 @@ function AppInner() {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#f6f2f0] text-[#2a2320]">
+    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#f6f2f0] dark:bg-zinc-950 text-[#2a2320] dark:text-zinc-50 transition-colors duration-500">
       <Toaster richColors position="top-right" />
       <GlassBackground />
 
@@ -461,17 +461,17 @@ function AppInner() {
       )}
 
       {screen === "profil-user" && (
-        <div className="relative min-h-screen w-full overflow-x-hidden bg-[#f6f2f0]">
+        <div className="relative min-h-screen w-full overflow-x-hidden bg-[#f6f2f0] dark:bg-zinc-950 transition-colors duration-500">
           <GlassBackground />
           <Navbar onNavigate={navigate} onSection={() => {}} />
           <div className="relative z-10 mx-auto w-full max-w-3xl px-4 pb-24 pt-32">
             <button
               onClick={() => navigate("dashboard-user")}
-              className="mb-6 inline-flex items-center gap-1.5 text-[14px] font-medium text-[#5a504b] transition hover:text-[#2a2320]"
+              className="mb-6 inline-flex items-center gap-1.5 text-[14px] font-medium text-[#5a504b] dark:text-zinc-400 transition hover:text-[#2a2320] dark:hover:text-zinc-50"
             >
               ← Kembali
             </button>
-            <h1 className="mb-6 text-[26px] font-extrabold tracking-tight text-[#2a2320]">
+            <h1 className="mb-6 text-[26px] font-extrabold tracking-tight text-[#2a2320] dark:text-zinc-50">
               Profil Saya
             </h1>
             <Profile />

@@ -209,7 +209,7 @@ function ApplicantsTable({
           <button
             onClick={fetchApplicants}
             disabled={loading}
-            className="flex items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3.5 py-2 text-[13px] font-medium text-[#2a2320] transition hover:bg-white/80 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-full border border-white/70 dark:border-white/10 bg-white/60 dark:bg-zinc-800/60 px-3.5 py-2 text-[13px] font-medium text-[#2a2320] dark:text-zinc-300 transition hover:bg-white/80 dark:hover:bg-zinc-700 disabled:opacity-50"
             title="Muat ulang data"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -239,7 +239,7 @@ function ApplicantsTable({
             <p className="text-[14px] text-[#5a504b]">{error}</p>
             <button
               onClick={fetchApplicants}
-              className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-4 py-2 text-[13px] font-medium text-[#2a2320] transition hover:bg-white/80"
+              className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-white/70 dark:border-white/10 bg-white/60 dark:bg-zinc-800/60 px-4 py-2 text-[13px] font-medium text-[#2a2320] dark:text-zinc-300 transition hover:bg-white/80 dark:hover:bg-zinc-700"
             >
               <RefreshCw className="h-3.5 w-3.5" /> Coba Lagi
             </button>
@@ -258,15 +258,15 @@ function ApplicantsTable({
 
         {/* Table */}
         {!loading && !error && applicants.length > 0 && (
-          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-900/50">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
+                <tr className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-zinc-800/50">
                   {["Nama", "NIM", "Email", "Divisi", "Status", "Tgl Daftar", "Berkas", ""].map(
                     (h, idx) => (
                       <th
                         key={idx}
-                        className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
+                        className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-zinc-400"
                       >
                         {h}
                       </th>
@@ -278,15 +278,15 @@ function ApplicantsTable({
                 {applicants.map((a) => (
                   <tr
                     key={a.id}
-                    className="border-b border-slate-200 last:border-0 hover:bg-slate-50/50 transition-colors"
+                    className="border-b border-slate-200 dark:border-white/5 last:border-0 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors"
                   >
-                    <td className="px-4 py-3 font-medium text-slate-900">
+                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-zinc-50">
                       {a.nama}
                     </td>
-                    <td className="px-4 py-3 font-mono text-slate-500">
+                    <td className="px-4 py-3 font-mono text-slate-500 dark:text-zinc-400">
                       {a.nim}
                     </td>
-                    <td className="px-4 py-3 text-slate-500">{a.email}</td>
+                    <td className="px-4 py-3 text-slate-500 dark:text-zinc-400">{a.email}</td>
                     <td className="px-4 py-3">
                       <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold capitalize text-indigo-700">
                         {a.divisi}
@@ -300,14 +300,14 @@ function ApplicantsTable({
                         {STATUS_LABEL[a.status]}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-slate-500">
+                    <td className="px-4 py-3 text-slate-500 dark:text-zinc-400">
                       {a.tanggal_daftar}
                     </td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => openSignedUrl(a)}
                         disabled={loadingUrl[a.id]}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-800 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-zinc-300 shadow-sm transition hover:bg-slate-50 dark:hover:bg-zinc-700 disabled:opacity-50"
                         title={
                           a.cv_path
                             ? `Lihat CV ${a.nama}`
@@ -343,20 +343,20 @@ function ApplicantsTable({
         )}
       </GlassCard>
 
-      {/* Custom Delete Modal */}
+      {/* Modal Hapus */}
       {deleteModal.isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-bold text-slate-900">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6 shadow-xl dark:shadow-black/50">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-zinc-50">
               Konfirmasi Hapus
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-slate-500">
-              Apakah kamu yakin ingin menghapus data <strong className="text-slate-900">{deleteModal.name}</strong>? Aksi ini tidak dapat dibatalkan.
+            <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-zinc-400">
+              Apakah kamu yakin ingin menghapus data <strong className="text-slate-900 dark:text-zinc-50">{deleteModal.name}</strong>? Aksi ini tidak dapat dibatalkan.
             </p>
             <div className="mt-6 flex items-center justify-end gap-3">
               <button
                 onClick={() => setDeleteModal({ isOpen: false, id: null, name: "" })}
-                className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 dark:text-zinc-300 transition hover:bg-slate-100 dark:hover:bg-white/10"
               >
                 Batal
               </button>

@@ -63,7 +63,7 @@ export function GlassCard({
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-white/50 dark:border-white/10 bg-white/75 dark:bg-[#1a1614]/80 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] dark:shadow-none transition-all duration-300 ease-in-out ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-white/50 dark:border-white/10 bg-white/75 dark:bg-zinc-800/60 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] dark:shadow-md dark:shadow-black/50 transition-all duration-300 ease-in-out ${className}`}
       style={style}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 dark:via-white/20 to-transparent" />
@@ -82,7 +82,7 @@ export function Logo({
 }) {
   return (
     <div className="flex items-center gap-2.5 select-none">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white dark:bg-black/40 shadow-sm border border-gray-100 dark:border-white/10 transition-colors duration-300">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-gray-100 dark:border-white/10 transition-colors duration-300">
         <img
           src={logoImg}
           alt="APTRG Logo"
@@ -91,10 +91,10 @@ export function Logo({
       </div>
       {!compact && (
         <div className="leading-tight">
-          <h1 className="text-xl font-extrabold tracking-tight text-[#2a2320] dark:text-white transition-colors duration-300">
+          <h1 className="text-xl font-extrabold tracking-tight text-[#2a2320] dark:text-zinc-50 transition-colors duration-300">
             APTRG
           </h1>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#857a75] dark:text-gray-400 transition-colors duration-300">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#857a75] dark:text-zinc-400 transition-colors duration-300">
             {subtitle}
           </p>
         </div>

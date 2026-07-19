@@ -74,10 +74,10 @@ export function MemberLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="relative min-h-screen w-full bg-[#f6f2f0] dark:bg-[#1a1614] transition-colors duration-500">
+    <div className="relative min-h-screen w-full bg-[#f6f2f0] dark:bg-zinc-950 transition-colors duration-500">
       {/* Fixed Background Image (User Dashboard only) */}
       {role !== "admin" && (
-        <div className="fixed inset-0 z-0 pointer-events-none bg-[#f6f2f0] dark:bg-[#1a1614] transition-colors duration-500">
+        <div className="fixed inset-0 z-0 pointer-events-none bg-[#f6f2f0] dark:bg-zinc-950 transition-colors duration-500">
           <img
             src="/assets/Foto Anggota.webp"
             alt="Latar Belakang Anggota"
@@ -98,7 +98,7 @@ export function MemberLayout({
         <div className="flex w-full flex-1 flex-col transition-all md:pl-[260px]">
           {/* Top bar */}
           <header className="sticky top-0 z-30 px-4 pt-4 md:px-6">
-            <div className="relative flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-white/50 dark:border-white/10 bg-white/75 dark:bg-[#1a1614]/80 px-5 py-4 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] dark:shadow-none transition-colors duration-500 md:px-6">
+            <div className="relative flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-white/50 dark:border-white/10 bg-white/75 dark:bg-zinc-900/60 px-5 py-4 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] dark:shadow-md dark:shadow-black/50 transition-colors duration-500 md:px-6">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 dark:via-white/20 to-transparent" />
               <div className="flex items-center gap-3 min-w-0">
                 <button
@@ -108,10 +108,10 @@ export function MemberLayout({
                   <Menu className="h-5 w-5" />
                 </button>
                 <div className="min-w-0">
-                  <h1 className="truncate text-[18px] font-extrabold tracking-tight text-[#2a2320] dark:text-white transition-colors duration-500 md:text-xl">
+                  <h1 className="truncate text-[18px] font-extrabold tracking-tight text-[#2a2320] dark:text-zinc-50 transition-colors duration-500 md:text-xl">
                     {title}
                   </h1>
-                  <p className="truncate text-[12px] font-medium text-[#857a75] dark:text-gray-400 transition-colors duration-500 md:text-sm">
+                  <p className="truncate text-[12px] font-medium text-[#857a75] dark:text-zinc-400 transition-colors duration-500 md:text-sm">
                     {subtitle}
                   </p>
                 </div>
@@ -123,10 +123,10 @@ export function MemberLayout({
                     className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full ring-2 ring-white bg-indigo-600"
                   />
                 </button>
-                <div className="flex items-center gap-2.5 rounded-full border border-gray-100 dark:border-white/10 bg-white/80 dark:bg-[#1a1614]/80 py-1.5 pl-1.5 pr-4 max-w-[160px] md:max-w-xs lg:max-w-md transition-colors duration-500">
+                <div className="flex items-center gap-2.5 rounded-full border border-gray-100 dark:border-white/10 bg-white/80 dark:bg-zinc-900/60 py-1.5 pl-1.5 pr-4 max-w-[160px] md:max-w-xs lg:max-w-md transition-colors duration-500">
                   <Avatar initials={initials} size={32} />
                   <div className="hidden text-right md:block">
-                    <div className="text-[13px] font-extrabold tracking-tight text-[#2a2320] dark:text-white transition-colors duration-500">
+                    <div className="text-[13px] font-extrabold tracking-tight text-[#2a2320] dark:text-zinc-50 transition-colors duration-500">
                       {displayName}
                     </div>
                     <div className="text-[11px] font-bold uppercase tracking-widest text-[#c81e2c] dark:text-red-400 transition-colors duration-500">
