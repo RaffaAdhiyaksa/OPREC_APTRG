@@ -78,14 +78,17 @@ export function MemberLayout({
 
   return (
     <div className="relative min-h-screen w-full bg-[#f6f2f0]">
-      {/* Fixed Background Image */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <img 
-          src="/assets/Foto Anggota.JPG" 
-          alt="Latar Belakang Anggota" 
-          className="w-full h-full object-cover opacity-20"
-        />
-      </div>
+      {/* Fixed Background Image (User Dashboard only) */}
+      {role !== "admin" && (
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <img 
+            src="/assets/Foto Anggota.webp" 
+            alt="Latar Belakang Anggota" 
+            className="w-full h-full object-cover opacity-40"
+          />
+          <div className="absolute inset-0 bg-[#f6f2f0]/85 backdrop-blur-[2px]" />
+        </div>
+      )}
 
       <div className="relative z-10 flex w-full min-h-screen">
         <Sidebar

@@ -72,11 +72,21 @@ export function Sidebar({
         }`}
       >
       <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/50 bg-white/75 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)]">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-        <div className="px-5 pt-6 pb-5">
+        {role === "admin" && (
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <img 
+              src="/assets/Foto Anggota.webp" 
+              alt="Admin Sidebar Background" 
+              className="w-full h-full object-cover opacity-15 grayscale mix-blend-overlay" 
+            />
+            <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px]" />
+          </div>
+        )}
+        <div className="relative z-10 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+        <div className="relative z-10 px-5 pt-6 pb-5">
           <Logo subtitle="Portal Anggota" />
         </div>
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3">
+        <nav className="relative z-10 flex-1 space-y-1 overflow-y-auto px-3">
           {nav.map((item) => {
             const isActive = active === item.id;
             return (
@@ -104,7 +114,7 @@ export function Sidebar({
             );
           })}
         </nav>
-        <div className="flex gap-2 p-3">
+        <div className="relative z-10 flex gap-2 p-3">
           <button
             onClick={() => {
               onNavigate("landing");
