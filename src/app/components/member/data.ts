@@ -494,7 +494,7 @@ export const STRUKTUR_OPREC: {
   divisions: [
     {
       name: "PDD",
-      ketua: { name: "Almer", role: "Ketua Divisi", initials: "AL" },
+      ketua: { name: "Almer Zakie", role: "Ketua Divisi", initials: "AL" },
       staff: [
         { name: "Sherly", role: "Staff", initials: "SH" },
         { name: "Icha", role: "Staff", initials: "IC" },
@@ -506,22 +506,22 @@ export const STRUKTUR_OPREC: {
     },
     {
       name: "Acara",
-      ketua: { name: "Daffa", role: "Ketua Divisi", initials: "DA" },
-      wakil: { name: "Deden", role: "Wakil Ketua", initials: "DE" },
+      ketua: { name: "Daffa Athaillah", role: "Ketua Divisi", initials: "DA" },
+      wakil: { name: "Deden Imbar", role: "Wakil Ketua", initials: "DE" },
       staff: [
         { name: "Alfa", role: "Staff", initials: "AL" },
-        { name: "Aldo", role: "Staff", initials: "AD" },
+        { name: "Aldora", role: "Staff", initials: "AD" },
         { name: "Zieta", role: "Staff", initials: "ZI" },
         { name: "Azky", role: "Staff", initials: "AZ" },
-        { name: "Dean", role: "Staff", initials: "DN" },
+        { name: "Deandre", role: "Staff", initials: "DN" },
         { name: "Richo", role: "Staff", initials: "RI" },
         { name: "Frans", role: "Staff", initials: "FR" },
       ],
     },
     {
       name: "Logistik",
-      ketua: { name: "Ardika", role: "Ketua Divisi", initials: "AR" },
-      wakil: { name: "Sulthon", role: "Wakil Ketua", initials: "SU" },
+      ketua: { name: "Ardika Chesa", role: "Ketua Divisi", initials: "AR" },
+      wakil: { name: "Sulthon Aulia", role: "Wakil Ketua", initials: "SU" },
       staff: [
         { name: "Vacha", role: "Staff", initials: "VA" },
         { name: "Patar", role: "Staff", initials: "PA" },
@@ -536,13 +536,13 @@ export const STRUKTUR_OPREC: {
     {
       name: "Medpart",
       ketua: { name: "Achmad Raffa", role: "Ketua Divisi", initials: "AR" },
-      wakil: { name: "Azriel", role: "Wakil Ketua", initials: "AZ" },
+      wakil: { name: "Azriel Khoeruddin", role: "Wakil Ketua", initials: "AZ" },
       staff: [
         { name: "Rega", role: "Staff", initials: "RE" },
         { name: "Darma", role: "Staff", initials: "DR" },
         { name: "Doni", role: "Staff", initials: "DO" },
         { name: "Adit", role: "Staff", initials: "AD" },
-        { name: "Glad", role: "Staff", initials: "GL" },
+        { name: "Gladwin", role: "Staff", initials: "GL" },
         { name: "Arkan", role: "Staff", initials: "AK" },
         { name: "Hafiz", role: "Staff", initials: "HF" },
       ],

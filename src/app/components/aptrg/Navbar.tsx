@@ -91,9 +91,15 @@ export function Navbar({
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f6f2f0] dark:bg-zinc-800 text-[13px] font-bold text-[#2a2320] dark:text-zinc-50 shadow-sm transition hover:bg-[#e0dcd9] dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-[#c81e2c]"
+
+                className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#f6f2f0] text-[13px] font-bold text-[#2a2320] shadow-sm transition hover:bg-[#e0dcd9] focus:outline-none focus:ring-2 focus:ring-[#c81e2c]"
+
               >
-                {initials}
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt={initials} className="h-full w-full object-cover" />
+                ) : (
+                  initials
+                )}
               </button>
 
               {menuOpen && (

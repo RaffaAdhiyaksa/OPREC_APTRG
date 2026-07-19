@@ -70,7 +70,7 @@ export function MemberLayout({
   const me = ROLE_INFO[role];
   const { user, profile } = useAuthContext();
   const displayName = profile?.nama || user?.email || "Pengguna";
-  const initials = getInitials(user?.email);
+  const initials = profile?.nama ? profile.nama.slice(0, 2).toUpperCase() : getInitials(user?.email);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -123,10 +123,10 @@ export function MemberLayout({
                     className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full ring-2 ring-white bg-indigo-600"
                   />
                 </button>
-                <div className="flex items-center gap-2.5 rounded-full border border-gray-100 dark:border-white/10 bg-white/80 dark:bg-zinc-900/60 py-1.5 pl-1.5 pr-4 max-w-[160px] md:max-w-xs lg:max-w-md transition-colors duration-500">
-                  <Avatar initials={initials} size={32} />
-                  <div className="hidden text-right md:block">
-                    <div className="text-[13px] font-extrabold tracking-tight text-[#2a2320] dark:text-zinc-50 transition-colors duration-500">
+                <div className="flex items-center gap-2.5 rounded-full border border-gray-100 bg-white/80 py-1.5 pl-1.5 pr-4 max-w-[160px] md:max-w-xs lg:max-w-md">
+                  <Avatar initials={initials} size={32} imgUrl={profile?.avatar_url ?? undefined} />
+                  <div className="flex flex-1 min-w-0 flex-col leading-tight lg:flex-row lg:items-center lg:gap-2">
+                    <div className="truncate text-[13px] font-semibold text-[#1a1614]">
                       {displayName}
                     </div>
                     <div className="text-[11px] font-bold uppercase tracking-widest text-[#c81e2c] dark:text-red-400 transition-colors duration-500">
