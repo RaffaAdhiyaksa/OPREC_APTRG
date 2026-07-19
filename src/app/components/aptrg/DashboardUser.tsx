@@ -48,10 +48,11 @@ export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void 
       {/* Fixed Background Image */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <img
-          src="/assets/Foto Anggota.JPG"
+          src="/assets/Foto Anggota.webp"
           alt="Latar Belakang Anggota"
-          className="w-full h-full object-cover opacity-20"
+          className="w-full h-full object-cover object-[center_20%] opacity-40"
         />
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" />
       </div>
 
       <div className="relative z-10">

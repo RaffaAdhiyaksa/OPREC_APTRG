@@ -3,6 +3,7 @@ import { Logo, Screen, RED } from "./shared";
 import { useAuthContext } from "../../context/AuthContext";
 import { User, LogOut, Globe } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ThemeToggle } from "./ThemeToggle";
 
 
 const LINKS = [
@@ -77,12 +78,14 @@ export function Navbar({
 
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-1 rounded-full px-3 py-2 text-[13px] font-bold text-[#5a504b] transition hover:bg-white/50"
+            className="flex items-center gap-1 rounded-full px-3 py-2 text-[13px] font-bold text-[#5a504b] dark:text-gray-300 transition hover:bg-white/50 dark:hover:bg-black/30"
             title="Change Language"
           >
             <Globe className="h-4 w-4" />
             {i18n.language.toUpperCase()}
           </button>
+          
+          <ThemeToggle />
 
           {user ? (
             <div className="relative" ref={menuRef}>

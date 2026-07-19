@@ -32,6 +32,7 @@ import { Placeholder } from "./components/member/Placeholder";
 import { KelolaOprec } from "./components/member/KelolaOprec";
 import { DashboardPendaftar } from "./components/member/DashboardPendaftar";
 import { AuthProvider, useAuthContext } from "./context/AuthContext";
+import { ThemeProvider } from "next-themes";
 import { AnimatePresence, motion } from "motion/react";
 import { supabase } from "../lib/supabaseClient";
 import { LoadingScreen } from "./components/aptrg/LoadingScreen";
@@ -580,8 +581,10 @@ function AppInner() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppInner />
-    </AuthProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <AuthProvider>
+        <AppInner />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
