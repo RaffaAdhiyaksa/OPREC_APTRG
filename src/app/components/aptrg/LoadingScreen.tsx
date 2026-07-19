@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import logoUrl from "../../../imports/aptrg_logo.png";
 
 export function LoadingScreen() {

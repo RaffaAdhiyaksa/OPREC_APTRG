@@ -8,12 +8,9 @@ import {
   Loader2,
   AlertCircle,
   RefreshCw,
-  Power,
   FileText,
 } from "lucide-react";
 import { GlassCard, RED, AMBER } from "../aptrg/shared";
-import { MEMBERS, PROJECTS } from "./data";
-import * as Switch from "@radix-ui/react-switch";
 import { toast } from "sonner";
 import { supabase } from "../../../lib/supabaseClient";
 
@@ -89,117 +86,7 @@ function buildPipeline(applicants: Applicant[]) {
   ];
 }
 
-/* ── RegistrationToggle ─────────────────────────────────── */
 
-function RegistrationToggle() {
-  const [isOpen, setIsOpen] = useState<boolean | null>(null);
-  const [updating, setUpdating] = useState(false);
-
-  useEffect(() => {
-    /**
-     * Baca baris dari tabel app_settings di mana key = 'registration_open'.
-     * Jika baris tidak ada atau terjadi error, default ke false (tertutup).
-     */
-    supabase
-      .from("app_settings")
-      .select("value")
-      .eq("key", "registration_open")
-      .maybeSingle<{ value: boolean }>()
-      .then(({ data, error }) => {
-        if (error) {
-          console.warn("[RegistrationToggle] Gagal membaca status:", error.message);
-          setIsOpen(false);
-          return;
-        }
-        // null = baris belum ada → anggap tertutup
-        setIsOpen(data?.value ?? false);
-      });
-  }, []);
-
-  const handleToggle = async (checked: boolean) => {
-    setUpdating(true);
-    const prev = isOpen;
-    setIsOpen(checked); // optimistic update
-
-    try {
-      /**
-       * Gunakan upsert agar baris dibuat otomatis jika belum ada.
-       * onConflict: 'key' → jika key sudah ada, update kolom value.
-       */
-      const { error } = await supabase
-        .from("app_settings")
-        .upsert({ key: "registration_open", value: checked }, { onConflict: "key" });
-
-      if (error) throw new Error(error.message);
-
-      toast.success(
-        checked
-          ? "✅ Pendaftaran kini dibuka untuk umum."
-          : "🔒 Pendaftaran telah ditutup."
-      );
-    } catch (err: unknown) {
-      setIsOpen(prev); // rollback jika gagal
-      const msg = err instanceof Error ? err.message : "Error tidak diketahui";
-      console.error("[RegistrationToggle] Update gagal:", msg);
-      toast.error("Gagal memperbarui status pendaftaran. Coba lagi.");
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  return (
-    <GlassCard className="p-6">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <div
-            className="mt-0.5 flex h-10 w-10 flex-none items-center justify-center rounded-[12px] text-white shadow"
-            style={{ background: isOpen ? "#3aa66f" : "#857a75" }}
-          >
-            <Power className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="text-[15px] font-bold text-[#2a2320]">
-              Status Pendaftaran OPREC
-            </div>
-            <div className="mt-0.5 text-[13px] text-[#857a75]">
-              {isOpen === null
-                ? "Memuat status..."
-                : isOpen
-                ? "Pendaftaran sedang dibuka. Calon anggota dapat mendaftar sekarang."
-                : "Pendaftaran ditutup. Calon anggota tidak dapat mengirimkan formulir baru."}
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-none items-center gap-3">
-          {isOpen !== null && (
-            <span
-              className="rounded-full px-2.5 py-1 text-[12px] font-semibold text-white"
-              style={{ background: isOpen ? "#3aa66f" : "#857a75" }}
-            >
-              {isOpen ? "BUKA" : "TUTUP"}
-            </span>
-          )}
-          {updating ? (
-            <Loader2 className="h-5 w-5 animate-spin text-[#857a75]" />
-          ) : (
-            <Switch.Root
-              checked={isOpen ?? false}
-              onCheckedChange={handleToggle}
-              disabled={isOpen === null}
-              id="registration-toggle"
-              className="relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full outline-none transition focus-visible:ring-2 focus-visible:ring-[#c81e2c] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              style={{
-                background: isOpen ? "#3aa66f" : "rgba(133,122,117,0.4)",
-              }}
-            >
-              <Switch.Thumb className="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-md ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0.5" />
-            </Switch.Root>
-          )}
-        </div>
-      </div>
-    </GlassCard>
-  );
-}
 
 /* ── ApplicantsTable ────────────────────────────────────── */
 
@@ -456,8 +343,8 @@ function ApplicantsTable({
 
 export function DashboardAdmin() {
   const [pipeline, setPipeline] = useState<{ stage: string; count: number }[]>([]);
-  const activeMembers = MEMBERS.length;
-  const runningTubes = PROJECTS.filter((p) => p.status === "doing").length;
+  const activeMembers = 0;
+  const runningTubes = 0;
 
   /**
    * Callback diterima dari ApplicantsTable setelah data berhasil di-fetch.
@@ -471,7 +358,7 @@ export function DashboardAdmin() {
   const stats = [
     { label: "Total Pendaftar", value: `${totalPendaftar}`, Icon: Users, color: RED },
     { label: "Total Anggota Aktif", value: `${activeMembers}`, Icon: UserCheck, color: AMBER },
-    { label: "Rapat Bulan Ini", value: "9", Icon: CalendarDays, color: "#2f7dd1" },
+    { label: "Rapat Bulan Ini", value: "0", Icon: CalendarDays, color: "#2f7dd1" },
     { label: "Tubes Berjalan", value: `${runningTubes}`, Icon: KanbanSquare, color: "#3aa66f" },
   ];
 
@@ -479,9 +366,6 @@ export function DashboardAdmin() {
 
   return (
     <div className="space-y-6">
-
-      {/* ── Toggle buka/tutup pendaftaran ── */}
-      <RegistrationToggle />
 
       {/* ── Stats cards ── */}
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">

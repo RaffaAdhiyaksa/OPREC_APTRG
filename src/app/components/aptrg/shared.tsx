@@ -109,10 +109,10 @@ export function GlassCard({
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-[18px] border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_10px_40px_-12px_rgba(80,40,40,0.28),0_2px_8px_-4px_rgba(80,40,40,0.15)] ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-white/50 bg-white/75 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] transition-all duration-300 ease-in-out ${className}`}
       style={style}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
       {children}
     </div>
   );
@@ -162,29 +162,29 @@ export const DIVISIONS: Division[] = [
   {
     id: "mekanik",
     name: "Mekanik",
-    tagline: "Airframe & Struktur",
-    desc: "Desain, fabrikasi, dan uji struktur airframe UAV serta integrasi payload secara mekanis.",
+    tagline: "AIRFRAME & STRUKTUR",
+    desc: "Bertanggung jawab penuh atas rancang bangun fisik pesawat tanpa awak (UAV). Divisi ini memfokuskan riset pada desain aerodinamika, analisis kekuatan material, proses manufaktur (komposit & 3D printing), serta integrasi payload secara struktural mekanis untuk memastikan wahana terbang dengan stabil dan efisien di berbagai kondisi misi.",
     Icon: Wrench,
   },
   {
     id: "sistem",
     name: "Sistem",
-    tagline: "Avionik & Kendali",
-    desc: "Pengembangan flight controller, sistem telemetri, dan integrasi elektronika pesawat.",
+    tagline: "AVIONIK & KENDALI",
+    desc: "Merupakan otak dari setiap wahana terbang. Divisi ini berfokus pada perancangan elektronika terpadu (avionik), sistem kendali penerbangan otomatis (flight controller), pengolahan citra komputer (computer vision) untuk payload cerdas, serta sistem telemetri berkinerja tinggi untuk komunikasi data realtime antara pesawat dan stasiun darat.",
     Icon: Cpu,
   },
   {
     id: "gcs",
     name: "GCS",
-    tagline: "Ground Control Station",
-    desc: "Perangkat lunak pemantauan misi, komunikasi data, dan antarmuka kendali darat.",
+    tagline: "GROUND CONTROL STATION",
+    desc: "Pusat komando dari seluruh operasi penerbangan. Divisi GCS mengembangkan perangkat lunak pemantauan misi (Mission Planner), pengolahan data telemetri, antarmuka pengguna interaktif (UI/UX) untuk pilot dan operator, serta implementasi kecerdasan buatan untuk analisis data penerbangan secara langsung dari darat.",
     Icon: MonitorSmartphone,
   },
   {
     id: "non-technical",
     name: "Non-Technical",
-    tagline: "Manajemen & Media",
-    desc: "Manajemen tim, pendanaan, kompetisi, dokumentasi, serta media dan kerja sama eksternal.",
+    tagline: "MANAJEMEN & MEDIA",
+    desc: "Tulang punggung operasional dan citra publik laboratorium. Fokus pada manajemen strategis, administrasi kompetisi tingkat nasional maupun internasional, pencarian sponsor (sponsorship), pengelolaan keuangan, serta produksi dokumentasi multimedia dan publikasi riset di berbagai platform sosial media laboratorium.",
     Icon: Users,
   },
 ];

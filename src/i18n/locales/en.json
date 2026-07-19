@@ -1,0 +1,87 @@
+{
+  "navbar": {
+    "home": "Home",
+    "why": "Why APTRG",
+    "divisions": "Divisions",
+    "signIn": "Sign In",
+    "register": "Apply Now",
+    "checkAnnouncements": "Announcements",
+    "myDashboard": "My Dashboard",
+    "logout": "Logout"
+  },
+  "hero": {
+    "registrationOpen": "Registration is Open!",
+    "openRecruitment": "Admission Portal",
+    "desc": "Hello Future Aviators! Ready to push your limits? Come join the Aeromodelling & Payload Telemetry Research Group. Here, we design, build, and fly our very own UAVs together with an incredible research team!",
+    "openDashboard": "Open Dashboard",
+    "alreadyRegistered": "Already registered? Log in here!"
+  },
+  "stats": {
+    "divisions": "Research Divisions",
+    "teams": "Competition Teams",
+    "achievements": "Achievements"
+  },
+  "heroCard": {
+    "title": "UAV & Payload Telemetry Research",
+    "desc": "From designing the airframe to operating the Ground Control Station (GCS)—experience the thrill of the entire unmanned aerial vehicle development cycle right in one lab!",
+    "list": [
+      "Full access to fabrication & flight test facilities",
+      "Engage in exciting cross-divisional collaborative projects",
+      "Intensive mentorship to conquer prestigious competitions",
+      "Direct hands-on experience with cutting-edge technology"
+    ]
+  },
+  "reasons": {
+    "kicker": "WHY APTRG?",
+    "title": "Why Should You Join Our Lab?",
+    "items": {
+      "facilities": {
+        "title": "Advanced Facilities",
+        "desc": "Access 3D printers, composite materials, avionics testing equipment, and a dedicated workspace to bring your brilliant ideas to life."
+      },
+      "mentorship": {
+        "title": "Expert Mentorship",
+        "desc": "Learn directly from experienced lab assistants who have championed national and international flying robot competitions."
+      },
+      "competitions": {
+        "title": "Prestigious Competitions",
+        "desc": "Represent the university at KRTI, Teknofest, and other renowned events. Prove that your research is championship material!"
+      },
+      "career": {
+        "title": "Career Kickstart",
+        "desc": "Gain hands-on experience highly valued by the aerospace, technology, and defense industries. Get ready to be scouted by top recruiters!"
+      }
+    }
+  },
+  "divisions": {
+    "kicker": "OUR DIVISIONS",
+    "title": "Choose Your Favorite Research Path!",
+    "desc": "APTRG has four highly collaborative divisions working together to build a complete, cutting-edge UAV system.",
+    "items": {
+      "mekanik": {
+        "name": "Mechanics",
+        "tagline": "AIRFRAME & STRUCTURE",
+        "desc": "You'll take full control of designing the physical form of our UAVs. From tweaking aerodynamics and exploring composites to 3D printing, ensuring the structure is rock-solid and stable in flight."
+      },
+      "sistem": {
+        "name": "Systems",
+        "tagline": "AVIONICS & CONTROL",
+        "desc": "Meet the brain of the UAV! We focus on exploring avionics, flight controllers, Mission Planner software, and building ultra-fast telemetry systems."
+      },
+      "gcs": {
+        "name": "GCS",
+        "tagline": "GROUND CONTROL STATION",
+        "desc": "The command center is right here! You'll develop computer vision for smart missions, process telemetry data, and apply AI for real-time data analysis straight from the ground."
+      },
+      "non-technical": {
+        "name": "Non-Technical",
+        "tagline": "MANAGEMENT & MEDIA",
+        "desc": "The backbone of the lab is in your hands! Take charge of managerial tasks, competition administration, sponsorships, finances, and creating awesome social media content to boost APTRG's branding."
+      }
+    }
+  },
+  "footer": {
+    "startRegistration": "Apply Now",
+    "copyright": "© 2026 Aeromodelling & Payload Telemetry Research Group. All rights reserved."
+  }
+}
