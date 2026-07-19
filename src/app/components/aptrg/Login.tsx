@@ -149,17 +149,17 @@ export function Login({
       <div className="w-full max-w-md">
         <button
           onClick={() => onNavigate("landing")}
-          className="mb-5 inline-flex items-center gap-1.5 text-[14px] font-medium text-[#5a504b] transition hover:text-[#2a2320]"
+          className="mb-5 inline-flex items-center gap-1.5 text-[14px] font-medium text-[#5a504b] dark:text-zinc-400 transition hover:text-[#2a2320] dark:hover:text-zinc-50"
         >
           <ArrowLeft className="h-4 w-4" /> Kembali ke beranda
         </button>
         <GlassCard className="p-8">
           <div className="flex flex-col items-center text-center">
             <Logo />
-            <h2 className="mt-6 text-[24px] font-extrabold tracking-tight text-[#2a2320]">
+            <h2 className="mt-6 text-[24px] font-extrabold tracking-tight text-[#2a2320] dark:text-zinc-50">
               {mode === "login" ? "Masuk ke Portal" : "Daftar Akun Baru"}
             </h2>
-            <p className="mt-1.5 text-[14px] text-[#857a75]">
+            <p className="mt-1.5 text-[14px] text-[#857a75] dark:text-zinc-400">
               {mode === "login" 
                 ? "Pantau status pendaftaran dan keanggotaan Anda." 
                 : "Buat akun untuk memulai pendaftaran."}
@@ -169,7 +169,7 @@ export function Login({
           <form className="mt-7 space-y-4" onSubmit={handleSubmit} noValidate>
             {mode === "register" && (
               <div className="space-y-1.5">
-                <Label htmlFor="login-nama">Nama Lengkap</Label>
+                <Label htmlFor="login-nama" className="dark:text-zinc-300">Nama Lengkap</Label>
                 <Input
                   id="login-nama"
                   type="text"
@@ -179,14 +179,14 @@ export function Login({
                     setNama(e.target.value);
                     if (error) setError(null);
                   }}
-                  className="bg-white/60"
+                  className="bg-white/60 dark:bg-zinc-800 dark:border-white/10 dark:placeholder-zinc-500 dark:text-zinc-100"
                   disabled={loading}
                 />
               </div>
             )}
             {mode === "register" && (
               <div className="space-y-1.5">
-                <Label htmlFor="login-hp">No. Telepon</Label>
+                <Label htmlFor="login-hp" className="dark:text-zinc-300">No. Telepon</Label>
                 <Input
                   id="login-hp"
                   type="tel"
@@ -196,13 +196,13 @@ export function Login({
                     setHp(e.target.value);
                     if (error) setError(null);
                   }}
-                  className="bg-white/60"
+                  className="bg-white/60 dark:bg-zinc-800 dark:border-white/10 dark:placeholder-zinc-500 dark:text-zinc-100"
                   disabled={loading}
                 />
               </div>
             )}
             <div className="space-y-1.5">
-              <Label htmlFor="login-email">Email</Label>
+              <Label htmlFor="login-email" className="dark:text-zinc-300">Email</Label>
               <Input
                 id="login-email"
                 type="email"
@@ -212,13 +212,13 @@ export function Login({
                   setEmail(e.target.value);
                   if (error) setError(null);
                 }}
-                className="bg-white/60"
+                className="bg-white/60 dark:bg-zinc-800 dark:border-white/10 dark:placeholder-zinc-500 dark:text-zinc-100"
                 autoComplete="email"
                 disabled={loading}
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="login-pass">Password</Label>
+              <Label htmlFor="login-pass" className="dark:text-zinc-300">Password</Label>
               <div className="relative">
                 <Input
                   id="login-pass"
@@ -229,14 +229,14 @@ export function Login({
                     setPassword(e.target.value);
                     if (error) setError(null);
                   }}
-                  className="bg-white/60 pr-10"
+                  className="bg-white/60 dark:bg-zinc-800 dark:border-white/10 dark:placeholder-zinc-500 dark:text-zinc-100 pr-10"
                   autoComplete="current-password"
                   disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#b0a49e] hover:text-[#5a504b] focus:outline-none transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#b0a49e] dark:text-zinc-400 hover:text-[#5a504b] dark:hover:text-zinc-300 focus:outline-none transition-colors"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -246,7 +246,7 @@ export function Login({
 
             {mode === "register" && (
               <div className="space-y-1.5">
-                <Label htmlFor="login-confirm-pass">Konfirmasi Password</Label>
+                <Label htmlFor="login-confirm-pass" className="dark:text-zinc-300">Konfirmasi Password</Label>
                 <div className="relative">
                   <Input
                     id="login-confirm-pass"
@@ -257,13 +257,13 @@ export function Login({
                       setConfirmPassword(e.target.value);
                       if (error) setError(null);
                     }}
-                    className="bg-white/60 pr-10"
+                    className="bg-white/60 dark:bg-zinc-800 dark:border-white/10 dark:placeholder-zinc-500 dark:text-zinc-100 pr-10"
                     disabled={loading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#b0a49e] hover:text-[#5a504b] focus:outline-none transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#b0a49e] dark:text-zinc-400 hover:text-[#5a504b] dark:hover:text-zinc-300 focus:outline-none transition-colors"
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

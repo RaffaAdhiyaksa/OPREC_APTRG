@@ -48,10 +48,11 @@ export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void 
       {/* Fixed Background Image */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <img
-          src="/assets/Foto Anggota.JPG"
+          src="/assets/Foto Anggota.webp"
           alt="Latar Belakang Anggota"
-          className="w-full h-full object-cover opacity-20"
+          className="w-full h-full object-cover object-[center_20%] opacity-40"
         />
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" />
       </div>
 
       <div className="relative z-10">
@@ -65,10 +66,10 @@ export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void 
       <div className="relative z-10 mx-auto w-full max-w-4xl px-4 pb-24 pt-32">
         <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <h1 className="text-[28px] font-extrabold tracking-tight text-[#2a2320]">
+            <h1 className="text-[28px] font-extrabold tracking-tight text-white">
               Halo, {nama}! 👋
             </h1>
-            <p className="mt-2 text-[15px] text-[#857a75]">
+            <p className="mt-2 text-[15px] text-zinc-300">
               Selamat datang di Portal Pendaftaran APTRG. Silakan pilih jalur pendaftaran Anda.
             </p>
           </div>
@@ -76,14 +77,14 @@ export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void 
           {isAdmin ? (
             <button
               onClick={() => onNavigate("logging-out")}
-              className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white/60 px-5 py-2.5 text-[14px] font-semibold text-[#c81e2c] shadow-sm transition hover:bg-red-50"
+              className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-white/10 backdrop-blur-md px-5 py-2.5 text-[14px] font-semibold text-red-200 shadow-sm transition hover:bg-white/20"
             >
               <LogOut className="h-4 w-4" /> Keluar
             </button>
           ) : (
             <button
               onClick={() => onNavigate("landing")}
-              className="inline-flex items-center gap-2 rounded-full border border-[#857a75]/30 bg-white/60 px-5 py-2.5 text-[14px] font-semibold text-[#5a504b] shadow-sm transition hover:bg-white/90"
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-5 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-white/20"
             >
               <Home className="h-4 w-4" /> Kembali ke Beranda
             </button>
@@ -98,10 +99,10 @@ export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void 
               <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#3aa66f]/10 text-[#3aa66f]">
                 <Ticket className="h-7 w-7" />
               </div>
-              <h2 className="text-[22px] font-extrabold text-[#2a2320]">
+              <h2 className="text-[22px] font-extrabold text-[#2a2320] dark:text-zinc-50">
                 Open Mind
               </h2>
-              <p className="mt-2 flex-1 text-[14px] leading-relaxed text-[#5a504b]">
+              <p className="mt-2 flex-1 text-[14px] leading-relaxed text-[#5a504b] dark:text-zinc-400">
                 Acara perkenalan lab APTRG untuk seluruh mahasiswa Telkom University. Wajib diikuti sebelum mendaftar OPREC.
               </p>
 
@@ -143,10 +144,10 @@ export function DashboardUser({ onNavigate }: { onNavigate: (s: Screen) => void 
               >
                 <UserPlus className="h-7 w-7" />
               </div>
-              <h2 className="text-[22px] font-extrabold text-[#2a2320]">
+              <h2 className="text-[22px] font-extrabold text-[#2a2320] dark:text-zinc-50">
                 Open Recruitment
               </h2>
-              <p className="mt-2 flex-1 text-[14px] leading-relaxed text-[#5a504b]">
+              <p className="mt-2 flex-1 text-[14px] leading-relaxed text-[#5a504b] dark:text-zinc-400">
                 Pendaftaran resmi menjadi anggota APTRG. Pilih divisi dan jadilah bagian dari riset aeromodelling kami.
               </p>
 

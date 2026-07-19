@@ -63,10 +63,10 @@ export function GlassCard({
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-white/50 bg-white/75 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] transition-all duration-300 ease-in-out ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-white/50 dark:border-white/10 bg-white/75 dark:bg-zinc-800/60 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] dark:shadow-md dark:shadow-black/50 transition-all duration-300 ease-in-out ${className}`}
       style={style}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 dark:via-white/20 to-transparent" />
       {children}
     </div>
   );
@@ -82,21 +82,21 @@ export function Logo({
 }) {
   return (
     <div className="flex items-center gap-2.5 select-none">
-      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-[12px] bg-white/70 shadow-md ring-1 ring-white/60">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-gray-100 dark:border-white/10 transition-colors duration-300">
         <img
           src={logoImg}
-          alt="Logo APTRG"
-          className="h-full w-full object-contain p-0.5"
+          alt="APTRG Logo"
+          className="h-7 w-7 object-contain drop-shadow-sm"
         />
       </div>
       {!compact && (
         <div className="leading-tight">
-          <div className="text-[15px] font-extrabold tracking-tight text-[#2a2320]">
+          <h1 className="text-xl font-extrabold tracking-tight text-[#2a2320] dark:text-zinc-50 transition-colors duration-300">
             APTRG
-          </div>
-          <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-[#857a75]">
+          </h1>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#857a75] dark:text-zinc-400 transition-colors duration-300">
             {subtitle}
-          </div>
+          </p>
         </div>
       )}
     </div>
@@ -110,6 +110,8 @@ export type Division = {
   tagline: string;
   desc: string;
   Icon: typeof Wrench;
+  software?: string[];
+  hardware?: string[];
 };
 
 export const DIVISIONS: Division[] = [
@@ -119,6 +121,8 @@ export const DIVISIONS: Division[] = [
     tagline: "AIRFRAME & STRUKTUR",
     desc: "Bertanggung jawab penuh atas rancang bangun fisik pesawat tanpa awak (UAV). Divisi ini memfokuskan riset pada desain aerodinamika, analisis kekuatan material, proses manufaktur (komposit & 3D printing), serta integrasi payload secara struktural mekanis untuk memastikan wahana terbang dengan stabil dan efisien di berbagai kondisi misi.",
     Icon: Wrench,
+    software: ["SolidWorks", "AutoCAD"],
+    hardware: ["3D Printer", "CNC Router", "Carbon Fiber", "Fiberglass"],
   },
   {
     id: "sistem",
@@ -126,6 +130,8 @@ export const DIVISIONS: Division[] = [
     tagline: "AVIONIK & KENDALI",
     desc: "Merupakan otak dari setiap wahana terbang. Divisi ini berfokus pada perancangan elektronika terpadu (avionik), sistem kendali penerbangan otomatis (flight controller), pengolahan citra komputer (computer vision) untuk payload cerdas, serta sistem telemetri berkinerja tinggi untuk komunikasi data realtime antara pesawat dan stasiun darat.",
     Icon: Cpu,
+    software: ["ArduPilot", "Mission Planner", "OpenCV"],
+    hardware: ["ESC 32", "Mateksys", "ELRS", "Flight Controller", "Soldering Station"],
   },
   {
     id: "gcs",
@@ -133,6 +139,8 @@ export const DIVISIONS: Division[] = [
     tagline: "GROUND CONTROL STATION",
     desc: "Pusat komando dari seluruh operasi penerbangan. Divisi GCS mengembangkan perangkat lunak pemantauan misi (Mission Planner), pengolahan data telemetri, antarmuka pengguna interaktif (UI/UX) untuk pilot dan operator, serta implementasi kecerdasan buatan untuk analisis data penerbangan secara langsung dari darat.",
     Icon: MonitorSmartphone,
+    software: ["Python", "Node.js", "Qt", "Mission Planner"],
+    hardware: ["Antenna Tracker", "Ground Station PC", "Arduino", "Raspbery PI"],
   },
   {
     id: "non-technical",
@@ -140,6 +148,8 @@ export const DIVISIONS: Division[] = [
     tagline: "MANAJEMEN & MEDIA",
     desc: "Tulang punggung operasional dan citra publik laboratorium. Fokus pada manajemen strategis, administrasi kompetisi tingkat nasional maupun internasional, pencarian sponsor (sponsorship), pengelolaan keuangan, serta produksi dokumentasi multimedia dan publikasi riset di berbagai platform sosial media laboratorium.",
     Icon: Users,
+    software: ["Adobe", "Davinci Resolve", "Microsoft Office", "Affinity"],
+    hardware: ["DSLR Camera", "Gimbal", "Aerial Drone"],
   },
 ];
 

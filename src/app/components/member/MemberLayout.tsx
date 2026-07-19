@@ -74,16 +74,16 @@ export function MemberLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="relative min-h-screen w-full bg-[#f6f2f0]">
+    <div className="relative min-h-screen w-full bg-[#f6f2f0] dark:bg-zinc-950 transition-colors duration-500">
       {/* Fixed Background Image (User Dashboard only) */}
       {role !== "admin" && (
-        <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="fixed inset-0 z-0 pointer-events-none bg-[#f6f2f0] dark:bg-zinc-950 transition-colors duration-500">
           <img
             src="/assets/Foto Anggota.webp"
             alt="Latar Belakang Anggota"
-            className="w-full h-full object-cover opacity-40"
+            className="w-full h-full object-cover object-[center_20%] opacity-20 dark:opacity-50 transition-opacity duration-500"
           />
-          <div className="absolute inset-0 bg-[#f6f2f0]/85 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-white/20 dark:bg-black/50 backdrop-blur-[3px] transition-colors duration-500" />
         </div>
       )}
 
@@ -98,8 +98,8 @@ export function MemberLayout({
         <div className="flex w-full flex-1 flex-col transition-all md:pl-[260px]">
           {/* Top bar */}
           <header className="sticky top-0 z-30 px-4 pt-4 md:px-6">
-            <div className="relative flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-white/50 bg-white/75 px-5 py-4 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] md:px-6">
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+            <div className="relative flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-white/50 dark:border-white/10 bg-white/75 dark:bg-zinc-900/60 px-5 py-4 backdrop-blur-2xl shadow-[0_2px_16px_-4px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] dark:shadow-md dark:shadow-black/50 transition-colors duration-500 md:px-6">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 dark:via-white/20 to-transparent" />
               <div className="flex items-center gap-3 min-w-0">
                 <button
                   onClick={() => setSidebarOpen(true)}
@@ -108,10 +108,12 @@ export function MemberLayout({
                   <Menu className="h-5 w-5" />
                 </button>
                 <div className="min-w-0">
-                  <h1 className="truncate text-[17px] md:text-[19px] font-extrabold tracking-tight text-[#1a1614]">
+                  <h1 className="truncate text-[18px] font-extrabold tracking-tight text-[#2a2320] dark:text-zinc-50 transition-colors duration-500 md:text-xl">
                     {title}
                   </h1>
-                  <p className="truncate text-[12px] md:text-[13px] text-gray-400">{subtitle}</p>
+                  <p className="truncate text-[12px] font-medium text-[#857a75] dark:text-zinc-400 transition-colors duration-500 md:text-sm">
+                    {subtitle}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 md:gap-3">
@@ -127,10 +129,8 @@ export function MemberLayout({
                     <div className="truncate text-[13px] font-semibold text-[#1a1614]">
                       {displayName}
                     </div>
-                    <div
-                      className="truncate text-xs font-semibold text-slate-500"
-                    >
-                      {me.label}
+                    <div className="text-[11px] font-bold uppercase tracking-widest text-[#c81e2c] dark:text-red-400 transition-colors duration-500">
+                      {me?.label}
                     </div>
                   </div>
                 </div>
