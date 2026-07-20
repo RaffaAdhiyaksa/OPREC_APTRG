@@ -301,7 +301,7 @@ export function Landing({
                     onClick={() => setExpandedDivision(d?.id)}
                     className="relative overflow-hidden w-full h-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-2xl cursor-pointer"
                   >
-                    <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
+                    <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${d?.name === 'GCS' ? 'object-[center_80%]' : 'object-center'}`} />
                     <div className="absolute inset-0 bg-black/20 z-0 pointer-events-none"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-90 z-0 pointer-events-none"></div>
 
@@ -340,7 +340,7 @@ export function Landing({
                     whileHover={{ scale: 1.05, y: -10 }}
                     className="w-full relative overflow-hidden [transform:translateZ(0)] group cursor-pointer rounded-2xl aspect-[4/5] lg:aspect-auto lg:h-[500px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-shadow ease-linear duration-500 hover:shadow-[0_20px_40px_rgba(220,38,38,0.2)]"
                   >
-                    <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className="absolute inset-0 w-full h-full object-cover object-center transition-transform ease-linear duration-700 group-hover:scale-105 pointer-events-none" />
+                    <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className={`absolute inset-0 w-full h-full object-cover transition-transform ease-linear duration-700 group-hover:scale-105 pointer-events-none ${d?.name === 'GCS' ? 'object-[center_80%]' : 'object-center'}`} />
                     <div className="absolute inset-0 bg-black/50 transition-opacity ease-linear duration-500 group-hover:opacity-20 z-0 pointer-events-none"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 z-0 pointer-events-none"></div>
 
@@ -420,7 +420,7 @@ export function Landing({
                                 layoutId={expandedDivision === d?.id ? `card-${d?.id}` : undefined}
                                 className="relative w-full md:w-[450px] h-full bg-[#1a1614] dark:bg-zinc-950 overflow-hidden rounded-none md:rounded-[2.5rem] shadow-2xl dark:shadow-md dark:shadow-black/50 dark:border dark:border-white/10 flex-shrink-0"
                               >
-                                <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
+                                <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${d?.name === 'GCS' ? 'object-[center_80%]' : 'object-center'}`} />
                                 <div className="absolute inset-0 bg-black/20 md:bg-black/10 z-0 pointer-events-none"></div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 md:via-black/40 to-transparent z-0 pointer-events-none"></div>
 
