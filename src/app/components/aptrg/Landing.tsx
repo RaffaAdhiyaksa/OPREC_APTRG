@@ -47,7 +47,7 @@ export function Landing({
 }: {
   onNavigate: (s: Screen) => void;
 }) {
-  const { user, role } = useAuthContext();
+  const { user, role, loading } = useAuthContext();
   const { t } = useTranslation();
   const [expandedDivision, setExpandedDivision] = useState<string | null>(null);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
@@ -64,21 +64,27 @@ export function Landing({
   }, [expandedDivision, selectedReason]);
 
   const goToDashboard = () => {
-    const target = role === "admin" || role === "asisten" ? "dashboard" : "dashboard-user";
+    // Cuma tunggu selama loading AWAL (initial fetch belum selesai sama
+    // sekali). Kalau loading udah selesai tapi role tetap null (query gagal),
+    // jangan nyangkut nunggu selamanya — arahkan ke "dashboard", yang sudah
+    // punya tampilan error yang jelas buat kasus ini (lihat Dashboard.tsx).
+    if (loading) return;
+    const target = role === "admin" || role === "asisten" || role === null ? "dashboard" : "dashboard-user";
     onNavigate(target);
   };
 
   return (
     <>
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="fixed inset-0 z-0 pointer-events-none bg-[#f6f2f0] transition-colors duration-500">
         <img
           src="/assets/Foto Anggota.webp"
           alt="Latar Belakang Anggota"
-          className="w-full h-full object-cover object-[center_20%] opacity-20"
+          className="w-full h-full object-cover object-[center_20%] opacity-20 transition-opacity duration-500"
         />
+        <div className="absolute inset-0 bg-white/20 backdrop-blur-[3px] transition-colors duration-500" />
         <HeroParticles />
       </div>
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pt-32 pb-32">
+      <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 pt-32 pb-32">
         {/* Hero */}
         <section id="hero" className="grid items-center gap-16 md:grid-cols-[1.1fr_0.9fr]">
           <motion.div
@@ -93,15 +99,15 @@ export function Landing({
               },
             }}
           >
-            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white/80 px-4 py-1.5 text-sm font-semibold text-[#c81e2c] backdrop-blur-xl shadow-sm">
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="inline-flex items-center gap-2 rounded-full border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-black/40 px-4 py-1.5 text-sm font-semibold text-[#c81e2c] backdrop-blur-xl shadow-sm transition-colors duration-500">
               <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: RED }} />
               {t("hero.registrationOpen")}
             </motion.div>
-            <motion.h1 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-8 text-5xl sm:text-6xl font-extrabold leading-[1.1] tracking-tighter text-[#1a1614]">
+            <motion.h1 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-8 text-5xl sm:text-6xl font-extrabold leading-[1.1] tracking-tighter text-[#1a1614] dark:text-zinc-50 transition-colors duration-500">
               {t("hero.openRecruitment")}{" "}
               <span className="text-[#c81e2c]">APTRG 2026</span>
             </motion.h1>
-            <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-6 max-w-lg text-lg leading-relaxed text-gray-500">
+            <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-6 max-w-lg text-lg leading-relaxed text-gray-600 dark:text-zinc-400 transition-colors duration-500">
               {t("hero.desc")}
             </motion.p>
             <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-10 flex flex-wrap items-center gap-4">
@@ -128,36 +134,34 @@ export function Landing({
                   </button>
                 </>
               )}
-            </motion.div>
-            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-12 flex gap-10 border-t border-gray-100 pt-8">
+            </motion.div>            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-12 flex gap-10 border-t border-gray-200 pt-8 transition-colors duration-500">
               {[
                 { n: "4", l: t("stats.divisions") },
                 { n: "5", l: t("stats.teams") },
                 { n: "99+", l: t("stats.achievements") },
               ].map((s) => (
                 <div key={s.l}>
-                  <div className="text-3xl font-extrabold tracking-tight text-[#1a1614]">{s.n}</div>
-                  <div className="mt-1 text-sm font-medium text-gray-500">{s.l}</div>
+                  <div className="text-3xl font-extrabold tracking-tight text-[#1a1614] transition-colors duration-500">{s.n}</div>
+                  <div className="mt-1 text-sm font-medium text-gray-500 transition-colors duration-500">{s.l}</div>
                 </div>
               ))}
             </motion.div>
           </motion.div>
-
           {/* Hero Card */}
-          <div className="relative z-10 overflow-hidden rounded-[2.5rem] border border-gray-50 bg-white/90 p-10 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <div className="relative z-10 overflow-hidden rounded-2xl border border-gray-50 bg-white/90 p-10 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-colors duration-500">
             <div
               className="flex h-16 w-16 items-center justify-center rounded-[1.25rem] text-white shadow-md"
               style={{ background: `linear-gradient(135deg, ${RED}, ${AMBER})` }}
             >
               <Plane className="h-8 w-8" />
             </div>
-            <h3 className="mt-8 text-2xl font-bold tracking-tight text-[#1a1614]">{t("heroCard.title")}</h3>
-            <p className="mt-3 text-base leading-relaxed text-gray-500">
+            <h3 className="mt-8 text-2xl font-bold tracking-tight text-[#1a1614] transition-colors duration-500">{t("heroCard.title")}</h3>
+            <p className="mt-3 text-base leading-relaxed text-gray-500 transition-colors duration-500">
               {t("heroCard.desc")}
             </p>
             <ul className="mt-8 space-y-4">
               {(t("heroCard.list", { returnObjects: true }) as string[]).map((tItem) => (
-                <li key={tItem} className="flex items-center gap-3 text-base font-medium text-[#1a1614]">
+                <li key={tItem} className="flex items-center gap-3 text-base font-medium text-[#1a1614] transition-colors duration-500">
                   <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-red-50 text-[#c81e2c]">
                     <Plane className="h-3.5 w-3.5" />
                   </span>
@@ -174,7 +178,7 @@ export function Landing({
             kicker={t("reasons.kicker")}
             title={t("reasons.title")}
           />
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {REASONS_KEYS.map((r, i) => (
               <motion.div
                 key={r.id}
@@ -183,18 +187,30 @@ export function Landing({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: i * 0.1, duration: 0.6, ease: "linear" }}
-                className="relative overflow-hidden [transform:translateZ(0)] group rounded-[2rem] aspect-square shadow-[0_8px_30px_rgb(0,0,0,0.04)] cursor-pointer"
+                className="relative overflow-hidden [transform:translateZ(0)] group rounded-2xl aspect-square lg:aspect-auto lg:h-[420px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] cursor-pointer"
               >
-                <img loading="lazy" width="800" height="800" src={`/assets/${r.img}.webp`} alt={t(`reasons.items.${r.id}.title`)} className="absolute inset-0 w-full h-full object-cover object-center transition-transform ease-linear duration-700 group-hover:scale-100" />
-                <div className="absolute inset-0 bg-black/50 transition-opacity ease-linear duration-500 group-hover:opacity-20 z-0"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 z-0"></div>
+                <img loading="lazy" width="800" height="800" src={`/assets/${r.img}.webp`} alt={t(`reasons.items.${r.id}.title`)} className="absolute inset-0 w-full h-full object-cover object-center transition-transform ease-linear duration-700 lg:group-hover:scale-105" />
+                
+                {/* Mobile Overlay: Unblurs when card is focused in viewport */}
+                <motion.div 
+                  initial={{ opacity: 1 }}
+                  whileInView={{ opacity: 0.2 }}
+                  transition={{ duration: 0.5 }}
+                  viewport={{ amount: 0.5 }}
+                  className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0 lg:hidden"
+                ></motion.div>
 
-                <div className="absolute bottom-0 left-0 p-6 flex flex-col items-start justify-end w-full z-10 transition-transform ease-linear duration-500 group-hover:-translate-y-2 text-left">
-                  <div className="flex flex-none h-12 w-12 items-center justify-center rounded-full bg-white/25 backdrop-blur-md text-white mb-0 mt-0 shadow-lg border border-white/20">
-                    <r.Icon className="h-5 w-5 drop-shadow-md" />
+                {/* Desktop Overlay: Unblurs on hover */}
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity ease-linear duration-500 group-hover:opacity-20 z-0 hidden lg:block"></div>
+
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1a1614]/90 via-[#1a1614]/50 to-transparent opacity-90 z-0 pointer-events-none"></div>
+
+                <div className="absolute bottom-0 left-0 p-8 lg:p-10 flex flex-col items-start justify-end w-full z-10 transition-transform ease-linear duration-500 lg:group-hover:-translate-y-2 text-left pointer-events-none">
+                  <div className="flex flex-none h-12 w-12 lg:h-16 lg:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white mb-4 shadow-lg border border-white/20">
+                    <r.Icon className="h-5 w-5 lg:h-8 lg:w-8" />
                   </div>
-                  <h3 className="text-xl font-bold tracking-tight text-white drop-shadow-md leading-tight h-[2.75rem] flex items-end">{t(`reasons.items.${r.id}.title`)}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-gray-100 drop-shadow-md h-[4.5rem] line-clamp-3">
+                  <h3 className="text-xl lg:text-2xl font-extrabold tracking-tight text-white leading-tight">{t(`reasons.items.${r.id}.title`)}</h3>
+                  <p className="mt-3 text-sm lg:text-base leading-[1.6] text-gray-200 line-clamp-3">
                     {t(`reasons.items.${r.id}.desc`)}
                   </p>
                 </div>
@@ -219,14 +235,14 @@ export function Landing({
                       className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
                       onClick={() => setSelectedReason(null)}
                     />
-                    
+
                     {/* Drawer */}
                     <motion.div
                       initial={{ x: "100%" }}
                       animate={{ x: 0 }}
                       exit={{ x: "100%" }}
                       transition={{ duration: 0.3, ease: "linear" }}
-                      className="relative h-full w-full md:w-[400px] bg-[#1a1614] shadow-2xl flex flex-col z-10 overflow-hidden"
+                      className="relative h-full w-full md:w-[400px] bg-[#1a1614] dark:bg-zinc-950 shadow-2xl dark:shadow-md dark:shadow-black/50 dark:border-l dark:border-white/10 flex flex-col z-10 overflow-hidden"
                     >
                       <button
                         onClick={() => setSelectedReason(null)}
@@ -236,22 +252,22 @@ export function Landing({
                       </button>
 
                       {/* Header Image */}
-                      <div className="relative h-[250px] w-full shrink-0">
+                      <div className="relative h-[250px] md:h-[300px] w-full shrink-0">
                         <img loading="lazy" src={`/assets/${r.img}.webp`} alt={t(`reasons.items.${r.id}.title`)} className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
-                        <div className="absolute inset-0 bg-black/40 z-0 pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm z-0 pointer-events-none"></div>
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1a1614] via-[#1a1614]/80 to-transparent z-0 pointer-events-none"></div>
-                        
-                        <div className="absolute bottom-0 left-0 p-8 flex flex-col justify-end w-full z-10 translate-y-6">
-                          <div className="flex flex-none h-14 w-14 items-center justify-center rounded-full bg-[#c81e2c] backdrop-blur-md text-white mb-0 mt-0 shadow-lg border border-red-400/30">
-                            <r.Icon className="h-6 w-6 drop-shadow-md" />
+
+                        <div className="absolute bottom-0 left-0 p-8 md:p-10 flex flex-col justify-end w-full z-10 translate-y-6">
+                          <div className="flex flex-none h-14 w-14 items-center justify-center rounded-full bg-[#c81e2c] backdrop-blur-md text-white shadow-lg border border-red-400/30">
+                            <r.Icon className="h-6 w-6" />
                           </div>
                         </div>
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 overflow-y-auto p-8 pt-8 text-left">
-                        <h3 className="text-3xl font-bold tracking-tight text-white drop-shadow-md leading-tight">{t(`reasons.items.${r.id}.title`)}</h3>
-                        <p className="mt-6 text-base leading-relaxed text-gray-300 drop-shadow-md">
+                      <div className="flex-1 overflow-y-auto p-8 md:p-10 pt-8 text-left">
+                        <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">{t(`reasons.items.${r.id}.title`)}</h3>
+                        <p className="mt-6 text-sm md:text-base leading-[1.6] text-gray-300">
                           {t(`reasons.items.${r.id}.desc`)}
                         </p>
                       </div>
@@ -283,9 +299,9 @@ export function Landing({
                 <SwiperSlide key={`mobile-${d?.id}`}>
                   <div
                     onClick={() => setExpandedDivision(d?.id)}
-                    className="relative overflow-hidden w-full h-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-[2.5rem] cursor-pointer"
+                    className="relative overflow-hidden w-full h-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-2xl cursor-pointer"
                   >
-                    <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
+                    <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${d?.name === 'GCS' ? 'object-[center_80%]' : 'object-center'}`} />
                     <div className="absolute inset-0 bg-black/20 z-0 pointer-events-none"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-90 z-0 pointer-events-none"></div>
 
@@ -293,11 +309,11 @@ export function Landing({
                       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-600 backdrop-blur-md text-white mb-6 shadow-xl border border-red-400/30">
                         {d?.Icon && <d.Icon className="h-8 w-8 drop-shadow-md" />}
                       </div>
-                      <h3 className="font-bold tracking-tight text-white drop-shadow-md text-3xl">{t(`divisions.items.${d?.id}.name`)}</h3>
+                      <h3 className="font-bold tracking-tight text-white dark:text-zinc-50 drop-shadow-md text-3xl">{t(`divisions.items.${d?.id}.name`)}</h3>
                       <div className="mt-2 text-sm font-bold uppercase tracking-wider text-red-400 drop-shadow-md">
                         {t(`divisions.items.${d?.id}.tagline`)}
                       </div>
-                      <p className="mt-4 leading-relaxed text-gray-100 drop-shadow-md text-base line-clamp-2">
+                      <p className="mt-4 leading-relaxed text-gray-100 dark:text-zinc-400 drop-shadow-md text-base line-clamp-2">
                         {t(`divisions.items.${d?.id}.desc`)}
                       </p>
                     </div>
@@ -313,7 +329,7 @@ export function Landing({
               modules={[Navigation]}
               navigation
               slidesPerView={4}
-              spaceBetween={24}
+              spaceBetween={32}
               className="w-full pb-8 !overflow-visible"
             >
               {DIVISIONS?.map((d) => (
@@ -322,21 +338,21 @@ export function Landing({
                     layoutId={`card-${d?.id}`}
                     onClick={() => setExpandedDivision(d?.id)}
                     whileHover={{ scale: 1.05, y: -10 }}
-                    className="w-full relative overflow-hidden [transform:translateZ(0)] group cursor-pointer rounded-[2rem] aspect-[4/5] shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-shadow ease-linear duration-500 hover:shadow-[0_20px_40px_rgba(220,38,38,0.2)]"
+                    className="w-full relative overflow-hidden [transform:translateZ(0)] group cursor-pointer rounded-2xl aspect-[4/5] lg:aspect-auto lg:h-[500px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-shadow ease-linear duration-500 hover:shadow-[0_20px_40px_rgba(220,38,38,0.2)]"
                   >
-                    <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className="absolute inset-0 w-full h-full object-cover object-center transition-transform ease-linear duration-700 group-hover:scale-105 pointer-events-none" />
+                    <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className={`absolute inset-0 w-full h-full object-cover transition-transform ease-linear duration-700 group-hover:scale-105 pointer-events-none ${d?.name === 'GCS' ? 'object-[center_80%]' : 'object-center'}`} />
                     <div className="absolute inset-0 bg-black/50 transition-opacity ease-linear duration-500 group-hover:opacity-20 z-0 pointer-events-none"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 z-0 pointer-events-none"></div>
 
                     <div className="absolute bottom-0 left-0 p-8 flex flex-col justify-end w-full z-10 transition-transform ease-linear duration-500 group-hover:-translate-y-2 pointer-events-none">
-                      <motion.div layoutId={`icon-${d?.id}`} className="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 backdrop-blur-md text-white mb-6 shadow-xl border border-red-400/30">
-                        {d?.Icon && <d.Icon className="h-6 w-6 drop-shadow-md" />}
+                      <motion.div layoutId={`icon-${d?.id}`} className="flex h-14 w-14 lg:h-20 lg:w-20 items-center justify-center rounded-full bg-red-600 backdrop-blur-md text-white mb-6 lg:mb-8 shadow-xl border border-red-400/30">
+                        {d?.Icon && <d.Icon className="h-6 w-6 lg:h-10 lg:w-10 drop-shadow-md" />}
                       </motion.div>
-                      <motion.h3 layoutId={`title-${d?.id}`} className="text-2xl font-bold tracking-tight text-white drop-shadow-md">{t(`divisions.items.${d?.id}.name`)}</motion.h3>
-                      <motion.div layoutId={`tagline-${d?.id}`} className="mt-1.5 text-xs font-bold uppercase tracking-wider text-red-400 drop-shadow-md">
+                      <motion.h3 layoutId={`title-${d?.id}`} className="text-2xl lg:text-4xl font-bold tracking-tight text-white dark:text-zinc-50 drop-shadow-md">{t(`divisions.items.${d?.id}.name`)}</motion.h3>
+                      <motion.div layoutId={`tagline-${d?.id}`} className="mt-1.5 lg:mt-2 text-xs lg:text-sm font-bold uppercase tracking-wider text-red-400 drop-shadow-md">
                         {t(`divisions.items.${d?.id}.tagline`)}
                       </motion.div>
-                      <motion.p layoutId={`desc-${d?.id}`} className="mt-3 text-sm leading-relaxed text-gray-100 drop-shadow-md line-clamp-2">
+                      <motion.p layoutId={`desc-${d?.id}`} className="mt-3 lg:mt-5 text-sm lg:text-lg leading-relaxed text-gray-100 dark:text-zinc-400 drop-shadow-md line-clamp-2 lg:line-clamp-3">
                         {t(`divisions.items.${d?.id}.desc`)}
                       </motion.p>
                     </div>
@@ -368,7 +384,7 @@ export function Landing({
                       <X className="w-8 h-8 drop-shadow-md" />
                     </button>
 
-                    <div className="relative w-full h-full md:max-w-lg md:h-[85vh] shadow-2xl pointer-events-auto rounded-none md:rounded-[2.5rem] overflow-hidden">
+                    <div className="relative w-full h-full md:max-w-5xl md:h-[85vh] pointer-events-auto">
                       <Swiper
                         modules={[Navigation]}
                         navigation={true}
@@ -380,28 +396,77 @@ export function Landing({
                       >
                         {DIVISIONS?.map((d) => (
                           <SwiperSlide key={`popup-${d?.id}`}>
-                            <motion.div
-                              layoutId={expandedDivision === d?.id ? `card-${d?.id}` : undefined}
-                              className="relative w-full h-full bg-[#1a1614] overflow-hidden"
-                            >
-                              <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
-                              <div className="absolute inset-0 bg-black/20 md:bg-black/10 z-0 pointer-events-none"></div>
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 md:via-black/40 to-transparent z-0 pointer-events-none"></div>
+                            <div className="flex w-full h-full items-center justify-center">
+                              {/* Left Panel: Software */}
+                              <motion.div
+                                initial={{ opacity: 0, x: 30 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3, ease: "easeOut", duration: 0.5 }}
+                                className="hidden md:flex flex-col justify-center w-[280px] pr-10 text-right"
+                              >
+                                <div className="text-xs font-mono tracking-widest text-gray-400 uppercase mb-5 flex items-center justify-end gap-3">
+                                  Software
+                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                </div>
+                                <ul className="space-y-4">
+                                  {d.software?.map((s, i) => (
+                                    <li key={`s-${i}`} className="text-gray-100 dark:text-zinc-400 font-semibold tracking-wide">{s}</li>
+                                  ))}
+                                </ul>
+                              </motion.div>
 
-                              <div className="relative h-full flex flex-col justify-end p-8 md:p-12 pt-32 md:pt-48 w-full z-10 overflow-y-auto">
-                                <div className="flex-1 md:flex-none"></div>
-                                <motion.div layoutId={expandedDivision === d?.id ? `icon-${d?.id}` : undefined} className="flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full bg-red-600 backdrop-blur-md text-white mb-6 shadow-xl border border-red-400/30">
-                                  {d?.Icon && <d.Icon className="h-8 w-8 md:h-10 md:w-10 drop-shadow-md" />}
-                                </motion.div>
-                                <motion.h3 layoutId={expandedDivision === d?.id ? `title-${d?.id}` : undefined} className="text-3xl md:text-4xl font-bold tracking-tight text-white drop-shadow-md">{t(`divisions.items.${d?.id}.name`)}</motion.h3>
-                                <motion.div layoutId={expandedDivision === d?.id ? `tagline-${d?.id}` : undefined} className="mt-2 text-sm font-bold uppercase tracking-wider text-red-400 drop-shadow-md">
-                                  {t(`divisions.items.${d?.id}.tagline`)}
-                                </motion.div>
-                                <motion.p layoutId={expandedDivision === d?.id ? `desc-${d?.id}` : undefined} className="mt-4 md:mt-6 text-base md:text-lg leading-relaxed text-gray-100 drop-shadow-md pb-8">
-                                  {t(`divisions.items.${d?.id}.desc`)}
-                                </motion.p>
-                              </div>
-                            </motion.div>
+                              {/* Center Card */}
+                              <motion.div
+                                layoutId={expandedDivision === d?.id ? `card-${d?.id}` : undefined}
+                                className="relative w-full md:w-[450px] h-full bg-[#1a1614] dark:bg-zinc-950 overflow-hidden rounded-none md:rounded-[2.5rem] shadow-2xl dark:shadow-md dark:shadow-black/50 dark:border dark:border-white/10 flex-shrink-0"
+                              >
+                                <img loading="lazy" width="800" height="800" src={`/assets/${d?.name}.webp`} alt={d?.name} className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${d?.name === 'GCS' ? 'object-[center_80%]' : 'object-center'}`} />
+                                <div className="absolute inset-0 bg-black/20 md:bg-black/10 z-0 pointer-events-none"></div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 md:via-black/40 to-transparent z-0 pointer-events-none"></div>
+
+                                <div className="relative h-full flex flex-col justify-end p-8 md:p-12 pt-32 md:pt-48 w-full z-10 overflow-y-auto pb-10">
+                                  <div className="flex-1 md:flex-none"></div>
+                                  <motion.div layoutId={expandedDivision === d?.id ? `icon-${d?.id}` : undefined} className="flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full bg-red-600 backdrop-blur-md text-white mb-6 shadow-xl border border-red-400/30 shrink-0">
+                                    {d?.Icon && <d.Icon className="h-8 w-8 md:h-10 md:w-10 drop-shadow-md" />}
+                                  </motion.div>
+                                  <motion.h3 layoutId={expandedDivision === d?.id ? `title-${d?.id}` : undefined} className="text-3xl md:text-4xl font-bold tracking-tight text-white dark:text-zinc-50 drop-shadow-md">{t(`divisions.items.${d?.id}.name`)}</motion.h3>
+                                  <motion.div layoutId={expandedDivision === d?.id ? `tagline-${d?.id}` : undefined} className="mt-2 text-sm font-bold uppercase tracking-wider text-red-400 drop-shadow-md">
+                                    {t(`divisions.items.${d?.id}.tagline`)}
+                                  </motion.div>
+                                  <motion.p layoutId={expandedDivision === d?.id ? `desc-${d?.id}` : undefined} className="mt-4 md:mt-6 text-base md:text-lg leading-relaxed text-gray-100 dark:text-zinc-400 drop-shadow-md">
+                                    {t(`divisions.items.${d?.id}.desc`)}
+                                  </motion.p>
+                                  
+                                  {/* Mobile-Only Tech Stack Chips */}
+                                  <div className="md:hidden mt-6 flex flex-wrap gap-2">
+                                    {d.software?.map((s, i) => (
+                                      <span key={`ms-${i}`} className="bg-red-500/20 border border-red-500/30 text-red-200 text-xs px-3 py-1.5 rounded-full whitespace-nowrap">{s}</span>
+                                    ))}
+                                    {d.hardware?.map((h, i) => (
+                                      <span key={`mh-${i}`} className="bg-blue-500/20 border border-blue-500/30 text-blue-200 text-xs px-3 py-1.5 rounded-full whitespace-nowrap">{h}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              </motion.div>
+
+                              {/* Right Panel: Hardware */}
+                              <motion.div
+                                initial={{ opacity: 0, x: -30 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3, ease: "easeOut", duration: 0.5 }}
+                                className="hidden md:flex flex-col justify-center w-[280px] pl-10 text-left"
+                              >
+                                <div className="text-xs font-mono tracking-widest text-gray-400 uppercase mb-5 flex items-center justify-start gap-3">
+                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                  Equipment
+                                </div>
+                                <ul className="space-y-4">
+                                  {d.hardware?.map((h, i) => (
+                                    <li key={`h-${i}`} className="text-gray-100 font-semibold tracking-wide">{h}</li>
+                                  ))}
+                                </ul>
+                              </motion.div>
+                            </div>
                           </SwiperSlide>
                         ))}
                       </Swiper>
@@ -432,7 +497,7 @@ function SectionHeading({ kicker, title }: { kicker: string; title: string }) {
       <div className="text-sm font-bold uppercase tracking-widest text-[#c81e2c]">
         {kicker}
       </div>
-      <h2 className="mt-3 text-4xl font-extrabold tracking-tighter text-[#1a1614] sm:text-5xl">
+      <h2 className="mt-3 text-4xl font-extrabold tracking-tighter text-[#1a1614] dark:text-white sm:text-5xl transition-colors duration-500">
         {title}
       </h2>
     </div>

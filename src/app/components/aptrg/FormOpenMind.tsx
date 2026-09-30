@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   ArrowLeft,
   UploadCloud,
@@ -200,6 +200,22 @@ export function FormOpenMind({
   const [submitting, setSubmitting] = useState(false);
   const [stage, setStage] = useState("");
 
+  useEffect(() => {
+    supabase
+      .from("events")
+      .select("is_active")
+      .eq("event_key", "open_mind")
+      .maybeSingle<{ is_active: boolean }>()
+      .then(({ data, error }) => {
+        if (!error && data !== null && !data.is_active) {
+          toast.error("Pendaftaran ditutup", {
+            description: "Sesi Open Mind saat ini sedang tidak menerima pendaftar baru.",
+          });
+          onNavigate("dashboard-user");
+        }
+      });
+  }, [onNavigate]);
+
   /* ── Validation ──────────────────────────────────────── */
 
   const canSubmit =
@@ -326,7 +342,7 @@ export function FormOpenMind({
                     value={nama}
                     onChange={(e) => setNama(e.target.value)}
                     required
-                    disabled
+                    disabled={!!profile?.nama} // Izinkan isi jika nama kosong dari profil
                     className="rounded-[10px] border-white/70 bg-white/60 text-[14px] text-[#2a2320] placeholder:text-[#b0a49e] focus-visible:ring-1 disabled:opacity-70 disabled:cursor-not-allowed"
                     style={{ "--tw-ring-color": AMBER } as React.CSSProperties}
                   />
@@ -361,7 +377,7 @@ export function FormOpenMind({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    disabled
+                    disabled={!!user?.email} // Izinkan isi jika email kosong dari auth provider
                     className="rounded-[10px] border-white/70 bg-white/60 text-[14px] text-[#2a2320] placeholder:text-[#b0a49e] focus-visible:ring-1 disabled:opacity-70 disabled:cursor-not-allowed"
                     style={{ "--tw-ring-color": AMBER } as React.CSSProperties}
                   />

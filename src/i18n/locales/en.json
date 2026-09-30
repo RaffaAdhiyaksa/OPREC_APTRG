@@ -37,19 +37,19 @@
     "items": {
       "facilities": {
         "title": "Advanced Facilities",
-        "desc": "Access 3D printers, composite materials, avionics testing equipment, and a dedicated workspace to bring your brilliant ideas to life."
+        "desc": "This is more than just a lab, it is a playground for your innovation. Gain extensive access to everything from fabrication tools and composite materials to industry-standard avionics testing equipment, enabling you to transform brilliant ideas into flight-ready prototypes. Here, you have the space to push past technical boundaries and bring your concepts to life."
       },
       "mentorship": {
         "title": "Expert Mentorship",
-        "desc": "Learn directly from experienced lab assistants who have championed national and international flying robot competitions."
+        "desc": "Commit yourself to national and international competitions like KRTI or Teknofest. We don't just participate for the sake of it; we aim to bring home the championship title. Beyond honing your technical skills, you will build a network with innovators and other outstanding individuals, thereby gaining greater recognition for your research."
       },
       "competitions": {
-        "title": "Prestigious Competitions",
-        "desc": "Represent the university at KRTI, Teknofest, and other renowned events. Prove that your research is championship material!"
+        "title": "Be the Winner",
+        "desc": "Here, you are guided directly by assistants and practitioners experienced in various prestigious flying robot competitions. The structured, to-the-point knowledge transfer allows your learning curve to accelerate rapidly."
       },
       "career": {
         "title": "Career Kickstart",
-        "desc": "Gain hands-on experience highly valued by the aerospace, technology, and defense industries. Get ready to be scouted by top recruiters!"
+        "desc": "Build a solid engineering portfolio through real-world UAV projects that align with current industry standards. The technical skills you gain here are valuable assets sought after by major companies in the aerospace and defense sectors."
       }
     }
   },

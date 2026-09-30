@@ -1,5 +1,5 @@
 import { Users, TrendingUp, CalendarClock } from "lucide-react";
-import { GlassCard, Screen, RED, AMBER } from "../aptrg/shared";
+import { GlassCard, RED, AMBER } from "../aptrg/shared";
 import { Avatar, DivTag } from "./MemberLayout";
 import { MENTEES, DIV_COLORS, MEETINGS } from "./data";
 
