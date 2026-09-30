@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FileText, Video, Presentation, Play, Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { FileText, Video, Presentation, Play, Plus, Pencil, Trash2, Loader2, RefreshCw } from "lucide-react";
 import { GlassCard, RED, AMBER } from "../aptrg/shared";
 import { DivTag } from "./MemberLayout";
 import { supabase } from "../../../lib/supabaseClient";
@@ -53,6 +53,7 @@ export function Materi() {
 
   const [data, setData] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -73,12 +74,14 @@ export function Materi() {
 
   const fetchData = async () => {
     setLoading(true);
+    setErrorMsg(null);
     const { data: dbData, error } = await supabase
       .from("materials")
       .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
+      setErrorMsg("Gagal memuat daftar materi. Periksa koneksi Anda.");
       toast.error("Gagal memuat materi: " + error.message);
     } else {
       setData(dbData || []);
@@ -180,6 +183,13 @@ export function Materi() {
         <div className="flex justify-center py-10">
           <Loader2 className="h-6 w-6 animate-spin text-[#857a75]" />
         </div>
+      ) : errorMsg ? (
+        <div className="flex flex-col items-center justify-center py-14 text-center">
+          <p className="text-[14px] text-[#c81e2c] mb-4">{errorMsg}</p>
+          <button onClick={fetchData} className="flex items-center gap-2 rounded-full bg-white/80 border border-[#c81e2c]/30 px-5 py-2.5 text-[14px] font-medium text-[#c81e2c] hover:bg-[#c81e2c]/10 transition shadow-sm">
+            <RefreshCw className="h-4 w-4" /> Coba Lagi
+          </button>
+        </div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 content-start">
           {list.map((m) => {
@@ -240,8 +250,13 @@ export function Materi() {
             );
           })}
           {list.length === 0 && (
-            <div className="col-span-full py-14 text-center text-sm text-gray-400">
-              Data materi belum tersedia.
+            <div className="col-span-full py-14 text-center">
+              <div className="mb-3 flex h-12 w-12 mx-auto items-center justify-center rounded-full bg-white text-[#857a75] shadow-sm">
+                 <FileText className="h-5 w-5 opacity-40" />
+              </div>
+              <p className="text-sm text-gray-400">
+                 {data.length === 0 ? "Belum ada data materi." : "Tidak ada materi yang cocok dengan filter."}
+              </p>
             </div>
           )}
         </div>

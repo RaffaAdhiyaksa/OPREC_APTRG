@@ -37,18 +37,9 @@ import { supabase } from "../../../lib/supabaseClient";
  * Signed URL berlaku 1 jam (3600 detik).
  */
 
-/* ── Types ─────────────────────────────────────────────── */
+/* ── Types (from centralized database.ts) ────────────────── */
 
-type Applicant = {
- id: string;
- nama: string;
- nim: string;
- email: string;
- divisi: string;
- status: "pending" | "lolos-admin" | "wawancara" | "diterima" | "ditolak";
- tanggal_daftar: string;
- cv_path: string | null;
-};
+import type { Applicant } from "../../types/database";
 
 /* ── Helpers ────────────────────────────────────────────── */
 

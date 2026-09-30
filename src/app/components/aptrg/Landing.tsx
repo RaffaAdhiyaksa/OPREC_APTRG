@@ -69,7 +69,7 @@ export function Landing({
     // jangan nyangkut nunggu selamanya — arahkan ke "dashboard", yang sudah
     // punya tampilan error yang jelas buat kasus ini (lihat Dashboard.tsx).
     if (loading) return;
-    const target = role === "admin" || role === "asisten" || role === null ? "dashboard" : "dashboard-user";
+    const target = "dashboard";
     onNavigate(target);
   };
 
@@ -101,14 +101,13 @@ export function Landing({
           >
             <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="inline-flex items-center gap-2 rounded-full border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-black/40 px-4 py-1.5 text-sm font-semibold text-[#c81e2c] backdrop-blur-xl shadow-sm transition-colors duration-500">
               <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: RED }} />
-              {t("hero.registrationOpen")}
+              Internal Learning Management System
             </motion.div>
             <motion.h1 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-8 text-5xl sm:text-6xl font-extrabold leading-[1.1] tracking-tighter text-[#1a1614] dark:text-zinc-50 transition-colors duration-500">
-              {t("hero.openRecruitment")}{" "}
-              <span className="text-[#c81e2c]">APTRG 2026</span>
+              APTRG LMS <span className="text-[#c81e2c]">Portal</span>
             </motion.h1>
             <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-6 max-w-lg text-lg leading-relaxed text-gray-600 dark:text-zinc-400 transition-colors duration-500">
-              {t("hero.desc")}
+              Selamat datang di portal pembelajaran khusus Asisten Magang APTRG. Kelola tugas, akses materi, dan tingkatkan kemampuanmu bersama kami.
             </motion.p>
             <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-10 flex flex-wrap items-center gap-4">
               {user ? (
@@ -116,23 +115,15 @@ export function Landing({
                   onClick={goToDashboard}
                   className="inline-flex items-center justify-center rounded-full bg-[#c81e2c] px-8 py-3.5 text-base font-bold text-white shadow-lg transition-all ease-linear duration-300 hover:scale-[1.03] hover:shadow-xl hover:bg-[#a11420]"
                 >
-                  {t("hero.openDashboard")} <ArrowRight className="ml-2 h-5 w-5" />
+                  Buka Portal LMS <ArrowRight className="ml-2 h-5 w-5" />
                 </button>
               ) : (
-                <>
-                  <button
-                    onClick={() => onNavigate("login")}
-                    className="inline-flex items-center justify-center rounded-full bg-[#c81e2c] px-8 py-3.5 text-base font-bold text-white shadow-lg transition-all ease-linear duration-300 hover:scale-[1.03] hover:shadow-xl hover:bg-[#a11420]"
-                  >
-                    {t("hero.openDashboard")} <ArrowRight className="ml-2 h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => onNavigate("login")}
-                    className="rounded-full border border-gray-200 bg-white/80 px-8 py-3.5 text-base font-semibold text-[#1a1614] backdrop-blur-xl transition-all ease-linear duration-300 hover:bg-gray-50 hover:border-gray-300"
-                  >
-                    {t("hero.alreadyRegistered")}
-                  </button>
-                </>
+                <button
+                  onClick={() => onNavigate("login")}
+                  className="inline-flex items-center justify-center rounded-full bg-[#c81e2c] px-8 py-3.5 text-base font-bold text-white shadow-lg transition-all ease-linear duration-300 hover:scale-[1.03] hover:shadow-xl hover:bg-[#a11420]"
+                >
+                  Login Portal LMS <ArrowRight className="ml-2 h-5 w-5" />
+                </button>
               )}
             </motion.div>            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { ease: "linear", duration: 0.4 } } }} className="mt-12 flex gap-10 border-t border-gray-200 pt-8 transition-colors duration-500">
               {[

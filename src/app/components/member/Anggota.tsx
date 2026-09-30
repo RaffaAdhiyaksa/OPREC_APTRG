@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, Loader2, Shield, User, RefreshCw, Users } from "lucide-react";
 import { GlassCard, RED } from "../aptrg/shared";
 import { Avatar, DivTag, StatusBadge } from "./MemberLayout";
 import { supabase } from "../../../lib/supabaseClient";
@@ -56,6 +56,7 @@ export function Anggota({
 
   const [data, setData] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -76,12 +77,14 @@ export function Anggota({
 
   const fetchData = async () => {
     setLoading(true);
+    setErrorMsg(null);
     const { data: dbData, error } = await supabase
       .from("members")
       .select("*")
       .order("nama", { ascending: true });
 
     if (error) {
+      setErrorMsg("Gagal memuat daftar anggota. Periksa koneksi Anda.");
       toast.error("Gagal memuat anggota: " + error.message);
     } else {
       setData(dbData || []);
@@ -197,6 +200,13 @@ export function Anggota({
         <div className="flex justify-center py-10">
           <Loader2 className="h-6 w-6 animate-spin text-[#857a75]" />
         </div>
+      ) : errorMsg ? (
+        <div className="flex flex-col items-center justify-center py-14 text-center">
+          <p className="text-[14px] text-[#c81e2c] mb-4">{errorMsg}</p>
+          <button onClick={fetchData} className="flex items-center gap-2 rounded-full bg-white/80 border border-[#c81e2c]/30 px-5 py-2.5 text-[14px] font-medium text-[#c81e2c] hover:bg-[#c81e2c]/10 transition shadow-sm">
+            <RefreshCw className="h-4 w-4" /> Coba Lagi
+          </button>
+        </div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((m) => (
@@ -216,21 +226,24 @@ export function Anggota({
                   <Avatar initials={m.nama.slice(0, 2).toUpperCase()} size={52} imgUrl={m.foto_url || undefined} />
                   <StatusBadge status={m.status_jabatan === "Ketua Lab" || m.status_jabatan === "Kepala Divisi" || m.status_jabatan === "Asisten Lab" ? "asisten" : "magang"} />
                 </div>
-                <h3 className="mt-4 text-[16px] font-bold tracking-tight text-[#1a1614]">
+                <h3 className="mt-4 text-[16px] font-bold tracking-tight text-[#1a1614] line-clamp-1">
                   {m.nama}
                 </h3>
                 <div className="mt-1 text-[12px] text-gray-400">
                   {m.status_jabatan} · Angkatan {m.angkatan}
                 </div>
                 <div className="mt-auto pt-3">
-                  <DivTag label={m.divisi} color={DIV_COLORS[m.divisi] || "#857a75"} />
+                  <DivTag label={m.divisi} color={DIV_COLORS[m.divisi as DivKey] || "#857a75"} />
                 </div>
               </GlassCard>
             </button>
           ))}
           {filtered.length === 0 && (
-            <div className="col-span-full py-14 text-center text-sm text-gray-400">
-              Data anggota belum tersedia.
+            <div className="col-span-full py-14 text-center">
+              <Users className="mx-auto mb-3 h-10 w-10 text-slate-300" />
+              <p className="text-sm text-gray-400">
+                {data.length === 0 ? "Belum ada data anggota." : "Tidak ada anggota yang cocok dengan filter."}
+              </p>
             </div>
           )}
         </div>

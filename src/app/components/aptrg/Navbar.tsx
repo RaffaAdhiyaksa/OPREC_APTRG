@@ -43,7 +43,7 @@ export function Navbar({
 
  const goToDashboard = () => {
  if (loading) return;
- const target = role === "admin" || role === "asisten" || role === null ? "dashboard" : "dashboard-user";
+ const target = "dashboard";
  onNavigate(target);
  };
 

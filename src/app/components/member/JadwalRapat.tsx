@@ -1,8 +1,11 @@
-import { useState } from "react";
-import { CalendarDays, List, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CalendarDays, List, MapPin, Clock, ChevronLeft, ChevronRight, Loader2, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { GlassCard, RED } from "../aptrg/shared";
-import { DivTag, AvatarStack } from "./MemberLayout";
-import { MEETINGS, DIV_COLORS, DivKey } from "./data";
+import { DivTag } from "./MemberLayout";
+import { DIV_COLORS, DivKey } from "./data";
+import { supabase } from "../../../lib/supabaseClient";
+import type { Meeting } from "../../types/database";
 
 const DIVISIONS: (DivKey | "Semua")[] = [
   "Semua",
@@ -15,11 +18,39 @@ const DIVISIONS: (DivKey | "Semua")[] = [
 export function JadwalRapat() {
   const [view, setView] = useState<"calendar" | "list">("list");
   const [filter, setFilter] = useState<DivKey | "Semua">("Semua");
+  const [allMeetings, setAllMeetings] = useState<Meeting[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  async function fetchMeetings() {
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const { data, error } = await supabase
+        .from("meetings")
+        .select("*")
+        .order("date", { ascending: true })
+        .order("time", { ascending: true });
+      
+      if (error) throw error;
+      if (data) setAllMeetings(data);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Gagal memuat jadwal rapat");
+      toast.error("Gagal memuat jadwal rapat");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchMeetings();
+  }, []);
 
   const meetings =
     filter === "Semua"
-      ? MEETINGS
-      : MEETINGS.filter((m) => m.division === filter);
+      ? allMeetings
+      : allMeetings.filter((m) => m.kategori_divisi === filter || m.kategori_divisi === "Umum");
 
   return (
     <div className="space-y-6">
@@ -63,13 +94,27 @@ export function JadwalRapat() {
         </div>
       </GlassCard>
 
-      {view === "list" ? (
+      {loading ? (
+        <div className="flex justify-center p-8">
+          <Loader2 className="h-8 w-8 animate-spin text-[#c81e2c]" />
+        </div>
+      ) : errorMsg ? (
+        <div className="flex flex-col items-center justify-center p-8 text-center bg-white/40 rounded-2xl border border-white/50 backdrop-blur-md">
+          <p className="text-[13px] text-[#c81e2c] mb-3">{errorMsg}</p>
+          <button onClick={fetchMeetings} className="flex items-center gap-1.5 rounded-full border border-[#c81e2c]/30 bg-white/80 px-4 py-2 text-[13px] font-medium text-[#c81e2c] hover:bg-[#c81e2c]/10 transition">
+            <RefreshCw className="h-4 w-4" /> Coba Lagi
+          </button>
+        </div>
+      ) : view === "list" ? (
         <div className="grid gap-4 md:grid-cols-2">
+          {meetings.length === 0 && (
+             <div className="col-span-full py-8 text-center text-sm text-[#857a75]">Belum ada jadwal rapat.</div>
+          )}
           {meetings.map((m) => (
             <GlassCard key={m.id} className="p-5">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="text-[16px] font-bold text-[#2a2320]">{m.title}</h3>
-                <DivTag label={m.division} color={DIV_COLORS[m.division]} />
+                <DivTag label={m.kategori_divisi} color={DIV_COLORS[m.kategori_divisi as DivKey] || "#857a75"} />
               </div>
               <div className="mt-3 space-y-1.5 text-[13px] text-[#5a504b]">
                 <div className="flex items-center gap-2">
@@ -89,14 +134,13 @@ export function JadwalRapat() {
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between border-t border-white/60 pt-3">
-                <span className="text-[12px] text-[#857a75]">Peserta</span>
-                <AvatarStack people={m.attendees} />
+                 <span className="text-[12px] text-[#857a75]">{m.description || "Tidak ada deskripsi"}</span>
               </div>
             </GlassCard>
           ))}
         </div>
       ) : (
-        <CalendarView filter={filter} />
+        <CalendarView meetings={meetings} />
       )}
     </div>
   );
@@ -127,7 +171,7 @@ function ToggleBtn({
   );
 }
 
-function CalendarView({ filter }: { filter: DivKey | "Semua" }) {
+function CalendarView({ meetings }: { meetings: Meeting[] }) {
   // July 2026: starts on Wednesday (index 3), 31 days
   const startDay = 3;
   const daysInMonth = 31;
@@ -137,14 +181,12 @@ function CalendarView({ filter }: { filter: DivKey | "Semua" }) {
   ];
   const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 
-  const meetings =
-    filter === "Semua"
-      ? MEETINGS
-      : MEETINGS.filter((m) => m.division === filter);
-
-  const byDay: Record<number, typeof MEETINGS> = {};
+  const byDay: Record<number, Meeting[]> = {};
   meetings.forEach((m) => {
-    const day = new Date(m.date).getDate();
+    // Need to handle timezone parsing correctly. m.date is "YYYY-MM-DD"
+    // we split and use the DD part since we assume this calendar is fixed for July 2026.
+    const parts = m.date.split("-");
+    const day = parts.length === 3 ? parseInt(parts[2], 10) : new Date(m.date).getDate();
     (byDay[day] ||= []).push(m);
   });
 
@@ -190,14 +232,14 @@ function CalendarView({ filter }: { filter: DivKey | "Semua" }) {
                       key={m.id}
                       className="flex items-center gap-1 truncate rounded-md px-1.5 py-0.5 text-[10px] font-medium"
                       style={{
-                        background: `${DIV_COLORS[m.division]}22`,
-                        color: DIV_COLORS[m.division],
+                        background: `${DIV_COLORS[m.kategori_divisi as DivKey] || "#857a75"}22`,
+                        color: DIV_COLORS[m.kategori_divisi as DivKey] || "#857a75",
                       }}
                       title={m.title}
                     >
                       <span
                         className="h-1.5 w-1.5 flex-none rounded-full"
-                        style={{ background: DIV_COLORS[m.division] }}
+                        style={{ background: DIV_COLORS[m.kategori_divisi as DivKey] || "#857a75" }}
                       />
                       <span className="truncate">{m.title}</span>
                     </div>

@@ -1,14 +1,9 @@
 import { useState, useEffect } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabaseClient";
-import type { Role } from "../app/components/aptrg/shared";
+import type { Role, Profile, ProfileRow } from "../app/types/database";
 
-export type Profile = {
-  nama: string;
-  email: string;
-  hp: string | null;
-  avatar_url: string | null;
-};
+export type { Profile };
 
 export type AuthState = {
   /** User Supabase yang sedang login, atau null jika belum login. */
@@ -25,14 +20,6 @@ export type AuthState = {
   error: string | null;
   /** Refresh manual data profil (dipanggil setelah user edit profil sendiri). */
   refreshProfile: () => Promise<void>;
-};
-
-type ProfileRow = {
-  role: string;
-  nama: string;
-  email: string;
-  hp: string | null;
-  avatar_url: string | null;
 };
 
 /**

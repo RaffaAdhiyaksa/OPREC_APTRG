@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Pin, Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Pin, RefreshCw, Bell } from "lucide-react";
 import { GlassCard, RED } from "../aptrg/shared";
 import { Avatar } from "./MemberLayout";
 import { supabase } from "../../../lib/supabaseClient";
 import { useAuthContext } from "../../context/AuthContext";
 import { toast } from "sonner";
-import type { Announcement, AnnouncementCategory } from "../../types/database";
+import type { Announcement } from "../../types/database";
+export type AnnouncementCategory = "Rapat" | "Tugas" | "Umum" | "Deadline";
+
 import {
   Dialog,
   DialogContent,
@@ -27,17 +29,17 @@ import { Label } from "../ui/label";
 
 const CAT_COLORS: Record<AnnouncementCategory, string> = {
   Rapat: "#2f7dd1",
-  OPREC: "#c81e2c",
+  Tugas: "#c81e2c",
   Umum: "#857a75",
   Deadline: "#e3a548",
 };
 
 const FILTERS: (AnnouncementCategory | "Semua")[] = [
   "Semua",
+  "Tugas",
   "Rapat",
-  "OPREC",
-  "Umum",
   "Deadline",
+  "Umum",
 ];
 
 export function Pengumuman() {
@@ -50,7 +52,7 @@ export function Pengumuman() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  
+
   const [formData, setFormData] = useState<Partial<Announcement>>({
     title: "",
     content: "",
@@ -58,6 +60,7 @@ export function Pengumuman() {
     is_pinned: false,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -65,12 +68,14 @@ export function Pengumuman() {
 
   const fetchData = async () => {
     setLoading(true);
+    setErrorMsg(null);
     const { data: dbData, error } = await supabase
       .from("announcements")
       .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
+      setErrorMsg("Gagal memuat pengumuman. Periksa koneksi Anda.");
       toast.error("Gagal memuat pengumuman: " + error.message);
     } else {
       setData(dbData || []);
@@ -102,7 +107,7 @@ export function Pengumuman() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Apakah Anda yakin ingin menghapus pengumuman ini?")) return;
-    
+
     const { error } = await supabase.from("announcements").delete().eq("id", id);
     if (error) {
       toast.error("Gagal menghapus: " + error.message);
@@ -121,7 +126,7 @@ export function Pengumuman() {
       content: formData.content,
       category: formData.category,
       is_pinned: formData.is_pinned,
-      author: editingId ? undefined : (profile?.nama || "Admin"), // Jangan timpa author saat edit
+      author: editingId ? undefined : (profile?.nama || "Admin APTRG"),
     };
 
     let error;
@@ -176,7 +181,7 @@ export function Pengumuman() {
             className="flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold text-white transition-all duration-300 ease-in-out hover:scale-[1.03] hover:shadow-lg active:scale-[0.98]"
             style={{ background: RED, boxShadow: "0 4px 14px -3px rgba(200,30,44,0.35)" }}
           >
-            <Plus className="h-4 w-4" /> Tambah Pengumuman
+            <Plus className="h-4 w-4" /> Tambah Info / Pengumuman
           </button>
         )}
       </div>
@@ -185,9 +190,22 @@ export function Pengumuman() {
         <div className="flex justify-center py-10">
           <Loader2 className="h-6 w-6 animate-spin text-[#857a75]" />
         </div>
+      ) : errorMsg ? (
+        <div className="flex flex-col items-center justify-center py-14 text-center">
+          <p className="text-[14px] text-[#c81e2c] mb-4">{errorMsg}</p>
+          <button onClick={fetchData} className="flex items-center gap-2 rounded-full bg-white/80 border border-[#c81e2c]/30 px-5 py-2.5 text-[14px] font-medium text-[#c81e2c] hover:bg-[#c81e2c]/10 transition shadow-sm">
+            <RefreshCw className="h-4 w-4" /> Coba Lagi
+          </button>
+        </div>
       ) : list.length === 0 ? (
-        <div className="py-14 text-center text-sm text-gray-400">
-          Belum ada data pengumuman.
+        <div className="flex flex-col items-center justify-center py-14 text-center">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#857a75] shadow-sm">
+            <Bell className="h-5 w-5 opacity-40" />
+          </div>
+          <p className="text-[13px] font-medium text-[#5a504b]">Belum ada pengumuman LMS</p>
+          <p className="mt-0.5 text-sm text-gray-400">
+            {data.length === 0 ? "Tidak ada informasi atau pengumuman yang dibagikan saat ini." : "Tidak ada pengumuman di kategori ini."}
+          </p>
         </div>
       ) : (
         list.map((f) => (
@@ -231,8 +249,8 @@ export function Pengumuman() {
             <h3 className="mt-4 text-[18px] font-bold tracking-tight text-[#1a1614]">{f.title}</h3>
             <p className="mt-2.5 text-sm leading-relaxed text-gray-500 whitespace-pre-wrap">{f.content}</p>
             <div className="mt-5 flex items-center gap-2.5 border-t border-gray-100 pt-4">
-              <Avatar initials={String(f.author || "").slice(0, 2).toUpperCase()} size={26} />
-              <span className="text-[13px] font-medium text-gray-500">{f.author}</span>
+              <Avatar initials={String(f.author || "AP").slice(0, 2).toUpperCase()} size={26} />
+              <span className="text-[13px] font-medium text-gray-500">{f.author || "Admin APTRG"}</span>
             </div>
           </GlassCard>
         ))
@@ -241,7 +259,7 @@ export function Pengumuman() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Pengumuman" : "Tambah Pengumuman"}</DialogTitle>
+            <DialogTitle>{editingId ? "Edit Info Pengumuman" : "Buat Info / Pengumuman LMS"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
             <div className="space-y-1.5">
@@ -250,36 +268,36 @@ export function Pengumuman() {
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Masukkan judul..."
+                placeholder="Misal: Penugasan Modul 1 Sistem Kontrol..."
               />
             </div>
-            
+
             <div className="space-y-1.5">
               <Label>Kategori</Label>
               <Select
                 value={formData.category}
-                onValueChange={(val: AnnouncementCategory) => setFormData({ ...formData, category: val })}
+                onValueChange={(val) => setFormData((prev) => ({ ...prev, category: val as AnnouncementCategory }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih kategori" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Umum">Umum</SelectItem>
+                  <SelectItem value="Tugas">Tugas</SelectItem>
                   <SelectItem value="Rapat">Rapat</SelectItem>
-                  <SelectItem value="OPREC">OPREC</SelectItem>
                   <SelectItem value="Deadline">Deadline</SelectItem>
+                  <SelectItem value="Umum">Umum</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-1.5">
-              <Label>Isi Pengumuman</Label>
+              <Label>Isi Pengumuman / Detail Informasi</Label>
               <Textarea
                 required
                 rows={5}
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="Tuliskan isi pengumuman..."
+                placeholder="Tuliskan detail instruksi, instruktur pembimbing, atau pengumuman..."
               />
             </div>
 
@@ -289,7 +307,7 @@ export function Pengumuman() {
                 onCheckedChange={(checked) => setFormData({ ...formData, is_pinned: checked })}
               />
               <Label className="cursor-pointer" onClick={() => setFormData({ ...formData, is_pinned: !formData.is_pinned })}>
-                Sematkan Pengumuman (Tampil di atas)
+                Sematkan Pengumuman (Prioritas Utama / Tampil di atas)
               </Label>
             </div>
 
@@ -308,7 +326,7 @@ export function Pengumuman() {
                 style={{ background: RED }}
               >
                 {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                {editingId ? "Simpan Perubahan" : "Tambah"}
+                {editingId ? "Simpan Perubahan" : "Publikasikan"}
               </button>
             </DialogFooter>
           </form>

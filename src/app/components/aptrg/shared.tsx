@@ -12,16 +12,11 @@ export const RED = "#c81e2c";
 export const RED_DEEP = "#a3151f";
 export const AMBER = "#e3a548";
 
-/* ---------- Screen type ---------- */
 export type Screen =
  | "landing"
- | "register"
  | "login"
- | "status"
  | "dashboard"
- | "dashboard-user"
  | "profil-user"
- | "dashboard-pendaftar"
  | "progress"
  | "jadwal"
  | "tubes"
@@ -31,21 +26,12 @@ export type Screen =
  | "profil"
  | "member-detail"
  | "struktur"
- | "kelola-oprec"
  | "kelola-anggota"
  | "kelola-jadwal"
- | "pilih-event"
- | "form-open-mind"
- | "pilih-bangku"
- | "open-mind-success"
- | "lolos-admin"
- | "undangan-wawancara"
- | "diterima"
- | "cek-pengumuman"
  | "logging-out";
 
-export type Role = "magang" | "asisten" | "admin";
-
+import type { Role } from "../../types/database";
+export type { Role };
 /* ---------- Background orbs ---------- */
 export function GlassBackground() {
  return null; // Disabled for clean SaaS aesthetic
