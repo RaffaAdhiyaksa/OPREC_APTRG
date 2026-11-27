@@ -42,3 +42,16 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
   - `GET /divisions` → setiap divisi menyertakan `members_count`.
   - Error validasi aturan admin (hapus/nonaktifkan diri sendiri, admin terakhir) dikembalikan sebagai 422 dengan `errors` per field.
 - Sementara: mock di `src/services/mock/users.ts` dan `divisions.ts` mengikuti bentuk ini.
+
+## 2026-11-28 — Materi, Tugas, Penilaian: asumsi mock (Tahap 6–7)
+- Temuan: PRD §7.3–7.5 belum merinci beberapa bentuk respons.
+- Kebutuhan frontend:
+  - `GET /materials` dan `GET /assignments` → `{ "data": [...] }`; frontend meminta `per_page=100` dan tidak memakai paginasi untuk daftar ini (jumlah per divisi kecil). Mohon konfirmasi atau beri tahu jika wajib paginasi.
+  - `Material` menyertakan `division` (`id, slug, name`), `author` (`id, name`), `embed_url` (YouTube, `null` untuk lainnya).
+  - `Assignment` (staff) menyertakan `stats: { total_interns, submitted, late, graded_draft, graded_published }`; (magang) `is_overdue, can_submit, my_submission, my_grade`.
+  - `GET /assignments/{id}/submissions` → `{ data: [{ user: { id, name, email, nim }, submission: <Submission>|null, grade: <Grade>|null }], meta: { total, submitted, missing, late, graded_draft, graded_published } }`.
+  - `<Submission>`: `id, method, file_name, file_size, mime_type, drive_link, note, is_late, submitted_at`. `<Grade>`: `id, score, feedback, status, published_at, graded_by { id, name }, updated_at`.
+  - `POST /assignments/{id}/grades/publish` → `{ "data": { "published": <jumlah> } }`.
+  - `GET /submissions/{id}/download` → header `Content-Disposition` dengan nama file asli (sudah di `exposed_headers`).
+  - Dashboard Asisten Aktif memakai `stats.total_interns` untuk "Jumlah Magang" karena belum ada endpoint jumlah magang per divisi untuk non-admin. Jika divisi belum punya tugas, angka menjadi 0.
+- Sementara: mock di `src/services/mock/materials.ts` dan `assignments.ts` mengikuti bentuk ini.
