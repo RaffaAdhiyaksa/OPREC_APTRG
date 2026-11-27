@@ -19,7 +19,7 @@ function ResearchCard({ division }: { division: Division }) {
       <img src={divisionPhoto(division.slug)} alt="" className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
       <div className="absolute inset-x-0 bottom-0 space-y-2 p-5 text-white">
-        <span className="text-[11px] font-bold uppercase tracking-widest text-red-300">Divisi Riset</span>
+        <span className="text-[11px] font-bold uppercase tracking-widest text-amber">Divisi Riset</span>
         <h3 className="text-2xl font-extrabold tracking-tight text-white">{division.name}</h3>
         <p className="flex items-center gap-1.5 text-sm text-white/80">
           <Users className="size-4" aria-hidden />

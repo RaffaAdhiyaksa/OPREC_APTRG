@@ -16,8 +16,8 @@ export function useSetDivisionActive() {
   });
 }
 
-export function useAdminDashboard() {
-  return useQuery({ queryKey: queryKeys.adminDashboard, queryFn: usersService.dashboard });
+export function useAdminDashboard(enabled = true) {
+  return useQuery({ queryKey: queryKeys.adminDashboard, queryFn: usersService.dashboard, enabled });
 }
 
 export function useUsers(params: UserListParams) {
