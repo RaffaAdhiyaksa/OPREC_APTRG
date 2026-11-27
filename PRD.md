@@ -109,8 +109,9 @@ Satu tabel `divisions`, dibedakan kolom `type`.
 ### FR-05: Sistem Notifikasi & Pengumuman Divisi
 
 - **Otorisasi ketat:** hanya `admin` atau `asisten_aktif` dengan `is_coordinator = true` yang dapat mengirim pengumuman.
-- Koordinator mengirim ke divisi risetnya (`research_division_id` dipaksa server). Admin memilih divisi spesifik atau *broadcast* global (`research_division_id = null`), dan opsional mempersempit ke satu role (`target_role`).
-- Ikon lonceng di navbar dengan penghitung *unread* (`announcement_reads`).
+- Koordinator mengirim ke asisten magang di divisi risetnya: server memaksa `research_division_id` = divisi koordinator dan `target_role = asisten_magang`, mengabaikan field target dari client. Admin memilih divisi spesifik atau *broadcast* global (`research_division_id = null`), dan opsional mempersempit ke satu role (`target_role`).
+- Status baca pengumuman disimpan di `announcement_reads`.
+- Notifikasi in-app (pengumuman baru, tugas dipublish, nilai dipublish/diperbarui) memakai tabel `notifications` bawaan Laravel (database channel). Ikon lonceng di navbar menampilkan jumlah notifikasi *unread*, diperbarui dengan polling 60 detik. Tanpa email dan tanpa WebSocket.
 
 ---
 
@@ -120,7 +121,7 @@ Semua tabel punya `id` dan `timestamps`. Semua FK memakai `foreignId()->constrai
 
 1. **`divisions`**: `slug` (unique), `name`, `type` enum(`research`,`competition`), `team_name` (nullable), `is_optional` (bool, default `false`), `is_active` (bool, default `true`), `sort_order`.
 2. **`users`**: `name`, `email` (unique), `nim` (nullable, unique), `phone` (nullable), `password`, `role` enum(`admin`,`asisten_aktif`,`asisten_magang`), `research_division_id` (FK `divisions`, nullable, restrictOnDelete), `is_coordinator` (bool, default `false`), `is_active` (bool, default `true`), `must_change_password` (bool, default `true`), `avatar_path` (nullable), `last_login_at` (nullable), `remember_token`, `softDeletes`. Index (`role`, `research_division_id`).
-3. **`competition_members`** (Fase 2): `user_id` (FK), `division_id` (FK), `position` (nullable). Unique (`user_id`, `division_id`).
+3. **`competition_members`** (Fase 2): `user_id` (FK, cascade), `division_id` (FK, cascade), `position` (nullable). Unique (`user_id`, `division_id`).
 4. **`materials`**: `division_id` (FK), `created_by` (FK `users`), `title`, `description` (text, nullable), `source_type` enum(`youtube`,`drive`,`other`), `url` (varchar 2048), `sort_order`, `is_published` (bool, default `true`).
 5. **`assignments`**: `division_id` (FK), `created_by` (FK `users`), `title`, `description` (longText), `due_at` (datetime), `allow_late` (bool, default `false`), `max_file_size_mb` (unsigned tinyint, default `10`), `allowed_extensions` (json, nullable), `max_score` (unsigned smallint, default `100`), `status` enum(`draft`,`published`) default `draft`, `published_at` (nullable), `softDeletes`. Index (`division_id`, `status`, `due_at`).
 6. **`submissions`**: `assignment_id` (FK, cascade), `user_id` (FK), `file_path` (nullable), `file_name` (nullable), `file_size` (unsigned bigint, nullable), `mime_type` (nullable), `drive_link` (varchar 2048, nullable), `note` (text, nullable), `is_late` (bool, default `false`), `submitted_at`. Unique (`assignment_id`, `user_id`). CHECK: `file_path IS NOT NULL OR drive_link IS NOT NULL`.
@@ -128,7 +129,7 @@ Semua tabel punya `id` dan `timestamps`. Semua FK memakai `foreignId()->constrai
 8. **`announcements`**: `author_id` (FK `users`), `title`, `body` (text), `research_division_id` (FK, nullable; `null` = semua divisi), `target_role` enum(`admin`,`asisten_aktif`,`asisten_magang`) nullable (`null` = semua role).
 9. **`announcement_reads`**: `announcement_id` (FK, cascade), `user_id` (FK, cascade), `read_at`. Unique (`announcement_id`, `user_id`).
 
-Ditambah tabel bawaan Laravel/Sanctum: `password_reset_tokens`, `sessions`, `cache`, `jobs`, `personal_access_tokens`.
+Ditambah tabel bawaan Laravel/Sanctum: `password_reset_tokens`, `sessions`, `cache`, `jobs`, `personal_access_tokens`, `notifications` (database channel: `id` uuid, `type`, `notifiable` morph, `data` json, `read_at`).
 
 Relasi: `divisions` 1-N `users` (riset), N-N `users` lewat `competition_members` (lomba); `divisions` 1-N `materials`, `assignments`, `announcements`; `assignments` 1-N `submissions` dan `grades`; `announcements` N-N `users` lewat `announcement_reads`.
 
@@ -163,7 +164,7 @@ Relasi: `divisions` 1-N `users` (riset), N-N `users` lewat `competition_members`
 
 15. `file` wajib jika `drive_link` kosong, dan sebaliknya. Boleh keduanya.
 16. File melebihi `max_file_size_mb` ditolak `422 FILE_TOO_LARGE` dengan petunjuk memakai link Drive. FE melakukan pre-check ukuran, server tetap otoritatif.
-17. `max_file_size_mb` per tugas dibatasi 1–50 MB (`LMS_MAX_UPLOAD_MB`). `upload_max_filesize`, `post_max_size` (PHP), dan `client_max_body_size` (Nginx) wajib diset sedikit di atas batas global; tanpa itu server menolak `413` sebelum Laravel berjalan.
+17. `max_file_size_mb` per tugas dibatasi 1–50 MB (batas global 50 MB, `LMS_MAX_UPLOAD_MB`). `upload_max_filesize`, `post_max_size` (PHP), dan `client_max_body_size` (Nginx) wajib diset sedikit di atas batas global; tanpa itu server menolak `413` sebelum Laravel berjalan.
 18. Link Drive wajib HTTPS dengan host `drive.google.com` atau `docs.google.com`. Server tidak bisa memeriksa izin share, jadi UI mengingatkan "Anyone with the link can view".
 19. Satu submission per (tugas, magang). Submit ulang menimpa yang lama (file lama dihapus) selama deadline belum lewat dan nilai belum dipublish.
 20. Lewat deadline: ditolak kecuali `allow_late = true`; submission terlambat diberi `is_late`.
@@ -179,7 +180,9 @@ Relasi: `divisions` 1-N `users` (riset), N-N `users` lewat `competition_members`
 **Pengumuman**
 
 26. Admin menargetkan: semua (`research_division_id = null`, `target_role = null`), per divisi, per role, atau kombinasi divisi + role.
-27. Koordinator hanya bisa ke divisi risetnya; field target dari koordinator diabaikan dan dipaksa server.
+27. Koordinator hanya bisa ke asisten magang di divisi risetnya; field target dari koordinator diabaikan, server memaksa `research_division_id` = divisi koordinator dan `target_role = asisten_magang`.
+29. Pengumuman terlihat oleh user jika (`research_division_id` = divisi user ATAU `null`) DAN (`target_role` = role user ATAU `null`). Admin melihat semua.
+30. Setiap pengumuman, tugas dipublish, dan nilai dipublish/diperbarui membuat baris di `notifications` untuk tiap penerima.
 28. Asisten Aktif non-koordinator yang memanggil endpoint pengumuman menerima `403`.
 
 ---
@@ -256,7 +259,7 @@ Grup default endpoint terautentikasi: `auth:sanctum, active, pwd.changed`.
 | --- | --- | --- | --- |
 | POST | `/auth/login` | `guest`, `throttle:login` | Login (`email` atau `nim` + `password`), terbitkan token |
 | POST | `/auth/logout` | `auth:sanctum` | Cabut token saat ini |
-| GET | `/auth/me` | `auth:sanctum, active` | Profil + izin (untuk route guard FE) + `unread_announcements_count` |
+| GET | `/auth/me` | `auth:sanctum, active` | Profil + izin (untuk route guard FE) + `unread_notifications_count` |
 | PUT | `/auth/password` | `auth:sanctum, active` | Ganti password (dikecualikan dari `pwd.changed`) |
 | PUT | `/auth/profile` | grup default | Ubah nama, phone, avatar |
 
@@ -340,7 +343,7 @@ Scope otomatis: Aktif dan Magang hanya divisi risetnya. Admin mengirim `division
 | POST | `/assignments/{assignment}/publish` | `update` | Publish + notifikasi magang |
 | DELETE | `/assignments/{assignment}` | `delete` | Soft delete |
 
-Validasi create: `due_at` di masa depan, `max_file_size_mb` 1–50, `allowed_extensions` subset whitelist, `max_score` ≥ 1. Tampilan Aktif menyertakan `stats` (`total_interns`, `submitted`, `graded_draft`, `graded_published`). Tampilan Magang menyertakan `is_overdue`, `can_submit` (dari deadline, `allow_late`, status nilai), `my_submission`, `my_grade` (selalu `null` selama draft), tanpa `stats`.
+`division_id` diisi server dari divisi pembuat; admin boleh membuat di divisi mana pun dan wajib mengirim `division_id` (berlaku juga untuk materi). Validasi create: `due_at` di masa depan, `max_file_size_mb` 1–50, `allowed_extensions` subset whitelist, `max_score` ≥ 1. Tampilan Aktif menyertakan `stats` (`total_interns`, `submitted`, `graded_draft`, `graded_published`). Tampilan Magang menyertakan `is_overdue`, `can_submit` (dari deadline, `allow_late`, status nilai), `my_submission`, `my_grade` (selalu `null` selama draft), tanpa `stats`.
 
 ### 7.5 Submission Hybrid & Penilaian
 
@@ -379,13 +382,29 @@ Urutan cek server: (1) Policy: magang di divisi tugas, tugas published. (2) Dead
 | POST | `/announcements` | `create` (admin atau koordinator) | Kirim |
 | GET | `/announcements/{announcement}` | `view` | Detail |
 | DELETE | `/announcements/{announcement}` | `delete` | Hapus |
-| GET | `/announcements/unread-count` | grup default | Badge lonceng (polling 60 detik) |
-| POST | `/announcements/{announcement}/read` | grup default | Tandai dibaca (`announcement_reads`) |
-| POST | `/announcements/read-all` | grup default | Tandai semua dibaca |
+| POST | `/announcements/{announcement}/read` | grup default | Tandai pengumuman dibaca (`announcement_reads`) |
+| GET | `/notifications` | grup default | Notifikasi saya, filter `unread=1`, paginasi |
+| GET | `/notifications/unread-count` | grup default | Badge lonceng (polling 60 detik) |
+| PATCH | `/notifications/{id}/read` | grup default | Tandai satu notifikasi dibaca |
+| POST | `/notifications/read-all` | grup default | Tandai semua notifikasi dibaca |
 
-Admin: `{ "title": "...", "body": "...", "research_division_id": null, "target_role": "asisten_magang" }`. Koordinator: `{ "title": "...", "body": "..." }`; field target diabaikan, `research_division_id` dipaksa ke divisi koordinator.
+Admin: `{ "title": "...", "body": "...", "research_division_id": null, "target_role": "asisten_magang" }`. Koordinator: `{ "title": "...", "body": "..." }`; field target diabaikan, server memaksa `research_division_id` = divisi koordinator dan `target_role = asisten_magang`.
 
 Response menyertakan `target` (`division`, `role`), `author`, `recipients_count`.
+
+`GET /notifications` response:
+
+```json
+{
+  "data": [
+    { "id": "9b1e...", "type": "announcement", "title": "Deadline Tugas 3 diperpanjang", "excerpt": "Diperpanjang sampai...", "link": "/announcements/14", "read_at": null, "created_at": "2026-11-28T05:00:00Z" },
+    { "id": "a77c...", "type": "grade_published", "title": "Nilai Tugas 2 sudah keluar", "excerpt": "Skor: 90", "link": "/assignments/18", "read_at": "2026-11-27T09:00:00Z", "created_at": "2026-11-27T08:00:00Z" }
+  ],
+  "meta": { "current_page": 1, "total": 23, "unread_count": 4 }
+}
+```
+
+Tipe notifikasi: `announcement`, `assignment_published`, `grade_published`, `grade_updated`. `link` adalah path FE, bukan URL API.
 
 ---
 
@@ -458,7 +477,8 @@ Response menyertakan `target` (`division`, `role`), `author`, `recipients_count`
 
 - **`/login`:** dua kolom di desktop (panel brand kiri, `Card` form kanan); mobile hanya Card. Field email/NIM, password (tombol tampilkan), tombol "Masuk". Teks "Akun dibuat oleh admin lab. Lupa password? Hubungi admin." Tanpa link daftar. Error kredensial: `Alert` destructive.
 - **`/change-password`:** Card tengah tanpa sidebar, tiga field + indikator kekuatan. Sukses: Toast + redirect ke beranda role.
-- **`/announcements` (pembaca):** `Tabs` Semua / Belum dibaca, tombol "Tandai semua dibaca". Item: judul tebal jika unread, cuplikan, waktu relatif.
+- **`/announcements` (pembaca):** list pengumuman; judul tebal jika belum dibaca, cuplikan, waktu relatif. Membuka pengumuman menandainya dibaca.
+- **`/notifications`:** `Tabs` Semua / Belum dibaca, tombol "Tandai semua dibaca". Item: ikon per tipe, judul tebal + titik jika unread, cuplikan, waktu relatif. Klik membuka `link` dan menandai dibaca.
 - **`/profile`:** Card profil (avatar, nama, email, NIM, role, divisi riset, divisi lomba sebagai Badge) + Card ganti password.
 
 ### 9.2 Admin
@@ -525,15 +545,16 @@ aptrg-lms/
 
 ## 11. Pertanyaan Terbuka
 
-Sudah diputuskan: Bearer token (bukan cookie), satu divisi riset per asisten, submit ulang sampai deadline, flag `allow_late` per tugas, skala nilai 0–`max_score` numerik.
+Keputusan:
 
-Masih terbuka:
+1. Auth Bearer token (bukan cookie). Satu divisi riset per asisten. Submit ulang sampai deadline. Flag `allow_late` per tugas. Skala nilai numerik 0–`max_score`.
+2. Notifikasi memakai tabel `notifications` bawaan Laravel. `announcement_reads` tetap untuk status baca pengumuman.
+3. Pengumuman koordinator: server memaksa `target_role = asisten_magang` dan divisi riset koordinator.
+4. Batas global upload 50 MB.
+5. Admin boleh membuat materi/tugas di divisi mana pun (wajib `division_id`).
+6. Fase 2 lomba belum punya materi/tugas sendiri; `division_id` generik cukup.
+7. Notifikasi real-time: polling 60 detik, tanpa Laravel Reverb.
+8. Tanpa email; notifikasi in-app saja.
+9. Audit nilai (`grade_logs`) ditunda.
 
-1. **Notifikasi non-pengumuman** (tugas dipublish, nilai dipublish/diperbarui): skema §4 belum punya tabel `notifications`. Pilihan: tabel `notifications` bawaan Laravel (database channel), atau cukup pengumuman otomatis. Perlu keputusan sebelum fitur penilaian.
-2. **Target role pengumuman koordinator:** dipaksa `target_role = asisten_magang`, atau `null` (semua anggota divisi)? FR-05 menyebut "seluruh anggota di divisinya".
-3. **Batas global upload:** 50 MB cukup? Menentukan konfigurasi PHP dan Nginx.
-4. **Admin membuat konten:** admin boleh membuat materi/tugas atas nama divisi (default: boleh)?
-5. **Fase 2 lomba:** apakah divisi lomba punya materi/tugas sendiri? `materials`/`assignments` sudah memakai `division_id` generik.
-6. **Notifikasi real-time:** polling 60 detik cukup, atau perlu Laravel Reverb?
-7. **Email:** perlu email untuk akun baru dan pengumuman, atau in-app saja?
-8. **Audit nilai:** perlu tabel `grade_logs` untuk riwayat edit/publish/unpublish?
+Masih terbuka: tidak ada.

@@ -58,7 +58,7 @@ Semua tabel punya `id` dan `timestamps`. Semua FK memakai `foreignId()->constrai
 
 1. **`divisions`**: `slug` (unique), `name`, `type` enum(`research`,`competition`), `team_name` (nullable), `is_optional` (bool, default `false`), `is_active` (bool, default `true`), `sort_order`.
 2. **`users`**: `name`, `email` (unique), `nim` (nullable, unique), `phone` (nullable), `password`, `role` enum(`admin`,`asisten_aktif`,`asisten_magang`), `research_division_id` (FK `divisions`, nullable, restrictOnDelete), `is_coordinator` (bool, default `false`), `is_active` (bool, default `true`), `must_change_password` (bool, default `true`), `avatar_path` (nullable), `last_login_at` (nullable), `remember_token`, `softDeletes`. Index (`role`, `research_division_id`).
-3. **`competition_members`** (Fase 2): `user_id` (FK), `division_id` (FK), `position` (nullable). Unique (`user_id`, `division_id`).
+3. **`competition_members`** (Fase 2): `user_id` (FK, cascade), `division_id` (FK, cascade), `position` (nullable). Unique (`user_id`, `division_id`).
 4. **`materials`**: `division_id` (FK), `created_by` (FK `users`), `title`, `description` (text, nullable), `source_type` enum(`youtube`,`drive`,`other`), `url` (varchar 2048), `sort_order`, `is_published` (bool, default `true`).
 5. **`assignments`**: `division_id` (FK), `created_by` (FK `users`), `title`, `description` (longText), `due_at` (datetime), `allow_late` (bool, default `false`), `max_file_size_mb` (unsigned tinyint, default `10`), `allowed_extensions` (json, nullable), `max_score` (unsigned smallint, default `100`), `status` enum(`draft`,`published`) default `draft`, `published_at` (nullable), `softDeletes`. Index (`division_id`, `status`, `due_at`).
 6. **`submissions`**: `assignment_id` (FK, cascade), `user_id` (FK), `file_path` (nullable), `file_name` (nullable), `file_size` (unsigned bigint, nullable), `mime_type` (nullable), `drive_link` (varchar 2048, nullable), `note` (text, nullable), `is_late` (bool, default `false`), `submitted_at`. Unique (`assignment_id`, `user_id`). CHECK: `file_path IS NOT NULL OR drive_link IS NOT NULL`.
@@ -66,7 +66,7 @@ Semua tabel punya `id` dan `timestamps`. Semua FK memakai `foreignId()->constrai
 8. **`announcements`**: `author_id` (FK `users`), `title`, `body` (text), `research_division_id` (FK, nullable; `null` = semua divisi), `target_role` enum(`admin`,`asisten_aktif`,`asisten_magang`) nullable (`null` = semua role).
 9. **`announcement_reads`**: `announcement_id` (FK, cascade), `user_id` (FK, cascade), `read_at`. Unique (`announcement_id`, `user_id`).
 
-Ditambah tabel bawaan Laravel/Sanctum: `password_reset_tokens`, `sessions`, `cache`, `jobs`, `personal_access_tokens`.
+Ditambah tabel bawaan Laravel/Sanctum: `password_reset_tokens`, `sessions`, `cache`, `jobs`, `personal_access_tokens`, `notifications` (database channel: `id` uuid, `type`, `notifiable` morph, `data` json, `read_at`).
 
 Relasi: `divisions` 1-N `users` (riset), N-N `users` lewat `competition_members` (lomba); `divisions` 1-N `materials`, `assignments`, `announcements`; `assignments` 1-N `submissions` dan `grades`; `announcements` N-N `users` lewat `announcement_reads`.
 
@@ -84,9 +84,11 @@ The frontend only hides UI. The backend Policy/middleware is the real guard. Eve
    - `admin` and `asisten_aktif` (same division) can grade and publish, single or bulk per assignment. Publishing sets `published_at` and notifies the intern.
 6. **Announcements:**
    - Create only if `role === 'admin'` OR (`role === 'asisten_aktif'` AND `is_coordinator === true`). Everyone else gets `403`.
-   - A coordinator's announcement always targets their own `research_division_id`. The server forces this; ignore any division sent by the client.
+   - A coordinator's announcement always targets `research_division_id` = the coordinator's division and `target_role = asisten_magang`. The server forces both; ignore any target sent by the client.
    - Admin may target one division or broadcast globally (`research_division_id = null`), optionally narrowed by `target_role` (`null` = all roles).
-   - Users read announcements whose `research_division_id` is theirs or `null`, and whose `target_role` is theirs or `null`. They mark them read via `announcement_reads`.
+   - Visibility uses `Announcement::visibleTo($user)`: admin sees all; others see rows where (`research_division_id` = their division OR `null`) AND (`target_role` = their role OR `null`). Read status lives in `announcement_reads`.
+7. **Notifications:** in-app only, Laravel `notifications` table (database channel). Types: `announcement`, `assignment_published`, `grade_published`, `grade_updated`. The frontend polls the unread count every 60 seconds. No email, no WebSocket.
+8. **Admin content:** admin may create materials/assignments in any division and must send `division_id`.
 
 ## 6. API conventions
 
