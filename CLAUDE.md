@@ -4,15 +4,16 @@ Permanent guide for every coding session in this repository. Read it before you 
 
 ## 1. Sources of truth
 
-- `PRD.md` is the authoritative spec: scope, RBAC matrix, and database schema (Section 4).
-- `ARCHITECTURE.md` (if present) adds API contract, edge cases, and UI guidance. If it conflicts with `PRD.md`, `PRD.md` wins. Report the conflict to the user; do not resolve it silently.
-- Any change to the database schema needs user confirmation first.
+- `PRD.md` is the only spec: scope, RBAC, schema (§4), edge cases (§5), API contract (§6–7), UI/UX (§8–9), open questions (§11).
+- If code, this file, and `PRD.md` disagree, `PRD.md` wins. Report the conflict to the user; do not resolve it silently.
+- Open questions in PRD §11 are not decided. Ask before building anything that depends on one.
+- Any change to the database schema needs user confirmation first. Keep PRD §4 and section 4a below identical.
 
 ## 2. Product scope
 
 - Internal LMS for APTRG Laboratory's Asisten Magang. No public registration. Admin creates all accounts.
 - Phase 1 (MVP, current): auth and users, divisions, link-based materials, assignments with hybrid submission, grading (`draft`/`published`), division announcements.
-- Phase 2 (later): competition team management for Asisten Aktif. Only the DB foundation exists now (`competition` divisions, `users.competition_division_id`). Do not build Phase 2 features unless asked.
+- Phase 2 (later): competition team management for Asisten Aktif. Only the DB foundation exists now (`competition` divisions, `competition_members` table). Do not build Phase 2 features unless asked.
 - The old Open Recruitment / Open Mind modules are gone. Never reintroduce them, Supabase, or i18n.
 
 ## 3. Monorepo layout
@@ -48,15 +49,35 @@ Run commands from the matching folder: `cd frontend && npm run dev|build|typeche
 - `users.role`: `admin` | `asisten_aktif` | `asisten_magang`.
 - `users.is_coordinator` (bool): only meaningful for `asisten_aktif`. Must be `false` for other roles.
 - `users.research_division_id`: required for `asisten_aktif` and `asisten_magang`; `null` for `admin`.
+- The `User` model enforces both on `saving`: non-`asisten_aktif` gets `is_coordinator = false`; `admin` gets `research_division_id = null`.
+- Enums live in `app/Enums` (`Role`, `DivisionType`, `MaterialSourceType`, `AssignmentStatus`, `GradeStatus`) and are used in model casts. Compare against enum cases, not raw strings.
+
+## 4a. Database schema (MySQL 8) — identical to PRD §4
+
+Semua tabel punya `id` dan `timestamps`. Semua FK memakai `foreignId()->constrained()`; aturan `ON DELETE` default `RESTRICT` kecuali disebut lain.
+
+1. **`divisions`**: `slug` (unique), `name`, `type` enum(`research`,`competition`), `team_name` (nullable), `is_optional` (bool, default `false`), `is_active` (bool, default `true`), `sort_order`.
+2. **`users`**: `name`, `email` (unique), `nim` (nullable, unique), `phone` (nullable), `password`, `role` enum(`admin`,`asisten_aktif`,`asisten_magang`), `research_division_id` (FK `divisions`, nullable, restrictOnDelete), `is_coordinator` (bool, default `false`), `is_active` (bool, default `true`), `must_change_password` (bool, default `true`), `avatar_path` (nullable), `last_login_at` (nullable), `remember_token`, `softDeletes`. Index (`role`, `research_division_id`).
+3. **`competition_members`** (Fase 2): `user_id` (FK), `division_id` (FK), `position` (nullable). Unique (`user_id`, `division_id`).
+4. **`materials`**: `division_id` (FK), `created_by` (FK `users`), `title`, `description` (text, nullable), `source_type` enum(`youtube`,`drive`,`other`), `url` (varchar 2048), `sort_order`, `is_published` (bool, default `true`).
+5. **`assignments`**: `division_id` (FK), `created_by` (FK `users`), `title`, `description` (longText), `due_at` (datetime), `allow_late` (bool, default `false`), `max_file_size_mb` (unsigned tinyint, default `10`), `allowed_extensions` (json, nullable), `max_score` (unsigned smallint, default `100`), `status` enum(`draft`,`published`) default `draft`, `published_at` (nullable), `softDeletes`. Index (`division_id`, `status`, `due_at`).
+6. **`submissions`**: `assignment_id` (FK, cascade), `user_id` (FK), `file_path` (nullable), `file_name` (nullable), `file_size` (unsigned bigint, nullable), `mime_type` (nullable), `drive_link` (varchar 2048, nullable), `note` (text, nullable), `is_late` (bool, default `false`), `submitted_at`. Unique (`assignment_id`, `user_id`). CHECK: `file_path IS NOT NULL OR drive_link IS NOT NULL`.
+7. **`grades`**: `assignment_id` (FK, cascade), `user_id` (FK), `submission_id` (FK, nullable, nullOnDelete), `graded_by` (FK `users`), `score` (decimal 5,2), `feedback` (text, nullable), `status` enum(`draft`,`published`) default `draft`, `published_at` (nullable). Unique (`assignment_id`, `user_id`). Nilai terikat ke (tugas, magang), sehingga magang yang tidak mengumpulkan tetap bisa dinilai.
+8. **`announcements`**: `author_id` (FK `users`), `title`, `body` (text), `research_division_id` (FK, nullable; `null` = semua divisi), `target_role` enum(`admin`,`asisten_aktif`,`asisten_magang`) nullable (`null` = semua role).
+9. **`announcement_reads`**: `announcement_id` (FK, cascade), `user_id` (FK, cascade), `read_at`. Unique (`announcement_id`, `user_id`).
+
+Ditambah tabel bawaan Laravel/Sanctum: `password_reset_tokens`, `sessions`, `cache`, `jobs`, `personal_access_tokens`.
+
+Relasi: `divisions` 1-N `users` (riset), N-N `users` lewat `competition_members` (lomba); `divisions` 1-N `materials`, `assignments`, `announcements`; `assignments` 1-N `submissions` dan `grades`; `announcements` N-N `users` lewat `announcement_reads`.
 
 ## 5. RBAC rules (strict — enforce on the backend)
 
 The frontend only hides UI. The backend Policy/middleware is the real guard. Every rule below needs a feature test.
 
-1. **Research division isolation.** A non-admin user can read or change only records whose `research_division_id` equals their own (materials, assignments, submissions, grades, announcements). Apply the filter in the query (scope), and authorize with a Policy. A resource in another division returns `404`, not `403`, so existence does not leak.
+1. **Research division isolation.** A non-admin user can read or change only records in their own research division: `materials.division_id` / `assignments.division_id` equal to `user.research_division_id`; submissions and grades through their assignment; announcements by `research_division_id` (or global `null`). Apply the filter in the query (scope), and authorize with a Policy. A resource in another division returns `404`, not `403`, so existence does not leak.
 2. **Admin** may access every division. Admin does not submit assignments.
 3. **Materials and assignments:** CRUD by `admin` and `asisten_aktif` (coordinator or not) in their division. `asisten_magang` is read-only.
-4. **Submissions:** only `asisten_magang` submits. At least one of `file` or `drive_link` is required. File size max is the assignment's `max_file_size_mb`. Allowed types: `pdf, zip, rar, doc, docx, ppt, pptx, png, jpg, jpeg`. Store files on the private disk, never a public URL. Resubmit before the grade is published replaces the old file (delete it from storage). Set `is_late = true` when `submitted_at > deadline`.
+4. **Submissions:** only `asisten_magang` submits. At least one of `file` or `drive_link` is required. File size max is the assignment's `max_file_size_mb`. Allowed types: `pdf, zip, rar, doc, docx, ppt, pptx, png, jpg, jpeg`. Store files on the private disk, never a public URL. Resubmit before the grade is published replaces the old file (delete it from storage). Set `is_late = true` when `submitted_at > due_at`. The DB CHECK constraint also rejects a row with neither `file_path` nor `drive_link`.
 5. **Grades — `draft` vs `published`:**
    - A new grade is always `draft`.
    - Any endpoint or payload an `asisten_magang` can reach must never contain a `draft` grade: not its score, feedback, or existence. Filter in the query, not in the Resource or UI. The intern only sees "Menunggu Penilaian".
@@ -64,8 +85,8 @@ The frontend only hides UI. The backend Policy/middleware is the real guard. Eve
 6. **Announcements:**
    - Create only if `role === 'admin'` OR (`role === 'asisten_aktif'` AND `is_coordinator === true`). Everyone else gets `403`.
    - A coordinator's announcement always targets their own `research_division_id`. The server forces this; ignore any division sent by the client.
-   - Admin may target one division or broadcast globally (`research_division_id = null`).
-   - All roles can read announcements for their division plus global ones, and mark them read (`announcement_reads`).
+   - Admin may target one division or broadcast globally (`research_division_id = null`), optionally narrowed by `target_role` (`null` = all roles).
+   - Users read announcements whose `research_division_id` is theirs or `null`, and whose `target_role` is theirs or `null`. They mark them read via `announcement_reads`.
 
 ## 6. API conventions
 
@@ -82,7 +103,7 @@ The frontend only hides UI. The backend Policy/middleware is the real guard. Eve
 
 ## 7. Naming
 
-- DB: plural snake_case tables, `{singular}_id` foreign keys, enums as strings matching PRD values exactly (`research`/`competition`, `youtube`/`drive`/`other`, `draft`/`published`).
+- DB: plural snake_case tables, `{singular}_id` foreign keys (actor FKs: `created_by`, `graded_by`, `author_id`), enums as strings matching PRD values exactly (`research`/`competition`, `youtube`/`drive`/`other`, `draft`/`published`).
 - PHP: PSR-12, `Model`, `ModelController`, `StoreModelRequest`/`UpdateModelRequest`, `ModelResource`, `ModelPolicy`.
 - TypeScript: components and pages `PascalCase.tsx` (`MaterialListPage.tsx`), hooks `useCamelCase.ts`, services `camelCase.ts`, types in `src/types/`. Import with the `@/` alias.
 
