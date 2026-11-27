@@ -1,18 +1,20 @@
 import { createBrowserRouter } from "react-router";
 import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import ChangePasswordPage from "@/pages/auth/ChangePasswordPage";
+import LoginPage from "@/pages/auth/LoginPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import { GuestOnly, RequireAuth, RequirePasswordChanged, RequireRole } from "@/routes/guards";
 
 export const router = createBrowserRouter([
   {
     element: <GuestOnly />,
-    children: [{ path: "/login", element: <PlaceholderPage title="Masuk" /> }],
+    children: [{ path: "/login", element: <LoginPage /> }],
   },
   {
     element: <RequireAuth />,
     children: [
       // Reachable while must_change_password is true; everything below is not.
-      { path: "/change-password", element: <PlaceholderPage title="Ganti Password" /> },
+      { path: "/change-password", element: <ChangePasswordPage /> },
       {
         element: <RequirePasswordChanged />,
         children: [

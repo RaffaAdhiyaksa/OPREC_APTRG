@@ -6,15 +6,16 @@ import { CheckIcon } from "lucide-react";
 
 import { cn } from "./utils";
 
-function Checkbox({
- className,
- ...props
-}: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
+const Checkbox = React.forwardRef<
+ React.ElementRef<typeof CheckboxPrimitive.Root>,
+ React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+>(function Checkbox({ className, ...props }, ref) {
  return (
  <CheckboxPrimitive.Root
+ ref={ref}
  data-slot="checkbox"
  className={cn(
- "peer border bg-input-background data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground =checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 :ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
+ "peer border bg-input-background data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 :ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
  className,
  )}
  {...props}
@@ -27,6 +28,6 @@ function Checkbox({
  </CheckboxPrimitive.Indicator>
  </CheckboxPrimitive.Root>
  );
-}
+});
 
 export { Checkbox };

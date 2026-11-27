@@ -16,3 +16,8 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
 - Temuan: `CLAUDE.md` §6 menulis login memakai `email` atau `nim`. Backend dan handoff memakai satu field `login` (email atau NIM) + `device_name`.
 - Kebutuhan frontend: tidak ada perubahan backend. Mohon `CLAUDE.md` diselaraskan.
 - Sementara: frontend mengirim `{ login, password, device_name: "web" }`.
+
+## 2026-11-28 — Header `Retry-After` pada 429 tidak terbaca browser
+- Temuan: `config/cors.php` hanya mengekspos `Content-Disposition`. Browser lintas origin (5173 → 8000) tidak bisa membaca `Retry-After`, jadi sisa detik throttle login tidak diketahui frontend.
+- Kebutuhan frontend: tambahkan `Retry-After` (dan `X-RateLimit-Remaining` jika perlu) ke `exposed_headers`.
+- Sementara: frontend memakai 60 detik (jendela limiter login) saat header tidak terbaca.
