@@ -2,11 +2,11 @@ import { Link, useParams } from "react-router";
 import { ArrowLeft, SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
 import { EmptyState, ErrorState } from "@/components/shared/States";
 import { useAssignment } from "@/hooks/queries/assignments";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { toApiError } from "@/lib/errors";
+import InternAssignmentDetail from "./InternAssignmentDetail";
 import StaffAssignmentDetail from "./StaffAssignmentDetail";
 
 export default function AssignmentDetailPage() {
@@ -43,6 +43,6 @@ export default function AssignmentDetailPage() {
     }
     return <ErrorState error={query.error} onRetry={() => void query.refetch()} />;
   }
-  if (user.role === "asisten_magang") return <PlaceholderPage title="Detail Tugas" />;
-  return <StaffAssignmentDetail assignment={query.data} />;
+  if (user.role === "asisten_magang") return <InternAssignmentDetail key={query.data.id} assignment={query.data} />;
+  return <StaffAssignmentDetail key={query.data.id} assignment={query.data} />;
 }

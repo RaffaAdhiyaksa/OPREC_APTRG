@@ -9,6 +9,7 @@ import ChangePasswordPage from "@/pages/auth/ChangePasswordPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import DashboardPage from "@/pages/dashboard/DashboardPage";
 import MaterialsPage from "@/pages/materials/MaterialsPage";
+import GradesPage from "@/pages/GradesPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ProfilePage from "@/pages/ProfilePage";
 import { GuestOnly, RequireAuth, RequirePasswordChanged, RequireRole } from "@/routes/guards";
@@ -38,7 +39,7 @@ export const router = createBrowserRouter([
               { path: "/profile", element: <ProfilePage /> },
               {
                 element: <RequireRole roles={["asisten_magang"]} />,
-                children: [{ path: "/grades", element: <PlaceholderPage title="Nilai" /> }],
+                children: [{ path: "/grades", element: <GradesPage /> }],
               },
               {
                 element: <RequireRole roles={["admin"]} />,

@@ -52,7 +52,7 @@ export default function AdminDashboard() {
         }
       />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <section className="min-w-0 space-y-5" aria-labelledby="per-divisi">
           <SectionTitle id="per-divisi" title="Per Divisi Riset" count={data?.divisions.length} unit="Divisi" />
           <div className="grid gap-4 sm:grid-cols-2">

@@ -55,3 +55,11 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
   - `GET /submissions/{id}/download` → header `Content-Disposition` dengan nama file asli (sudah di `exposed_headers`).
   - Dashboard Asisten Aktif memakai `stats.total_interns` untuk "Jumlah Magang" karena belum ada endpoint jumlah magang per divisi untuk non-admin. Jika divisi belum punya tugas, angka menjadi 0.
 - Sementara: mock di `src/services/mock/materials.ts` dan `assignments.ts` mengikuti bentuk ini.
+
+## 2026-11-28 — Submission magang & `/me/grades`: asumsi mock (Tahap 7)
+- Temuan: bentuk respons berikut belum tertulis di PRD.
+- Kebutuhan frontend:
+  - `POST /assignments/{id}/submission` (multipart `file` / `drive_link` / `note`) → `{ "data": <Submission> }` dengan `method`. Error: `422 FILE_TOO_LARGE` (`errors.file`), `409 DEADLINE_PASSED`, `409 GRADE_LOCKED`.
+  - `DELETE /assignments/{id}/submission` ditolak `409 DEADLINE_PASSED` setelah deadline dan `409 GRADE_LOCKED` bila nilai sudah publish.
+  - `GET /me/grades` → `{ data: [{ id, assignment: { id, title, max_score }, score, feedback, published_at }], meta: { average, graded_count } }`. `average` dalam skala 0–100 (persentase dari `max_score`), dibulatkan 1 desimal, `null` bila belum ada nilai.
+- Sementara: mock di `src/services/mock/assignments.ts` mengikuti bentuk ini; FE melakukan pre-check ukuran dan ekstensi sebelum upload.

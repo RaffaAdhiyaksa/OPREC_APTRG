@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Chip } from "@/components/shared/DashboardBlocks";
 import { FilterChips } from "@/components/shared/FilterChips";
+import { InfoItem } from "@/components/shared/InfoItem";
 import { SearchInput, TableCard } from "@/components/shared/ListControls";
 import { RelativeTime } from "@/components/shared/RelativeTime";
 import { EmptyState, ErrorState } from "@/components/shared/States";
@@ -42,20 +43,6 @@ const matches = (r: SubmissionRow, f: Filter) => {
 };
 
 const METHOD_LABEL = { file: "File", drive: "Drive", both: "File + Drive" } as const;
-
-export function InfoItem({ icon: Icon, label, children }: { icon: typeof Users; label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-start gap-3">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <Icon className="size-4" aria-hidden />
-      </span>
-      <div className="min-w-0">
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <div className="text-sm font-medium">{children}</div>
-      </div>
-    </div>
-  );
-}
 
 export default function StaffAssignmentDetail({ assignment }: { assignment: Assignment }) {
   const submissions = useAssignmentSubmissions(assignment.id);
@@ -137,7 +124,7 @@ export default function StaffAssignmentDetail({ assignment }: { assignment: Assi
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <section className="glass space-y-4 rounded-2xl p-6" aria-label="Deskripsi tugas">
           <h2 className="text-lg font-bold">Deskripsi</h2>
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{assignment.description}</p>
