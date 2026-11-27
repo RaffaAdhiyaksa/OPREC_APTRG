@@ -1,22 +1,28 @@
-# OS / editor
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env*.local
+
+# Editor / agent tooling
+.vscode/
+.continue/
+.qwen/
+
+# OS
 .DS_Store
 Thumbs.db
 
-# Frontend
-frontend/node_modules
-frontend/dist
-frontend/.env.local
-frontend/.env.*.local
+# Frontend build output
+frontend/dist/
 
-# Backend (Laravel)
-backend/vendor
-backend/node_modules
-backend/.env
+# Backend (Laravel) — see also backend/.gitignore
+backend/vendor/
 backend/.env.backup
 backend/.phpunit.result.cache
-backend/storage/*.key
 backend/public/storage
 backend/public/hot
 
 # Python virtualenvs
-.venv
+.venv/
