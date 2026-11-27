@@ -123,3 +123,4 @@ The frontend only hides UI. The backend Policy/middleware is the real guard. Eve
 - Comment only non-obvious business logic (division isolation, draft/published).
 - After a change: run `npm run build` (frontend) and `php artisan test` (backend) and report the result honestly.
 - Never commit `.env` files or secrets.
+- Never mass-update users (`User::query()->update()`, `User::where(...)->update()`). It skips the `saving` event that enforces the RBAC invariants. Always load the model and use `save()` / `update()` per model.
