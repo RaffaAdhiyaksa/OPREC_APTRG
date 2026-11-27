@@ -1,2 +1,22 @@
-node_modules
-.env.local
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Frontend
+frontend/node_modules
+frontend/dist
+frontend/.env.local
+frontend/.env.*.local
+
+# Backend (Laravel)
+backend/vendor
+backend/node_modules
+backend/.env
+backend/.env.backup
+backend/.phpunit.result.cache
+backend/storage/*.key
+backend/public/storage
+backend/public/hot
+
+# Python virtualenvs
+.venv
