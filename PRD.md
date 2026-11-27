@@ -8,7 +8,7 @@
 
   - \*\*Frontend (`/frontend`):\*\* React 18+, TypeScript, Vite, Tailwind CSS, Shadcn/ui, Lucide Icons, React Router, Axios/TanStack Query.
 
-  - \*\*Backend (`/backend`):\*\* Laravel 11 (RESTful API), Laravel Sanctum (SPA Token/Cookie Auth), MySQL/MariaDB.
+  - \*\*Backend (`/backend`):\*\* Laravel 13 (RESTful API), Laravel Sanctum (Bearer Token Auth), MySQL/MariaDB.
 
 - \*\*Status Proyek:\*\* Total Refactor — Menghapus seluruh modul Open Recruitment & Open Mind lama, mempertahankan aset UI (`Shadcn/ui`, `theme.css`, `aptrg_logo.png`), dan membangun ulang sistem sebagai LMS Asisten Magang.
 
@@ -174,7 +174,7 @@ aptrg-lms/
 
 ├── [CLAUDE.md](http://CLAUDE.md)
 
-├── backend/                  # Laravel 11 REST API
+├── backend/                  # Laravel 13 REST API
 
 │   ├── app/
 
