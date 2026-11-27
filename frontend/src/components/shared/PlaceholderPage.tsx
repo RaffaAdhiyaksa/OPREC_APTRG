@@ -1,28 +1,13 @@
-import { LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
+import { Construction } from "lucide-react";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { EmptyState } from "@/components/shared/States";
 
-// Route skeleton for F1. Each page is replaced by its real implementation in phases F2–F7.
+// Route skeleton. Each page is replaced by its real implementation in phases F4–F7.
 export function PlaceholderPage({ title }: { title: string }) {
-  const { user, logout } = useAuth();
-
   return (
-    <main className="mx-auto flex min-h-full max-w-7xl flex-col gap-6 p-6">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-4xl font-semibold uppercase tracking-tight sm:text-5xl">{title}</h1>
-        {user && (
-          <Button variant="default" className="rounded-full" onClick={() => void logout()}>
-            <LogOut aria-hidden />
-            Keluar
-          </Button>
-        )}
-      </div>
-      <div className="rounded-xl bg-card p-6">
-        <p className="text-sm text-muted-foreground">
-          Halaman ini dibangun di fase berikutnya.
-          {user && ` Masuk sebagai ${user.name} (${user.role}).`}
-        </p>
-      </div>
-    </main>
+    <>
+      <PageHeader title={title} />
+      <EmptyState icon={Construction} title="Halaman ini dibangun di fase berikutnya." />
+    </>
   );
 }

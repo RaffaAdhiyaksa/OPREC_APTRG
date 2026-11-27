@@ -21,3 +21,13 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
 - Temuan: `config/cors.php` hanya mengekspos `Content-Disposition`. Browser lintas origin (5173 → 8000) tidak bisa membaca `Retry-After`, jadi sisa detik throttle login tidak diketahui frontend.
 - Kebutuhan frontend: tambahkan `Retry-After` (dan `X-RateLimit-Remaining` jika perlu) ke `exposed_headers`.
 - Sementara: frontend memakai 60 detik (jendela limiter login) saat header tidak terbaca.
+
+## 2026-11-28 — Notifikasi: bentuk respons `GET /notifications/unread-count`
+- Temuan: PRD §7.6 tidak menyebut bentuk respons endpoint ini.
+- Kebutuhan frontend: `{ "data": { "unread_count": 3 } }`.
+- Sementara: mock (`src/services/mock/notifications.ts`) mengikuti bentuk ini; lonceng polling 60 detik.
+
+## 2026-11-28 — Menu per role: handoff vs PRD
+- Temuan: handoff F3 meminta menu Pengumuman hanya untuk koordinator dan tidak menyebut Materi/Tugas untuk admin. PRD §9.2–9.3 menulis admin punya "Materi & Tugas (mode pantau)" dan Asisten Aktif melihat Pengumuman ("kirim hanya jika koordinator"); admin juga bisa menargetkan pengumuman ke `asisten_aktif`.
+- Kebutuhan frontend: konfirmasi. Frontend mengikuti PRD (PRD menang bila bertentangan).
+- Sementara: semua Asisten Aktif melihat feed Pengumuman; tombol "Buat" hanya muncul dengan permission `announcement.send`. Admin punya menu Materi dan Tugas.
