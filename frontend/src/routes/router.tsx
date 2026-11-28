@@ -3,9 +3,12 @@ import { AppShell } from "@/components/layout/AppShell";
 import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
 import DivisionsPage from "@/pages/admin/DivisionsPage";
 import UsersPage from "@/pages/admin/UsersPage";
+import AssignmentDetailPage from "@/pages/assignments/AssignmentDetailPage";
+import AssignmentsPage from "@/pages/assignments/AssignmentsPage";
 import ChangePasswordPage from "@/pages/auth/ChangePasswordPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import DashboardPage from "@/pages/dashboard/DashboardPage";
+import MaterialsPage from "@/pages/materials/MaterialsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ProfilePage from "@/pages/ProfilePage";
 import { GuestOnly, RequireAuth, RequirePasswordChanged, RequireRole } from "@/routes/guards";
@@ -27,9 +30,9 @@ export const router = createBrowserRouter([
             element: <AppShell />,
             children: [
               { path: "/", element: <DashboardPage /> },
-              { path: "/materials", element: <PlaceholderPage title="Materi" /> },
-              { path: "/assignments", element: <PlaceholderPage title="Tugas" /> },
-              { path: "/assignments/:id", element: <PlaceholderPage title="Detail Tugas" /> },
+              { path: "/materials", element: <MaterialsPage /> },
+              { path: "/assignments", element: <AssignmentsPage /> },
+              { path: "/assignments/:id", element: <AssignmentDetailPage /> },
               { path: "/announcements", element: <PlaceholderPage title="Pengumuman" /> },
               { path: "/notifications", element: <PlaceholderPage title="Notifikasi" /> },
               { path: "/profile", element: <ProfilePage /> },
