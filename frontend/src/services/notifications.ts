@@ -1,4 +1,4 @@
-import { USE_MOCKS } from "@/lib/env";
+import { isMocked } from "@/lib/env";
 import { api } from "@/services/api";
 import { mockNotifications } from "@/services/mock/notifications";
 import type { AppNotification, NotificationListMeta } from "@/types/api";
@@ -27,4 +27,4 @@ const realNotifications: NotificationsService = {
   },
 };
 
-export const notificationsService = USE_MOCKS ? mockNotifications : realNotifications;
+export const notificationsService = isMocked("notifications") ? mockNotifications : realNotifications;

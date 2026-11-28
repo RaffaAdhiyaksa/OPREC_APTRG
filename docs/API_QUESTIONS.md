@@ -114,3 +114,8 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
   - Penulis (misalnya koordinator, yang bukan target `asisten_magang`) tetap bisa membuka, membaca, dan menghapus pengumumannya sendiri; pengumuman itu muncul di `/sent`, bukan di `/announcements`.
   - Belum ada endpoint pratinjau penerima; FE tetap memakai angka dari `/admin/dashboard`.
   - `GET /admin/dashboard` sekarang berisi `recent_announcements` (3 terbaru) dengan bentuk `<Announcement>` yang sama.
+
+## 2026-11-28 — Pulihkan user terhapus: tidak ada daftar user terhapus (I1)
+- Temuan: `POST /admin/users/{id}/restore` sudah ada, tetapi `GET /admin/users` tidak pernah mengembalikan user terhapus dan tidak ada filter seperti `trashed=only`. Admin tidak bisa mengetahui `id` user yang dihapus dari UI.
+- Kebutuhan frontend: filter `GET /admin/users?trashed=only` (atau `with`) dengan `deleted_at` di `UserResource` untuk baris terhapus. Dengan itu FE bisa membuat tab "Terhapus" dan tombol "Pulihkan" (menangani `422 RESTORE_CONFLICT`).
+- Sementara: FE tidak membuat UI pulihkan. Tipe `RESTORE_CONFLICT` dan `NOT_DELETED` sudah ada di `ApiErrorCode`.

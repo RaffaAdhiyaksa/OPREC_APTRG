@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { toast } from "sonner";
-import { KeyRound, MoreHorizontal, Pencil, Plus, Power, Trash2, UserX, Users } from "lucide-react";
+import { FileUp, KeyRound, MoreHorizontal, Pencil, Plus, Power, Trash2, UserX, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +28,7 @@ import { formatRelative } from "@/lib/date";
 import { getErrorMessage } from "@/lib/errors";
 import { ROLE_LABEL } from "@/lib/labels";
 import type { AdminUser, Role, TemporaryPasswordResult } from "@/types/api";
+import { ImportUsersDialog } from "./ImportUsersDialog";
 import { TemporaryPasswordDialog } from "./TemporaryPasswordDialog";
 import { UserFormDialog } from "./UserFormDialog";
 
@@ -75,6 +76,7 @@ export default function UsersPage() {
   const [formUser, setFormUser] = useState<AdminUser | null | undefined>(params.get("create") ? null : undefined);
   const [temporary, setTemporary] = useState<TemporaryPasswordResult | null>(null);
   const [confirm, setConfirm] = useState<Confirm>(null);
+  const [importing, setImporting] = useState(false);
   const setActive = useSetUserActive();
   const resetPassword = useResetUserPassword();
   const deleteUser = useDeleteUser();
@@ -133,12 +135,17 @@ export default function UsersPage() {
         title="Pengguna"
         description="Kelola akun admin, asisten aktif, dan asisten magang."
         actions={
-          <Button size="lg" className="h-11 pl-1.5 shadow-md" onClick={() => setFormUser(null)}>
-            <span className="flex size-8 items-center justify-center rounded-full bg-white/20">
-              <Plus aria-hidden />
-            </span>
-            Tambah Pengguna
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button size="lg" variant="outline" className="h-11" onClick={() => setImporting(true)}>
+              <FileUp aria-hidden /> Import CSV
+            </Button>
+            <Button size="lg" className="h-11 pl-1.5 shadow-md" onClick={() => setFormUser(null)}>
+              <span className="flex size-8 items-center justify-center rounded-full bg-white/20">
+                <Plus aria-hidden />
+              </span>
+              Tambah Pengguna
+            </Button>
+          </div>
         }
         stats={users.data ? [{ label: "Pengguna", value: users.data.meta.total }] : undefined}
       />
@@ -258,7 +265,7 @@ export default function UsersPage() {
                               <DropdownMenuItem onSelect={() => setFormUser(u)}>
                                 <Pencil aria-hidden /> Edit
                               </DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => setConfirm({ kind: "reset", user: u })}>
+                              <DropdownMenuItem disabled={self} onSelect={() => setConfirm({ kind: "reset", user: u })}>
                                 <KeyRound aria-hidden /> Reset password
                               </DropdownMenuItem>
                               {u.is_active ? (
@@ -292,6 +299,7 @@ export default function UsersPage() {
         onCreated={setTemporary}
       />
       <TemporaryPasswordDialog result={temporary} onClose={() => setTemporary(null)} />
+      <ImportUsersDialog open={importing} onOpenChange={setImporting} />
       {confirm && confirmCopy && (
         <ConfirmDialog
           open

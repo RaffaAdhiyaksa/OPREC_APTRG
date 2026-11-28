@@ -19,13 +19,16 @@ export interface CompetitionDivisionRef {
   id: number;
   name: string;
   team_name: string | null;
+  position: string | null;
 }
 
+/** One `UserResource` for login, `/auth/me` and every admin endpoint. */
 export interface User {
   id: number;
   name: string;
   email: string;
   nim: string | null;
+  phone: string | null;
   role: Role;
   is_coordinator: boolean;
   is_active: boolean;
@@ -33,6 +36,9 @@ export interface User {
   research_division: DivisionRef | null;
   competition_divisions: CompetitionDivisionRef[];
   permissions: Permission[];
+  avatar_url: string | null;
+  last_login_at: string | null;
+  created_at: string;
 }
 
 /** `GET /auth/me` adds the unread badge count. */
@@ -45,15 +51,20 @@ export interface DataResponse<T> {
   message?: string;
 }
 
+/** Laravel paginator `meta` (`meta.links` is not used). */
 export interface PaginationMeta {
   current_page: number;
   per_page: number;
   total: number;
   last_page: number;
+  from: number | null;
+  to: number | null;
+  path: string;
 }
 
 export interface PaginatedResponse<T> {
   data: T[];
+  links: { first: string | null; last: string | null; prev: string | null; next: string | null };
   meta: PaginationMeta;
 }
 
@@ -67,13 +78,24 @@ export type ApiErrorCode =
   | "ACCOUNT_INACTIVE"
   | "PASSWORD_CHANGE_REQUIRED"
   | "NOT_FOUND"
+  | "VALIDATION_ERROR"
+  | "TOO_MANY_REQUESTS"
+  | "CANNOT_CHANGE_OWN_ROLE"
+  | "CANNOT_DEACTIVATE_SELF"
+  | "CANNOT_DELETE_SELF"
+  | "CANNOT_RESET_SELF"
+  | "LAST_ADMIN"
+  | "NOT_ASISTEN_AKTIF"
+  | "DIVISION_NOT_OPTIONAL"
+  | "ALREADY_PUBLISHED"
+  | "FILE_TOO_LARGE"
+  | "PAYLOAD_TOO_LARGE"
   | "DEADLINE_PASSED"
   | "GRADE_LOCKED"
-  | "PAYLOAD_TOO_LARGE"
-  | "VALIDATION_ERROR"
-  | "FILE_TOO_LARGE"
-  | "DIVISION_NOT_OPTIONAL"
-  | "TOO_MANY_REQUESTS";
+  | "RESTORE_CONFLICT"
+  | "NOT_DELETED"
+  | "IMPORT_INVALID"
+  | "IMPORT_TOO_LARGE";
 
 /** Error envelope returned by every endpoint. */
 export interface ApiErrorBody {
@@ -114,7 +136,8 @@ export interface Division {
   is_optional: boolean;
   is_active: boolean;
   sort_order: number;
-  members_count: number;
+  /** Admin only. */
+  members_count?: number;
 }
 
 export interface PersonRef {
@@ -127,12 +150,8 @@ export interface UserSummary extends PersonRef {
   nim: string | null;
 }
 
-/** `/admin/users` resource. */
-export interface AdminUser extends User {
-  phone: string | null;
-  last_login_at: string | null;
-  created_at: string;
-}
+/** `/admin/users` returns the same `UserResource`. */
+export type AdminUser = User;
 
 export interface UserListParams {
   search?: string;
@@ -161,6 +180,12 @@ export interface TemporaryPasswordResult {
   temporary_password: string | null;
 }
 
+/** `POST /admin/users/import` (201). Passwords are shown exactly once. */
+export interface UserImportResult {
+  created_count: number;
+  users: { name: string; email: string; temporary_password: string }[];
+}
+
 export interface AdminDashboard {
   users: { admin: number; asisten_aktif: number; asisten_magang: number; inactive: number };
   pending_grading: number;
@@ -168,8 +193,10 @@ export interface AdminDashboard {
     division: DivisionRef;
     asisten_aktif: number;
     asisten_magang: number;
-    assignments: number;
-    ungraded: number;
+    /** Published assignments only. */
+    assignments_published: number;
+    /** Submissions without a published grade (none yet, or a draft). */
+    pending_grading: number;
   }[];
   recent_announcements: Announcement[];
 }

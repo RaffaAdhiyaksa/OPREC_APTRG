@@ -15,7 +15,13 @@ export default function AdminDashboard() {
 
   if (isError) return <ErrorState error={error} onRetry={() => void refetch()} />;
 
-  const mostUngraded = data ? Math.max(...data.divisions.map((d) => d.ungraded)) : 0;
+  const users = data?.users;
+  const divisions = data?.divisions ?? [];
+  const announcements = data?.recent_announcements ?? [];
+  const pendingTotal = data?.pending_grading ?? 0;
+  const inactive = users?.inactive ?? 0;
+  // Seed 0 keeps Math.max finite when there are no divisions.
+  const mostPending = Math.max(0, ...divisions.map((d) => d.pending_grading ?? 0));
 
   return (
     <>
@@ -35,17 +41,17 @@ export default function AdminDashboard() {
         stats={
           data
             ? [
-                { label: "Asisten Aktif", value: data.users.asisten_aktif },
-                { label: "Asisten Magang", value: data.users.asisten_magang },
+                { label: "Asisten Aktif", value: users?.asisten_aktif ?? 0 },
+                { label: "Asisten Magang", value: users?.asisten_magang ?? 0 },
                 {
                   label: "Nonaktif",
-                  value: data.users.inactive,
-                  hint: data.users.inactive > 0 ? <Chip tone="danger" className="w-fit px-2 py-0 text-[10px]">perlu cek</Chip> : undefined,
+                  value: inactive,
+                  hint: inactive > 0 ? <Chip tone="danger" className="w-fit px-2 py-0 text-[10px]">perlu cek</Chip> : undefined,
                 },
                 {
                   label: "Belum dinilai",
-                  value: data.pending_grading,
-                  hint: data.pending_grading > 0 ? <Chip tone="warning" className="w-fit px-2 py-0 text-[10px]">tertunda</Chip> : undefined,
+                  value: pendingTotal,
+                  hint: pendingTotal > 0 ? <Chip tone="warning" className="w-fit px-2 py-0 text-[10px]">tertunda</Chip> : undefined,
                 },
               ]
             : undefined
@@ -54,16 +60,18 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <section className="min-w-0 space-y-5" aria-labelledby="per-divisi">
-          <SectionTitle id="per-divisi" title="Per Divisi Riset" count={data?.divisions.length} unit="Divisi" />
+          <SectionTitle id="per-divisi" title="Per Divisi Riset" count={data ? divisions.length : undefined} unit="Divisi" />
           <div className="grid gap-4 sm:grid-cols-2">
             {isPending
               ? [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-48 rounded-2xl" />)
-              : data.divisions.map((d) => (
+              : divisions.map((d) => {
+                  const pending = d.pending_grading ?? 0;
+                  return (
                   <DashCard
                     key={d.division.id}
                     to={`/admin/users?division_id=${d.division.id}`}
                     linkLabel={`Lihat pengguna divisi ${d.division.name}`}
-                    highlight={d.ungraded > 0 && d.ungraded === mostUngraded}
+                    highlight={pending > 0 && pending === mostPending}
                   >
                     <div className="flex items-center gap-3 pr-12">
                       <img src={divisionPhoto(d.division.slug)} alt="" className="size-12 rounded-full object-cover ring-2 ring-white/80" />
@@ -77,22 +85,23 @@ export default function AdminDashboard() {
                     <dl className="grid grid-cols-2 gap-3">
                       <div>
                         <dt className="text-xs opacity-75">{ROLE_LABEL.asisten_aktif}</dt>
-                        <dd className="text-3xl font-light tabular-nums">{d.asisten_aktif}</dd>
+                        <dd className="text-3xl font-light tabular-nums">{d.asisten_aktif ?? 0}</dd>
                       </div>
                       <div>
                         <dt className="text-xs opacity-75">{ROLE_LABEL.asisten_magang}</dt>
-                        <dd className="text-3xl font-light tabular-nums">{d.asisten_magang}</dd>
+                        <dd className="text-3xl font-light tabular-nums">{d.asisten_magang ?? 0}</dd>
                       </div>
                     </dl>
                     <div className="mt-auto flex flex-wrap gap-2">
                       <Chip>
                         <ClipboardCheck className="size-3.5" aria-hidden />
-                        {d.assignments} tugas
+                        {d.assignments_published ?? 0} tugas
                       </Chip>
-                      <Chip tone={d.ungraded > 0 ? "warning" : "default"}>{d.ungraded} belum dinilai</Chip>
+                      <Chip tone={pending > 0 ? "warning" : "default"}>{pending} belum dinilai</Chip>
                     </div>
                   </DashCard>
-                ))}
+                  );
+                })}
           </div>
         </section>
 
@@ -103,9 +112,9 @@ export default function AdminDashboard() {
                 <Skeleton key={i} className="h-16 rounded-xl bg-white/10" />
               ))}
             </div>
-          ) : data.recent_announcements.length ? (
+          ) : announcements.length ? (
             <Timeline>
-              {data.recent_announcements.map((a, index) => (
+              {announcements.map((a, index) => (
                 <TimelineItem key={a.id} marker={index + 1} active={index === 0}>
                   <p className="truncate text-sm font-semibold text-inherit">{a.title}</p>
                   <p className="mt-0.5 line-clamp-2 text-xs text-inherit opacity-70">{a.body}</p>

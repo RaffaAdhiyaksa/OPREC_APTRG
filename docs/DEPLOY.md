@@ -246,13 +246,13 @@ Admin login di frontend dengan password sementara itu, lalu wajib menggantinya. 
 cd /var/www/aptrg-lms/frontend
 cat > .env.production.local <<'EOF'
 VITE_API_BASE_URL=https://api-lms.aptrg.id
-VITE_USE_MOCKS=false
+VITE_MOCK_DOMAINS=
 EOF
 npm ci
 npm run build    # hasil di frontend/dist/, dilayani Nginx (bagian 4)
 ```
 
-`VITE_USE_MOCKS=false` wajib di production supaya semua data diambil dari API.
+`VITE_MOCK_DOMAINS` wajib kosong di production supaya semua data diambil dari API.
 
 ### Cek setelah deploy
 

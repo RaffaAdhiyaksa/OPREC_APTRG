@@ -1,4 +1,4 @@
-import { USE_MOCKS } from "@/lib/env";
+import { isMocked } from "@/lib/env";
 import { api } from "@/services/api";
 import { mockUsers } from "@/services/mock/users";
 import type {
@@ -7,6 +7,7 @@ import type {
   DataResponse,
   PaginatedResponse,
   TemporaryPasswordResult,
+  UserImportResult,
   UserListParams,
   UserPayload,
 } from "@/types/api";
@@ -20,6 +21,8 @@ export interface UsersService {
   setActive(id: number, isActive: boolean): Promise<AdminUser>;
   resetPassword(id: number): Promise<TemporaryPasswordResult>;
   remove(id: number): Promise<void>;
+  /** CSV `name,email,nim,phone,role,division_slug`, all rows or none. */
+  importCsv(file: File): Promise<UserImportResult>;
 }
 
 const realUsers: UsersService = {
@@ -51,6 +54,13 @@ const realUsers: UsersService = {
   async remove(id) {
     await api.delete(`/admin/users/${id}`);
   },
+  async importCsv(file) {
+    const form = new FormData();
+    form.append("file", file);
+    // One bcrypt hash per row: 200 rows take ~40 s on the server.
+    const { data } = await api.post<DataResponse<UserImportResult>>("/admin/users/import", form, { timeout: 120_000 });
+    return data.data;
+  },
 };
 
-export const usersService = USE_MOCKS ? mockUsers : realUsers;
+export const usersService = isMocked("users") ? mockUsers : realUsers;

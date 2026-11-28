@@ -23,7 +23,7 @@ function ResearchCard({ division }: { division: Division }) {
         <h3 className="text-2xl font-extrabold tracking-tight text-white">{division.name}</h3>
         <p className="flex items-center gap-1.5 text-sm text-white/80">
           <Users className="size-4" aria-hidden />
-          {division.members_count} anggota
+          {division.members_count ?? 0} anggota
         </p>
       </div>
     </article>
@@ -51,7 +51,7 @@ function CompetitionCard({ division, onToggle, pending }: { division: Division; 
         )}
       </div>
       <div className="mt-auto flex flex-wrap items-center gap-2">
-        <Badge variant="outline">{division.members_count} anggota</Badge>
+        <Badge variant="outline">{division.members_count ?? 0} anggota</Badge>
         {division.is_optional && <Badge className="border-transparent bg-warning text-warning-foreground">Opsional</Badge>}
         {!division.is_active && <Badge variant="secondary">Nonaktif</Badge>}
         <Badge variant="outline" className="text-muted-foreground">Fase 2</Badge>
@@ -117,7 +117,7 @@ export default function DivisionsPage() {
           open
           onOpenChange={(open) => !open && setPendingOff(null)}
           title={`Nonaktifkan ${pendingOff.name}?`}
-          description={`Divisi disembunyikan dari pengguna non-admin dan tidak bisa diberi anggota baru. ${pendingOff.members_count} anggota yang sudah tercatat tetap tersimpan.`}
+          description={`Divisi disembunyikan dari pengguna non-admin dan tidak bisa diberi anggota baru. ${pendingOff.members_count ?? 0} anggota yang sudah tercatat tetap tersimpan.`}
           confirmLabel="Nonaktifkan"
           destructive
           onConfirm={() => toggle(pendingOff, false)}

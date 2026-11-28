@@ -1,4 +1,4 @@
-import { USE_MOCKS } from "@/lib/env";
+import { isMocked } from "@/lib/env";
 import { api } from "@/services/api";
 import { mockAnnouncements } from "@/services/mock/announcements";
 import type { Announcement, AnnouncementPayload, DataResponse } from "@/types/api";
@@ -34,4 +34,4 @@ const realAnnouncements: AnnouncementsService = {
   },
 };
 
-export const announcementsService = USE_MOCKS ? mockAnnouncements : realAnnouncements;
+export const announcementsService = isMocked("announcements") ? mockAnnouncements : realAnnouncements;
