@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AssignmentController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DivisionController;
 use App\Http\Controllers\Api\V1\MaterialController;
+use App\Http\Controllers\Api\V1\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
 // All endpoints live under /api/v1 and return JSON only.
@@ -35,6 +36,15 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/assignments/{assignment}/publish', [AssignmentController::class, 'publish']);
         Route::apiResource('assignments', AssignmentController::class);
+
+        Route::middleware('role:asisten_magang')->controller(SubmissionController::class)->group(function () {
+            Route::post('/assignments/{assignment}/submission', 'store');
+            Route::get('/assignments/{assignment}/submission', 'show');
+            Route::delete('/assignments/{assignment}/submission', 'destroy');
+        });
+        Route::get('/assignments/{assignment}/submissions', [SubmissionController::class, 'index'])->middleware('role:asisten_aktif,admin');
+        Route::get('/submissions/{submission}/download', [SubmissionController::class, 'download']);
+
 
         Route::prefix('admin')->middleware('role:admin')->group(function () {
             Route::get('/dashboard', DashboardController::class);

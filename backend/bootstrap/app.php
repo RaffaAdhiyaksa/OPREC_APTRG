@@ -50,6 +50,8 @@ return Application::configure(basePath: dirname(__DIR__))
             $known = [
                 403 => ['Anda tidak memiliki akses.', 'FORBIDDEN'],
                 404 => ['Data tidak ditemukan.', 'NOT_FOUND'],
+                // PostTooLargeException: the body exceeded PHP post_max_size before Laravel could validate it.
+                413 => ['Ukuran data melebihi batas server. Gunakan link Google Drive untuk file besar.', 'PAYLOAD_TOO_LARGE'],
                 429 => ['Terlalu banyak percobaan. Coba lagi nanti.', 'TOO_MANY_REQUESTS'],
             ];
             if ($e instanceof HttpExceptionInterface && isset($known[$status = $e->getStatusCode()])) {
