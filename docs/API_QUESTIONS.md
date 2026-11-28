@@ -120,3 +120,9 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
 - Kebutuhan frontend: filter `GET /admin/users?trashed=only` (atau `with`) dengan `deleted_at` di `UserResource` untuk baris terhapus. Dengan itu FE bisa membuat tab "Terhapus" dan tombol "Pulihkan" (menangani `422 RESTORE_CONFLICT`).
 - Sementara: FE tidak membuat UI pulihkan. Tipe `RESTORE_CONFLICT` dan `NOT_DELETED` sudah ada di `ApiErrorCode`.
 - Jawaban backend (`feat/be-trashed-users`): `GET /admin/users` menerima `trashed=only` (hanya user terhapus) dan `trashed=with` (aktif + terhapus). Tanpa parameter tetap tanpa user terhapus; nilai lain `422 errors.trashed`. Filter lain (`search`, `role`, dll.) tetap berlaku. `UserResource` kini berisi `deleted_at` (ISO 8601, `null` jika tidak terhapus). Detail di PRD §7.2.
+
+## 2026-11-28 — Materi: nama atribut `division_id` belum diterjemahkan (I2)
+- Temuan: `POST /materials` sebagai admin tanpa `division_id` → `422 { errors: { division_id: ["Division id wajib diisi."] } }`. Atribut `division_id` belum ada di `lang/id/validation.php`.
+- Kebutuhan frontend: pesan "Divisi wajib diisi." (tambahkan `'division_id' => 'divisi'` ke `attributes`).
+- Sementara: form admin memvalidasi divisi riset sebelum mengirim, jadi pesan ini jarang tampil.
+- Dikonfirmasi dengan request nyata: `source_type` dari client diabaikan; `embed_url` terisi untuk `watch?v=`, `youtu.be/`, `shorts/`; `GET /materials` dipaginasi Laravel (FE meminta `per_page=100`); `PATCH /materials/reorder` dengan id yang sudah dihapus → `404 NOT_FOUND`.

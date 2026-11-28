@@ -1,7 +1,7 @@
 import { isMocked } from "@/lib/env";
 import { api } from "@/services/api";
 import { mockMaterials } from "@/services/mock/materials";
-import type { DataResponse, Material, MaterialListParams, MaterialPayload } from "@/types/api";
+import type { DataResponse, Material, MaterialListParams, MaterialPayload, PaginatedResponse } from "@/types/api";
 
 export interface MaterialsService {
   list(params: MaterialListParams): Promise<Material[]>;
@@ -14,7 +14,8 @@ export interface MaterialsService {
 
 const realMaterials: MaterialsService = {
   async list(params) {
-    const { data } = await api.get<DataResponse<Material[]>>("/materials", { params: { ...params, per_page: 100 } });
+    // shortcut: only the first 100 materials (server max per_page), add paging if a division ever exceeds that.
+    const { data } = await api.get<PaginatedResponse<Material>>("/materials", { params: { ...params, per_page: 100 } });
     return data.data;
   },
   async create(payload) {
