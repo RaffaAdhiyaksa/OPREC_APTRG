@@ -216,7 +216,7 @@ Envelope error:
 | 403 | `PASSWORD_CHANGE_REQUIRED` | `must_change_password = true` |
 | 404 | `NOT_FOUND` | Resource tidak ada atau di luar divisi user |
 | 409 | `DEADLINE_PASSED` / `GRADE_LOCKED` | Submit setelah deadline / submit ulang setelah nilai publish |
-| 413 | `PAYLOAD_TOO_LARGE` | Ditolak server sebelum Laravel |
+| 413 | `PAYLOAD_TOO_LARGE` | Body melebihi `post_max_size` PHP (dirender JSON oleh Laravel) |
 | 422 | `VALIDATION_ERROR` / `FILE_TOO_LARGE` | Validasi gagal (pesan bahasa Indonesia) |
 | 422 | `CANNOT_CHANGE_OWN_ROLE` / `CANNOT_DEACTIVATE_SELF` / `CANNOT_DELETE_SELF` / `CANNOT_RESET_SELF` / `LAST_ADMIN` / `NOT_ASISTEN_AKTIF` / `DIVISION_NOT_OPTIONAL` / `ALREADY_PUBLISHED` | Aturan bisnis; response juga berisi `errors` per field |
 | 429 | `TOO_MANY_REQUESTS` | Rate limit |
@@ -443,31 +443,90 @@ Notifikasi `assignment_published` (tabel `notifications`, `type = "assignment_pu
 
 ### 7.5 Submission Hybrid & Penilaian
 
-| Method | Path | Policy | Keterangan |
+| Method | Path | Akses | Keterangan |
 | --- | --- | --- | --- |
-| POST | `/assignments/{assignment}/submission` | `role:asisten_magang`, `SubmissionPolicy@create` | Kumpulkan / kumpulkan ulang |
-| GET | `/assignments/{assignment}/submission` | `role:asisten_magang` | Submission saya |
-| DELETE | `/assignments/{assignment}/submission` | `delete` | Tarik sebelum deadline |
-| GET | `/assignments/{assignment}/submissions` | `role:asisten_aktif,admin`, `viewAny` | Semua magang divisi + status submit & nilai |
-| GET | `/submissions/{submission}/download` | `view` | Stream file privat (`Content-Disposition: attachment`) |
-| PUT | `/assignments/{assignment}/grades/{user}` | `GradePolicy@upsert` | Input/ubah nilai |
-| POST | `/assignments/{assignment}/grades/publish` | `GradePolicy@publish` | Publish massal (`user_ids` opsional, kosong = semua draft) |
-| POST | `/grades/{grade}/unpublish` | `GradePolicy@publish` | Kembali ke draft |
-| GET | `/me/grades` | `role:asisten_magang` | Nilai saya (published saja) + rata-rata |
+| POST | `/assignments/{assignment}/submission` | `role:asisten_magang` | Kumpulkan / kumpulkan ulang. `201` (baru) / `200` (ulang) `{ data: <Submission>, message }` |
+| GET | `/assignments/{assignment}/submission` | `role:asisten_magang` | `{ data: <Submission> \| null }` |
+| DELETE | `/assignments/{assignment}/submission` | `role:asisten_magang` | Tarik. `{ message }` |
+| GET | `/assignments/{assignment}/submissions` | `role:asisten_aktif,admin` + divisi tugas | Semua magang aktif divisi, termasuk yang belum submit |
+| GET | `/submissions/{submission}/download` | pemilik, Asisten Aktif divisi tugas, admin | Stream file privat |
+| PUT | `/assignments/{assignment}/grades/{user}` | `role:asisten_aktif,admin` + divisi tugas | Input/ubah nilai. `200 { data: <Grade> }` |
+| POST | `/assignments/{assignment}/grades/publish` | `role:asisten_aktif,admin` + divisi tugas | `{ user_ids? }` → `{ data: { published_count }, message }` |
+| POST | `/grades/{grade}/unpublish` | `role:asisten_aktif,admin` + divisi tugas | Kembali ke draft. `{ data: <Grade> }` |
+| GET | `/me/grades` | `role:asisten_magang` | Nilai saya (published saja) |
 
-`POST /assignments/{assignment}/submission` (`multipart/form-data`):
+Role yang salah → `403 FORBIDDEN`. Tugas di luar divisi user (atau draft untuk magang) → `404 NOT_FOUND`.
 
-| Field | Aturan |
-| --- | --- |
-| `file` | `required_without:drive_link`, `max:{max_file_size_mb*1024}` KB, `mimes:{allowed_extensions}` |
-| `drive_link` | `required_without:file`, `url`, HTTPS, host `drive.google.com`/`docs.google.com` |
-| `note` | opsional, max 1000 |
+**`POST /assignments/{assignment}/submission`** (`multipart/form-data`). Urutan cek server:
 
-Urutan cek server: (1) Policy: magang di divisi tugas, tugas published. (2) Deadline lewat tanpa `allow_late` → `409 DEADLINE_PASSED`. (3) Nilai published → `409 GRADE_LOCKED`. (4) Validasi field, file terlalu besar → `422 FILE_TOO_LARGE` dengan `meta.fallback = "drive_link"`. (5) Simpan file, hapus file lama, upsert submission dalam satu transaksi. Response `201` (baru) / `200` (ulang) dengan `method` = `file` | `drive` | `both`.
+1. Magang di divisi tugas dan tugas `published`, selain itu `404`.
+2. Lewat `due_at` dan `allow_late = false` → `409 DEADLINE_PASSED`. Jika `allow_late`, submission disimpan dengan `is_late = true`.
+3. Nilai sudah `published` → `409 GRADE_LOCKED`.
+4. File lebih besar dari `max_file_size_mb` → `422 FILE_TOO_LARGE`:
 
-`GET /assignments/{assignment}/submissions`: filter `status` (`submitted`, `missing`, `late`, `graded_draft`, `graded_published`), `search`. Mengembalikan semua magang di divisi tugas, termasuk yang belum submit, plus `meta` hitungan.
+   ```json
+   { "message": "Ukuran file melebihi batas 10 MB. Unggah ke Google Drive lalu kirim link-nya.", "code": "FILE_TOO_LARGE",
+     "errors": { "file": ["..."] }, "meta": { "max_file_size_mb": 10, "fallback": "drive_link" } }
+   ```
 
-`PUT /assignments/{assignment}/grades/{user}`: `{ "score": 85, "feedback": "..." }`. `score` 0–`max_score`, `{user}` harus magang di divisi tugas. Grade baru `draft`; jika sudah `published`, diperbarui dan tetap `published` dengan notifikasi "nilai diperbarui".
+5. Validasi lain (`422 VALIDATION_ERROR`):
+
+   | Field | Aturan |
+   | --- | --- |
+   | `file` | `required_without:drive_link`; ekstensi nama file **dan** isi file (`mimes`) harus ada di `allowed_extensions` tugas (`null` = whitelist global) |
+   | `drive_link` | `required_without:file`; URL `https`, host `drive.google.com` atau `docs.google.com`, max 2048 |
+   | `note` | opsional, max 1000 |
+
+6. File disimpan di disk privat `local` (`storage/app/private/submissions/{assignment_id}/{uuid}.{ext}`). Nama asli disanitasi dan disimpan di `file_name`, juga `file_size` (byte) dan `mime_type`. Submit ulang mengganti seluruh submission; file lama dihapus setelah data baru tersimpan (juga saat beralih ke link Drive). Simpan ke DB di dalam transaksi; file baru dihapus jika transaksi gagal.
+
+Body yang melebihi `post_max_size` PHP ditolak sebelum Laravel memvalidasi: `413 PAYLOAD_TOO_LARGE`.
+
+`<Submission>`:
+
+```json
+{ "id": 88, "method": "file", "file_name": "wiring.pdf", "file_size": 4194304, "mime_type": "application/pdf",
+  "drive_link": null, "note": "Revisi bagian ESC", "is_late": false, "submitted_at": "2026-12-03T10:12:00.000000Z",
+  "download_url": "/api/v1/submissions/88/download" }
+```
+
+`method` = `file` | `drive` | `both`. `download_url` adalah path API (butuh Bearer token), `null` jika tidak ada file.
+
+**`DELETE /assignments/{assignment}/submission`**: hanya sebelum `due_at` (walau `allow_late`) → selain itu `409 DEADLINE_PASSED`; nilai sudah published → `409 GRADE_LOCKED`; belum ada submission → `404`. File ikut dihapus.
+
+**`GET /assignments/{assignment}/submissions`**: query `status` (`submitted`, `missing`, `late`, `graded_draft`, `graded_published`), `search` (nama/NIM/email). Tidak dipaginasi. Urut nama. `meta` selalu menghitung seluruh magang aktif divisi (sebelum filter):
+
+```json
+{
+  "data": [
+    { "user": { "id": 31, "name": "Syifa", "email": "syifa@aptrg.test", "nim": "1202230011" },
+      "submission": <Submission>,
+      "grade": { "id": 40, "score": 85, "feedback": "Rapi.", "status": "draft", "published_at": null, "graded_by": { "id": 7, "name": "Ruddy" }, "updated_at": "..." } },
+    { "user": { "id": 32, "name": "Asa", "email": "asa@aptrg.test", "nim": null }, "submission": null, "grade": null }
+  ],
+  "meta": { "total": 16, "submitted": 12, "missing": 4, "late": 1, "graded_draft": 5, "graded_published": 7 }
+}
+```
+
+**`GET /submissions/{submission}/download`**: `Content-Disposition: attachment` dengan nama asli dan `X-Content-Type-Options: nosniff`. Magang lain, Asisten Aktif divisi lain, atau submission tanpa file → `404`.
+
+**`PUT /assignments/{assignment}/grades/{user}`** `{ "score": 85, "feedback": "..." }`: `{user}` harus Asisten Magang di divisi tugas (selain itu `404`). `score` numerik 0–`max_score`, `feedback` max 5000. Nilai baru selalu `draft`; `graded_by` = pemanggil; `submission_id` diisi jika magang sudah submit. Nilai yang sudah `published` tetap `published` saat diedit, dan magang menerima notifikasi `grade_updated` jika skor/feedback berubah.
+
+**`POST /assignments/{assignment}/grades/publish`** `{ "user_ids": [31, 33] }` (opsional, kosong = semua draft tugas ini): satu transaksi dengan row lock, jadi dua request bersamaan tidak mempublikasikan (atau memberi notifikasi) nilai yang sama dua kali. Tiap nilai yang dipublikasikan mengirim notifikasi `grade_published`.
+
+**`POST /grades/{grade}/unpublish`**: `status = draft`, `published_at = null`. Nilai kembali tersembunyi dari magang. Tidak ada notifikasi.
+
+**`GET /me/grades`**:
+
+```json
+{
+  "data": [ { "id": 40, "assignment": { "id": 21, "title": "Wiring", "max_score": 100 }, "score": 85, "feedback": "Rapi.", "published_at": "..." } ],
+  "meta": { "average": 85, "published_count": 1, "assignments_total": 3 }
+}
+```
+
+Urut `published_at` terbaru. `average` = rata-rata persentase `score / max_score × 100`, dibulatkan 1 desimal, `null` jika belum ada nilai. `assignments_total` = jumlah tugas published di divisi magang.
+
+Notifikasi nilai (tabel `notifications`): `type` `grade_published` (`title: "Nilai <tugas> sudah keluar"`) atau `grade_updated` (`title: "Nilai <tugas> diperbarui"`), `data = { title, excerpt: "Skor: 85", link: "/assignments/{id}", assignment_id, grade_id }`.
 
 ### 7.6 Pengumuman & Notifikasi
 
