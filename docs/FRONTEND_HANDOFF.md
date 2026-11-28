@@ -24,15 +24,17 @@ Dokumen ini untuk **Achmad** dan **AI coding assistant**-nya. Tujuannya: melanju
 
 ## 2. Pembagian kerja & aturan kolaborasi
 
-| | Afif (backend) | Achmad (frontend) |
-|---|---|---|
-| Folder yang boleh diubah | `backend/`, `PRD.md`, `CLAUDE.md` | `frontend/`, `docs/FRONTEND_*.md`, `docs/API_QUESTIONS.md` |
-| Prefix branch | `feat/be-...`, `fix/be-...` | `feat/fe-...`, `fix/fe-...` |
+> **Diperbarui:** frontend dan backend kini dipegang satu maintainer. Aturan terbaru ada di `CLAUDE.md` §9: satu PR hanya mengubah satu sisi (`frontend/` ATAU `backend/`), kecuali docs. Tabel pembagian per orang di bawah tidak berlaku lagi.
+
+| Sisi | Prefix branch |
+|---|---|
+| Backend | `feat/be-...`, `fix/be-...` |
+| Frontend | `feat/fe-...`, `fix/fe-...` |
 
 Aturan:
 
 1. **Jangan pernah commit langsung ke `main`.** Buat branch dari `main`, lalu buka Pull Request. Satu fase = satu branch = satu PR.
-2. **Frontend tidak mengubah backend.** Jika butuh field/endpoint baru atau menemukan respons API yang beda dari kontrak, tulis di `docs/API_QUESTIONS.md` (format di bagian 10), jangan diakali di backend.
+2. **PR frontend tidak mengubah backend.** Jika butuh field/endpoint baru atau menemukan respons API yang beda dari kontrak, tulis di `docs/API_QUESTIONS.md` (format di bagian 10), lalu kerjakan di PR backend terpisah.
 3. File bersama (`README.md`, `.gitignore`) hanya diubah setelah koordinasi.
 4. Sebelum mulai kerja setiap hari: `git checkout main && git pull`, lalu rebase atau merge `main` ke branch kerja.
 5. Commit memakai Conventional Commits: `feat(fe): ...`, `fix(fe): ...`, `refactor(fe): ...`, `chore(fe): ...`.

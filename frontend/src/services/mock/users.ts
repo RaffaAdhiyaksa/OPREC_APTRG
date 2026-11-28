@@ -7,6 +7,7 @@ import {
   db,
   delay,
   divisionRef,
+  fail,
   forbidden,
   invalid,
   isAdmin,
@@ -81,9 +82,11 @@ export const mockUsers: UsersService = {
     await delay();
     const me = requireAdmin();
     const users = activeUsers();
-    const ungradedIn = (assignmentIds: number[]) =>
+    const pendingIn = (assignmentIds: number[]) =>
       db.submissions.filter(
-        (s) => assignmentIds.includes(s.assignment_id) && !db.grades.some((g) => g.assignment_id === s.assignment_id && g.user_id === s.user_id),
+        (s) =>
+          assignmentIds.includes(s.assignment_id) &&
+          !db.grades.some((g) => g.assignment_id === s.assignment_id && g.user_id === s.user_id && g.status === "published"),
       ).length;
     const liveAssignments = db.assignments.filter((a) => a.deleted_at === null);
 
@@ -92,12 +95,13 @@ export const mockUsers: UsersService = {
       .sort((a, b) => a.sort_order - b.sort_order)
       .map((d) => {
         const ids = liveAssignments.filter((a) => a.division_id === d.id).map((a) => a.id);
+        const published = liveAssignments.filter((a) => a.division_id === d.id && a.status === "published").length;
         return {
           division: divisionRef(d.id)!,
           asisten_aktif: users.filter((u) => u.role === "asisten_aktif" && u.research_division_id === d.id && u.is_active).length,
           asisten_magang: users.filter((u) => u.role === "asisten_magang" && u.research_division_id === d.id && u.is_active).length,
-          assignments: ids.length,
-          ungraded: ungradedIn(ids),
+          assignments_published: published,
+          pending_grading: pendingIn(ids),
         };
       });
 
@@ -108,7 +112,7 @@ export const mockUsers: UsersService = {
         asisten_magang: users.filter((u) => u.role === "asisten_magang" && u.is_active).length,
         inactive: users.filter((u) => !u.is_active).length,
       },
-      pending_grading: divisions.reduce((sum, d) => sum + d.ungraded, 0),
+      pending_grading: divisions.reduce((sum, d) => sum + d.pending_grading, 0),
       divisions,
       recent_announcements: [...db.announcements]
         .sort((a, b) => b.created_at.localeCompare(a.created_at))
@@ -127,8 +131,13 @@ export const mockUsers: UsersService = {
       .filter((u) => division_id === undefined || u.research_division_id === division_id)
       .filter((u) => is_active === undefined || u.is_active === is_active)
       .sort((a, b) => a.name.localeCompare(b.name, "id"));
-    const { data, meta } = paginate(rows, page, per_page);
-    return { data: data.map(toAdminUser), meta };
+    const { data, links, meta } = paginate(rows, page, per_page);
+    return { data: data.map(toAdminUser), links, meta };
+  },
+
+  async importCsv() {
+    await delay();
+    return fail(422, "VALIDATION_ERROR", "Import CSV tidak tersedia di mode mock. Hapus 'users' dari VITE_MOCK_DOMAINS.");
   },
 
   async create(payload) {

@@ -1,4 +1,4 @@
-// In-memory stand-in for backend endpoints that are not built yet (VITE_USE_MOCKS=true).
+// In-memory stand-in for backend endpoints that are not built yet (domains listed in VITE_MOCK_DOMAINS).
 // It mimics the backend rules from CLAUDE.md §5 (division isolation with 404, draft grades
 // hidden from interns, coordinator announcement targeting) so the UI behaves the same once
 // the real API replaces it. State survives a page reload within the tab (sessionStorage).
@@ -15,6 +15,7 @@ import type {
   Me,
   MaterialSourceType,
   NotificationType,
+  PaginatedResponse,
   PaginationMeta,
   Permission,
   PersonRef,
@@ -318,13 +319,22 @@ export function inScope(user: Me, divisionId: number) {
 export const now = () => new Date().toISOString();
 export const nextId = (rows: { id: number }[]) => rows.reduce((max, r) => Math.max(max, r.id), 0) + 1;
 
-export function paginate<T>(items: T[], page = 1, perPage = 15): { data: T[]; meta: PaginationMeta } {
+export function paginate<T>(items: T[], page = 1, perPage = 15): { data: T[]; links: PaginatedResponse<T>["links"]; meta: PaginationMeta } {
   const per = Math.min(Math.max(perPage, 1), 100);
   const lastPage = Math.max(1, Math.ceil(items.length / per));
   const current = Math.min(Math.max(page, 1), lastPage);
   return {
     data: items.slice((current - 1) * per, current * per),
-    meta: { current_page: current, per_page: per, total: items.length, last_page: lastPage },
+    links: { first: null, last: null, prev: null, next: null },
+    meta: {
+      current_page: current,
+      per_page: per,
+      total: items.length,
+      last_page: lastPage,
+      from: items.length ? (current - 1) * per + 1 : null,
+      to: items.length ? Math.min(current * per, items.length) : null,
+      path: "",
+    },
   };
 }
 
@@ -368,8 +378,9 @@ export function toAdminUser(u: UserRow): AdminUser {
     competition_divisions: db.competition_members
       .filter((m) => m.user_id === u.id)
       .map((m) => db.divisions.find((d) => d.id === m.division_id)!)
-      .map((d) => ({ id: d.id, name: d.name, team_name: d.team_name })),
+      .map((d) => ({ id: d.id, name: d.name, team_name: d.team_name, position: null })),
     permissions: permissionsFor(u),
+    avatar_url: null,
     last_login_at: u.last_login_at,
     created_at: u.created_at,
   };

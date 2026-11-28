@@ -1,4 +1,4 @@
-import { USE_MOCKS } from "@/lib/env";
+import { isMocked } from "@/lib/env";
 import { api } from "@/services/api";
 import { mockMaterials } from "@/services/mock/materials";
 import type { DataResponse, Material, MaterialListParams, MaterialPayload } from "@/types/api";
@@ -33,4 +33,4 @@ const realMaterials: MaterialsService = {
   },
 };
 
-export const materialsService = USE_MOCKS ? mockMaterials : realMaterials;
+export const materialsService = isMocked("materials") ? mockMaterials : realMaterials;

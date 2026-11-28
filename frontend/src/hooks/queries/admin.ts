@@ -69,3 +69,8 @@ export function useDeleteUser() {
   const invalidate = useInvalidateUsers();
   return useMutation({ mutationFn: (id: number) => usersService.remove(id), onSuccess: invalidate });
 }
+
+export function useImportUsers() {
+  const invalidate = useInvalidateUsers();
+  return useMutation({ mutationFn: (file: File) => usersService.importCsv(file), onSuccess: invalidate });
+}

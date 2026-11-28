@@ -25,7 +25,7 @@ Dokumen ini lanjutan dari `docs/FRONTEND_HANDOFF.md`. Untuk **Achmad** dan **AI 
 1. Mulai dari `main` terbaru: `git checkout main && git pull`.
 2. Kalau commit `77ef42b` (dari `feat/fe-foundation` lama) atau branch `fix/fe-admin-integration` belum masuk `main`, gabungkan dulu ke branch integrasi.
 3. Kerja di branch baru per domain (bagian 6), misalnya `feat/fe-integrate-admin`. Satu domain = satu PR ke `main`.
-4. Tetap: **hanya ubah `frontend/`, `docs/FRONTEND_*.md`, `docs/API_QUESTIONS.md`.**
+4. Satu PR hanya mengubah satu sisi (`frontend/` ATAU `backend/`), kecuali docs (`CLAUDE.md` §9). PR integrasi di sini hanya mengubah `frontend/` dan docs.
 
 ## 3. Refresh setup lokal
 
@@ -202,7 +202,7 @@ Jangan mengubah file apa pun di langkah ini. Tunggu konfirmasi saya.
 Kerjakan langkah <I-n> di docs/FRONTEND_HANDOFF_V2.md bagian 6.
 
 Aturan:
-- Branch baru dari main terbaru sesuai tabel. Hanya ubah frontend/ dan docs/FRONTEND_*.md / docs/API_QUESTIONS.md. Jangan ubah backend.
+- Branch baru dari main terbaru sesuai tabel. Hanya ubah frontend/ dan docs. Jangan ubah backend di PR ini (CLAUDE.md §9).
 - Matikan mock untuk domain ini. Sesuaikan types/api.ts dan service dengan respons ASLI backend (bagian 4), bukan dengan mock lama.
 - Tangani semua kode error yang relevan (bagian 4.5 dan 4.7) dengan pesan bahasa Indonesia yang jelas.
 - Jika backend kurang field atau perilakunya aneh, tulis di docs/API_QUESTIONS.md, jangan diakali di FE.
