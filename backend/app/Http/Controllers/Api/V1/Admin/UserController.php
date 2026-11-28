@@ -32,7 +32,7 @@ class UserController extends Controller
             ->when($request->filled('is_active'), fn ($q) => $q->where('is_active', $request->boolean('is_active')))
             ->when($request->filled('is_coordinator'), fn ($q) => $q->where('is_coordinator', $request->boolean('is_coordinator')))
             ->orderBy('name')
-            ->paginate(min(max($request->integer('per_page', 15), 1), 100))
+            ->paginate($this->perPage($request))
             ->withQueryString();
 
         return UserResource::collection($users);

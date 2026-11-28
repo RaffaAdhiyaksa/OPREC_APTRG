@@ -7,13 +7,16 @@ use App\Enums\DivisionType;
 use App\Enums\GradeStatus;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AnnouncementResource;
+use App\Models\Announcement;
 use App\Models\Division;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
         $perRole = User::toBase()->selectRaw('role, count(*) as total')->groupBy('role')->pluck('total', 'role');
 
@@ -44,6 +47,10 @@ class DashboardController extends Controller
                 'assignments_published' => $division->assignments_published,
                 'pending_grading' => $division->pending_grading,
             ]),
+            // Same shape as GET /announcements so the frontend can reuse its card.
+            'recent_announcements' => AnnouncementResource::collection(
+                Announcement::withViewerState($request->user())->latest()->latest('id')->limit(3)->get()
+            ),
         ]]);
     }
 }
