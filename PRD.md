@@ -120,7 +120,7 @@ Satu tabel `divisions`, dibedakan kolom `type`.
 Semua tabel punya `id` dan `timestamps`. Semua FK memakai `foreignId()->constrained()`; aturan `ON DELETE` default `RESTRICT` kecuali disebut lain.
 
 1. **`divisions`**: `slug` (unique), `name`, `type` enum(`research`,`competition`), `team_name` (nullable), `is_optional` (bool, default `false`), `is_active` (bool, default `true`), `sort_order`.
-2. **`users`**: `name`, `email` (unique), `nim` (nullable, unique), `phone` (nullable), `password`, `role` enum(`admin`,`asisten_aktif`,`asisten_magang`), `research_division_id` (FK `divisions`, nullable, restrictOnDelete), `is_coordinator` (bool, default `false`), `is_active` (bool, default `true`), `must_change_password` (bool, default `true`), `avatar_path` (nullable), `last_login_at` (nullable), `remember_token`, `softDeletes`. Index (`role`, `research_division_id`).
+2. **`users`**: `name`, `email` (unique di antara user yang belum dihapus), `nim` (nullable, unique di antara user yang belum dihapus), `phone` (nullable), `password`, `role` enum(`admin`,`asisten_aktif`,`asisten_magang`), `research_division_id` (FK `divisions`, nullable, restrictOnDelete), `is_coordinator` (bool, default `false`), `is_active` (bool, default `true`), `must_change_password` (bool, default `true`), `avatar_path` (nullable), `last_login_at` (nullable), `remember_token`, `softDeletes`. Index (`role`, `research_division_id`), index biasa `email` dan `nim`. Keunikan dijaga kolom virtual `active_email`/`active_nim` (`IF(deleted_at IS NULL, email/nim, NULL)`) yang unique, sehingga user yang dihapus membebaskan email dan NIM-nya.
 3. **`competition_members`** (Fase 2): `user_id` (FK, cascade), `division_id` (FK, cascade), `position` (nullable). Unique (`user_id`, `division_id`).
 4. **`materials`**: `division_id` (FK), `created_by` (FK `users`), `title`, `description` (text, nullable), `source_type` enum(`youtube`,`drive`,`other`), `url` (varchar 2048), `sort_order`, `is_published` (bool, default `true`).
 5. **`assignments`**: `division_id` (FK), `created_by` (FK `users`), `title`, `description` (longText), `due_at` (datetime), `allow_late` (bool, default `false`), `max_file_size_mb` (unsigned tinyint, default `10`), `allowed_extensions` (json, nullable), `max_score` (unsigned smallint, default `100`), `status` enum(`draft`,`published`) default `draft`, `published_at` (nullable), `softDeletes`. Index (`division_id`, `status`, `due_at`).
@@ -262,7 +262,7 @@ Grup default endpoint terautentikasi: `auth:sanctum, active, pwd.changed`.
 | POST | `/auth/logout` | `auth:sanctum` | Cabut token saat ini |
 | GET | `/auth/me` | `auth:sanctum, active` | Profil + izin (untuk route guard FE) + `unread_notifications_count` |
 | PUT | `/auth/password` | `auth:sanctum, active` | Ganti password (dikecualikan dari `pwd.changed`) |
-| PUT | `/auth/profile` | grup default | Ubah nama, phone, avatar |
+| PUT | `/auth/profile` | grup default | Ubah nama, phone, avatar (multipart: kirim `POST` dengan `_method=PUT`) |
 
 `POST /auth/login` request `{ "login": "apip@aptrg.id", "password": "...", "device_name": "web-chrome" }`. Response `200`:
 
@@ -287,7 +287,7 @@ Objek `user` ini (`UserResource`) dipakai sama di semua endpoint yang mengembali
 
 `PUT /auth/password`: `current_password`, `password`, `password_confirmation`. Min 8 karakter, huruf + angka, beda dari lama. Sukses: `must_change_password = false`, token lain dicabut.
 
-`PUT /auth/profile`: `multipart/form-data` `name`, `phone`, `avatar` (image, max 2 MB, disimpan ke `avatar_path`). Email dan role tidak bisa diubah sendiri.
+`PUT /auth/profile`: `multipart/form-data`, dikirim sebagai `POST /auth/profile` dengan field `_method=PUT` (PHP tidak membaca body multipart pada `PUT`). Field opsional: `name` (max 255), `phone` (max 30), `avatar` (jpg/jpeg/png/webp, max 2 MB; disimpan di disk `public` `avatars/{uuid}.{ext}`, avatar lama dihapus). Email, role, dan divisi diabaikan. Response `{ data: <UserResource> }`. `UserResource` berisi `avatar_url` (URL publik `/storage/avatars/...`, `null` jika belum ada).
 
 ### 7.2 Admin (User & Divisi)
 
@@ -304,6 +304,8 @@ Grup default + `role:admin`.
 | POST | `/admin/users/{user}/reset-password` | Generate password sementara |
 | PUT | `/admin/users/{user}/competition-divisions` | Sync keanggotaan lomba (Fase 2) |
 | DELETE | `/admin/users/{user}` | Soft delete |
+| POST | `/admin/users/{user}/restore` | Pulihkan user yang dihapus |
+| POST | `/admin/users/import` | Import CSV (maks 200 baris), semua-atau-tidak |
 | GET | `/divisions` | Semua user login. Non-admin hanya divisi aktif |
 | PATCH | `/admin/divisions/{division}` | Toggle `is_active`, hanya `is_optional = true` (`422 DIVISION_NOT_OPTIONAL`) |
 
@@ -311,7 +313,7 @@ Grup default + `role:admin`.
 
 `POST /admin/users` body: `name`, `email`, `nim`, `phone`, `role`, `research_division_id`, `is_coordinator`, `password` (nullable). Validasi:
 
-- `email` dan `nim` unik, termasuk terhadap user yang sudah dihapus (soft delete) → `422` "sudah digunakan".
+- `email` dan `nim` unik di antara user yang belum dihapus → `422` "sudah digunakan". Email/NIM milik user yang sudah dihapus (soft delete) boleh dipakai lagi.
 - `research_division_id` wajib jika role bukan admin, harus divisi `type = research`; admin dipaksa `null`.
 - `is_coordinator` hanya `true` untuk `asisten_aktif`; selain itu dipaksa `false`.
 - `password` `null` → server generate 12 karakter acak. `must_change_password` selalu `true`.
@@ -330,6 +332,24 @@ Response `201` (juga bentuk `POST /admin/users/{user}/reset-password`, status `2
 
 `DELETE /admin/users/{user}` → `{ "message": "User berhasil dihapus." }`. Soft delete + cabut semua token.
 
+`POST /admin/users/{user}/restore` → `{ data: <UserResource> }`. Jika email atau NIM-nya sudah dipakai user aktif lain → `422 RESTORE_CONFLICT` (`errors.email` / `errors.nim`); user yang tidak terhapus → `422 NOT_DELETED`. Token lama tidak dipulihkan; user login ulang dengan password terakhirnya.
+
+`POST /admin/users/import` (`multipart/form-data`, field `file`, CSV/TXT maks 1 MB). Baris pertama wajib header persis `name,email,nim,phone,role,division_slug` (BOM UTF-8 dari Excel diterima). Baris kosong dilewati; maksimal 200 baris data (`422 IMPORT_TOO_LARGE`). Setiap baris divalidasi dengan aturan `POST /admin/users` (`division_slug` = slug divisi riset, wajib kecuali `admin`), ditambah cek duplikat email/NIM di dalam file. Jika ada satu baris salah, **tidak ada** user yang dibuat:
+
+```json
+{ "message": "2 baris tidak valid. Tidak ada user yang dibuat.", "code": "IMPORT_INVALID",
+  "errors": { "3": ["Email sudah digunakan."], "6": ["NIM sama dengan baris 2."] } }
+```
+
+Kunci `errors` = nomor baris di file (header = baris 1). Header salah → `IMPORT_INVALID` dengan `errors["1"]`. Sukses → `201`:
+
+```json
+{ "data": { "created_count": 2, "users": [ { "name": "Syifa", "email": "syifa@aptrg.test", "temporary_password": "Xk8#pLm4Qa2w" } ] },
+  "message": "2 user berhasil dibuat." }
+```
+
+Semua user hasil import `must_change_password = true` dan `is_coordinator = false`. Password sementara hanya muncul di response ini. Satu hash bcrypt per baris membuat import 200 baris butuh sekitar 40 detik.
+
 `PUT /admin/users/{user}/competition-divisions`: `{ "members": [ { "division_id": 5, "position": "Pilot" } ] }` → `{ "data": <UserResource> }`. Sync (mengganti seluruh keanggotaan di divisi aktif; `[]` = kosongkan). Keanggotaan di divisi opsional yang sedang nonaktif tidak bisa dikirim, tapi tetap disimpan. Hanya `asisten_aktif` (`422 NOT_ASISTEN_AKTIF`), divisi `type = competition` dan `is_active = true`.
 
 Proteksi (semua `422`, dengan `code` dan `errors` per field):
@@ -344,6 +364,9 @@ Proteksi (semua `422`, dengan `code` dan `errors` per field):
 | `CANNOT_DEACTIVATE_SELF` | `is_active` | Admin menonaktifkan diri |
 | `CANNOT_DELETE_SELF` | `user` | Admin menghapus diri |
 | `CANNOT_RESET_SELF` | `user` | Admin me-reset password sendiri; pakai `PUT /auth/password` |
+| `RESTORE_CONFLICT` | `email` / `nim` | Restore user yang email/NIM-nya sudah dipakai user aktif |
+| `NOT_DELETED` | `user` | Restore user yang tidak terhapus |
+| `IMPORT_INVALID` / `IMPORT_TOO_LARGE` | nomor baris / `file` | Import CSV gagal validasi / lebih dari 200 baris |
 | `LAST_ADMIN` | `role` / `is_active` / `user` | Aksi akan menyisakan 0 admin aktif (hanya terjadi saat dua admin beraksi bersamaan) |
 
 `GET /divisions` → `{ "data": [<Division>] }`, urut `sort_order`. `<Division>` = `id, slug, name, type, team_name, is_optional, is_active, sort_order`, ditambah `members_count` **hanya untuk admin** (divisi riset: anggota riset; divisi lomba: anggota tim). Non-admin hanya menerima divisi aktif.
@@ -446,7 +469,7 @@ Notifikasi `assignment_published` (tabel `notifications`, `type = "assignment_pu
 
 | Method | Path | Akses | Keterangan |
 | --- | --- | --- | --- |
-| POST | `/assignments/{assignment}/submission` | `role:asisten_magang` | Kumpulkan / kumpulkan ulang. `201` (baru) / `200` (ulang) `{ data: <Submission>, message }` |
+| POST | `/assignments/{assignment}/submission` | `role:asisten_magang` | Kumpulkan / kumpulkan ulang. `201` (baru) / `200` (ulang) `{ data: <Submission>, message }`. Maks 10 per menit per user (`429 TOO_MANY_REQUESTS`) |
 | GET | `/assignments/{assignment}/submission` | `role:asisten_magang` | `{ data: <Submission> \| null }` |
 | DELETE | `/assignments/{assignment}/submission` | `role:asisten_magang` | Tarik. `{ message }` |
 | GET | `/assignments/{assignment}/submissions` | `role:asisten_aktif,admin` + divisi tugas | Semua magang aktif divisi, termasuk yang belum submit |
@@ -593,7 +616,7 @@ Payload tersimpan (`notifications.data`) seragam untuk semua tipe: `{ type, titl
 
 | Perintah | Fungsi |
 | --- | --- |
-| `php artisan lms:create-admin {name?} {email?}` | Membuat admin dengan password sementara 16 karakter (ditampilkan sekali) dan `must_change_password = true`. Menolak email yang sudah dipakai (termasuk user terhapus). Satu-satunya cara membuat akun pertama di production. |
+| `php artisan lms:create-admin {name?} {email?}` | Membuat admin dengan password sementara 16 karakter (ditampilkan sekali) dan `must_change_password = true`. Menolak email yang sudah dipakai user aktif; email user yang sudah dihapus boleh dipakai lagi. Satu-satunya cara membuat akun pertama di production. |
 | `php artisan db:seed --force` | Di production hanya membuat 8 divisi; akun dummy hanya untuk `local`/`testing`. |
 | `php artisan lms:remind-deadlines` | Pengingat deadline (lihat di atas). Dijadwalkan per jam; server butuh cron `* * * * * php artisan schedule:run`. |
 
