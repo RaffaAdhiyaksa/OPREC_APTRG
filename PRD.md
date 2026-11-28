@@ -277,7 +277,7 @@ Grup default endpoint terautentikasi: `auth:sanctum, active, pwd.changed`.
       "research_division": { "id": 2, "slug": "system", "name": "System" },
       "competition_divisions": [ { "id": 5, "name": "Fixed Wing", "team_name": "Bangau Team", "position": null } ],
       "permissions": ["material.manage", "assignment.manage", "grade.publish", "announcement.send"],
-      "last_login_at": "2026-11-28T03:00:00.000000Z", "created_at": "2026-11-20T01:00:00.000000Z"
+      "last_login_at": "2026-11-28T03:00:00.000000Z", "created_at": "2026-11-20T01:00:00.000000Z", "deleted_at": null
     }
   }
 }
@@ -296,7 +296,7 @@ Grup default + `role:admin`.
 | Method | Path | Keterangan |
 | --- | --- | --- |
 | GET | `/admin/dashboard` | Statistik ringkas |
-| GET | `/admin/users` | Filter `search`, `role`, `division_id`, `is_active`, `is_coordinator` |
+| GET | `/admin/users` | Filter `search`, `role`, `division_id`, `is_active`, `is_coordinator`, `trashed` |
 | POST | `/admin/users` | Buat user |
 | GET | `/admin/users/{user}` | Detail |
 | PUT | `/admin/users/{user}` | Ubah data, role, divisi riset, `is_coordinator` |
@@ -309,7 +309,7 @@ Grup default + `role:admin`.
 | GET | `/divisions` | Semua user login. Non-admin hanya divisi aktif |
 | PATCH | `/admin/divisions/{division}` | Toggle `is_active`, hanya `is_optional = true` (`422 DIVISION_NOT_OPTIONAL`) |
 
-`GET /admin/users`: query `search` (nama/email/NIM), `role`, `division_id`, `is_active` (`1`/`0`), `is_coordinator` (`1`/`0`), `page`, `per_page` (default 15, max 100). Urut nama. Response paginasi bawaan Laravel: `{ "data": [<UserResource>], "links": {...}, "meta": { "current_page", "per_page", "total", "last_page", ... } }`.
+`GET /admin/users`: query `search` (nama/email/NIM), `role`, `division_id`, `is_active` (`1`/`0`), `is_coordinator` (`1`/`0`), `trashed` (`only` = hanya user terhapus, `with` = aktif + terhapus; tanpa parameter = tanpa user terhapus; nilai lain `422`), `page`, `per_page` (default 15, max 100). Urut nama. `UserResource.deleted_at` berisi waktu hapus, `null` untuk user yang tidak terhapus; pakai `id` dari `trashed=only` untuk `POST /admin/users/{user}/restore`. Response paginasi bawaan Laravel: `{ "data": [<UserResource>], "links": {...}, "meta": { "current_page", "per_page", "total", "last_page", ... } }`.
 
 `POST /admin/users` body: `name`, `email`, `nim`, `phone`, `role`, `research_division_id`, `is_coordinator`, `password` (nullable). Validasi:
 

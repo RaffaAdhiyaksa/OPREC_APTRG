@@ -130,6 +130,7 @@ return [
         'research_division_id' => 'divisi riset',
         'is_coordinator' => 'status koordinator',
         'is_active' => 'status aktif',
+        'trashed' => 'filter terhapus',
         'members' => 'anggota',
         'members.*.division_id' => 'divisi lomba',
         'members.*.position' => 'posisi',

@@ -42,6 +42,7 @@ class UserResource extends JsonResource
             'avatar_url' => $this->avatar_path ? Storage::disk('public')->url($this->avatar_path) : null,
             'last_login_at' => $this->last_login_at,
             'created_at' => $this->created_at,
+            'deleted_at' => $this->deleted_at,
             'unread_notifications_count' => $this->whenCounted('unreadNotifications'),
         ];
     }

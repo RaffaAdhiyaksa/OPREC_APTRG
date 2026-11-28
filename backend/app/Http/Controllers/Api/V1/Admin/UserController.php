@@ -23,7 +23,11 @@ class UserController extends Controller
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $request->validate(['trashed' => ['nullable', 'in:only,with']]);
+
         $users = User::with(self::RELATIONS)
+            ->when($request->trashed === 'only', fn ($q) => $q->onlyTrashed())
+            ->when($request->trashed === 'with', fn ($q) => $q->withTrashed())
             ->when($request->filled('search'), fn ($q) => $q->where(fn ($q) => $q
                 ->where('name', 'like', '%'.$request->search.'%')
                 ->orWhere('email', 'like', '%'.$request->search.'%')
