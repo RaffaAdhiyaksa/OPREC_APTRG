@@ -424,7 +424,7 @@ Body POST/PUT: `title` (wajib, max 255), `description` (wajib), `due_at` (wajib;
 }
 ```
 
-`total_interns` = Asisten Magang aktif di divisi tugas. `submitted`, `late`, `graded_*` menghitung semua submission/nilai tugas itu.
+`total_interns` = Asisten Magang aktif di divisi tugas. `submitted`, `late`, `graded_*` hanya menghitung submission/nilai milik magang yang aktif dan saat ini masih di divisi tugas (sama dengan mock).
 
 `<Assignment>` untuk Asisten Magang: field dasar yang sama **tanpa** `stats`, ditambah:
 

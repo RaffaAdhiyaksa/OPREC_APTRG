@@ -217,4 +217,21 @@ class AssignmentTest extends TestCase
         $this->actingAsToken($this->aktif)->getJson('/api/v1/assignments')
             ->assertJsonPath('data.0.stats', ['total_interns' => 2, 'submitted' => 1, 'late' => 1, 'graded_draft' => 1, 'graded_published' => 0]);
     }
+
+    public function test_stats_ignore_interns_who_moved_division_or_were_deactivated(): void
+    {
+        $assignment = $this->assignment(['status' => 'published']);
+        $moved = User::factory()->magang()->create(['research_division_id' => $this->system->id]);
+        $inactive = User::factory()->magang()->create(['research_division_id' => $this->system->id]);
+        foreach ([$this->magang, $moved, $inactive] as $intern) {
+            Submission::factory()->create(['assignment_id' => $assignment->id, 'user_id' => $intern->id, 'is_late' => true]);
+            Grade::factory()->published()->create(['assignment_id' => $assignment->id, 'user_id' => $intern->id, 'graded_by' => $this->aktif->id]);
+        }
+
+        $moved->update(['research_division_id' => $this->mechanic->id]);
+        $inactive->update(['is_active' => false]);
+
+        $this->actingAsToken($this->aktif)->getJson("/api/v1/assignments/{$assignment->id}")
+            ->assertJsonPath('data.stats', ['total_interns' => 1, 'submitted' => 1, 'late' => 1, 'graded_draft' => 0, 'graded_published' => 1]);
+    }
 }

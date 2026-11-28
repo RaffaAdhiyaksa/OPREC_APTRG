@@ -74,7 +74,7 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
     - `POST /assignments/{id}/publish` pada tugas yang sudah published → `422 ALREADY_PUBLISHED` (mock mengembalikan 200 tanpa perubahan).
     - Akses ke materi/tugas di luar divisi (atau draft untuk magang) → `404`, termasuk PUT/DELETE/publish. Magang yang menulis di divisinya → `403`.
     - `PATCH /materials/reorder` dengan id yang tidak terlihat → `404`; id dari dua divisi (admin) → `422 errors.order`.
-    - `stats.submitted/late/graded_*` menghitung semua submission tugas itu (mock hanya menghitung magang yang masih di divisi tersebut). `total_interns` = magang aktif di divisi.
+    - `stats.*` hanya menghitung magang aktif yang saat ini di divisi tugas (sama dengan mock; diperbaiki di Tahap 7). `total_interns` = magang aktif di divisi.
     - `my_grade.score` berupa angka; `Assignment` juga menyertakan `updated_at`.
     - `embed_url` memakai `youtube-nocookie.com` (sama dengan mock).
   - `GET /admin/dashboard` sekarang menyertakan `pending_grading` (total) dan per divisi `assignments_published` serta `pending_grading`. **Nama berbeda dari mock** (`assignments`, `ungraded`): `assignments_published` hanya menghitung tugas published, dan `pending_grading` = submission tanpa nilai published (termasuk yang nilainya masih draft). `recent_announcements` belum ada (tahap pengumuman).
