@@ -120,6 +120,7 @@ The frontend only hides UI. The backend Policy/middleware is the real guard. Eve
 
 ## 9. Workflow
 
+- One maintainer owns both sides. A PR changes only one side, `frontend/` OR `backend/`. Docs (`*.md`, `docs/`) may go with either side. Branch prefixes: `feat/fe-…`/`fix/fe-…` and `feat/be-…`/`fix/be-…`. Never commit directly to `main`.
 - Before a feature: state the plan in at most 5 short points.
 - Keep code complete: no `TODO` placeholders or hardcoded mock data in production components.
 - Comment only non-obvious business logic (division isolation, draft/published).
