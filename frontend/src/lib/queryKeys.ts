@@ -1,0 +1,21 @@
+// Central query keys so mutations invalidate exactly what they change.
+export const queryKeys = {
+  me: ["auth", "me"] as const,
+  divisions: ["divisions"] as const,
+  adminDashboard: ["admin", "dashboard"] as const,
+  usersAll: ["admin", "users"] as const,
+  users: (params: object) => ["admin", "users", params] as const,
+  materialsAll: ["materials"] as const,
+  materials: (params: object) => ["materials", params] as const,
+  assignmentsAll: ["assignments"] as const,
+  assignments: (params: object) => ["assignments", "list", params] as const,
+  assignment: (id: number) => ["assignments", "detail", id] as const,
+  submissions: (assignmentId: number) => ["assignments", "submissions", assignmentId] as const,
+  myGrades: ["me", "grades"] as const,
+  announcementsAll: ["announcements"] as const,
+  announcements: ["announcements", "feed"] as const,
+  announcementsSent: ["announcements", "sent"] as const,
+  notificationsAll: ["notifications"] as const,
+  notifications: (params: object) => ["notifications", "list", params] as const,
+  unreadCount: ["notifications", "unread-count"] as const,
+};

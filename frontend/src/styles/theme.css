@@ -1,112 +1,129 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design tokens. Style: light grey canvas, white cards with large radius,
- * black pills for primary actions, and APTRG sky blue (from the logo) as highlight.
- * Text on --brand must use --brand-foreground (dark) for AA contrast.
+ * APTRG LMS design tokens.
+ * Shell follows the lab website (branch `Ruddy`): APTRG red, amber, warm neutrals,
+ * Plus Jakarta Sans and frosted-glass surfaces over the team photo. Dark mode follows
+ * branch `raffa` (zinc + dark glass). Dashboards add the sky-blue highlight (`--brand`)
+ * and a dark "inverse" surface for the deadline pill and summary panels.
+ * Text on --brand / --warning must use their dark foregrounds for AA contrast.
  */
 :root {
   --font-size: 16px;
-  --background: #ececee;
-  --foreground: #0b0b0f;
+  --background: #f6f2f0;
+  --foreground: #1a1614;
   --card: #ffffff;
-  --card-foreground: #0b0b0f;
+  --card-foreground: #1a1614;
   --popover: #ffffff;
-  --popover-foreground: #0b0b0f;
-  --primary: #0b0b0f;
+  --popover-foreground: #1a1614;
+  --glass: rgb(255 255 255 / 0.75);
+  --glass-border: rgb(255 255 255 / 0.6);
+  --glass-shadow: 0 2px 16px -4px rgb(0 0 0 / 0.06), 0 0 0 1px rgb(0 0 0 / 0.03);
+  --primary: #c81e2c;
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #0b0b0f;
-  --muted: #f4f4f5;
-  --muted-foreground: #6b6b76;
-  --accent: #f4f4f5;
-  --accent-foreground: #0b0b0f;
-  --destructive: #dc2626;
+  --secondary: #efe8e4;
+  --secondary-foreground: #2a2320;
+  --muted: #efe8e4;
+  --muted-foreground: #7a6f6a;
+  --accent: #f3ece9;
+  --accent-foreground: #1a1614;
+  --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
-  --success: #16a34a;
+  --success: #15803d;
   --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #0b0b0f;
+  --warning: #e3a548;
+  --warning-foreground: #1a1614;
   --brand: #5ec8f2;
-  --brand-foreground: #0b0b0f;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --input-background: #ffffff;
-  --switch-background: #d4d4d8;
+  --brand-foreground: #0c1d26;
+  --amber: #e3a548;
+  --inverse: #1a1614;
+  --inverse-foreground: #f6f2f0;
+  --border: #e7dfdb;
+  --input: #e2d9d4;
+  --input-background: rgb(255 255 255 / 0.7);
+  --switch-background: #d6ccc7;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
   --font-weight-normal: 400;
-  --ring: #5ec8f2;
-  --chart-1: #5ec8f2;
-  --chart-2: #0b0b0f;
-  --chart-3: #ef4444;
-  --chart-4: #f59e0b;
-  --chart-5: #16a34a;
-  --radius: 1.25rem;
-  --sidebar: #ececee;
-  --sidebar-foreground: #0b0b0f;
-  --sidebar-primary: #0b0b0f;
+  --ring: #c81e2c;
+  --chart-1: #c81e2c;
+  --chart-2: #5ec8f2;
+  --chart-3: #e3a548;
+  --chart-4: #1a1614;
+  --chart-5: #15803d;
+  --radius: 0.875rem;
+  --sidebar: rgb(255 255 255 / 0.75);
+  --sidebar-foreground: #5a504b;
+  --sidebar-primary: #c81e2c;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ffffff;
-  --sidebar-accent-foreground: #0b0b0f;
-  --sidebar-border: #e4e4e7;
-  --sidebar-ring: #5ec8f2;
+  --sidebar-accent: rgb(200 30 44 / 0.08);
+  --sidebar-accent-foreground: #1a1614;
+  --sidebar-border: rgb(255 255 255 / 0.6);
+  --sidebar-ring: #c81e2c;
 }
 
 .dark {
-  --background: #0b0b0f;
-  --foreground: #f4f4f5;
-  --card: #17171c;
-  --card-foreground: #f4f4f5;
-  --popover: #17171c;
-  --popover-foreground: #f4f4f5;
-  --primary: #f4f4f5;
-  --primary-foreground: #0b0b0f;
-  --secondary: #24242b;
-  --secondary-foreground: #f4f4f5;
-  --muted: #24242b;
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+  --glass: rgb(24 24 27 / 0.6);
+  --glass-border: rgb(255 255 255 / 0.1);
+  --glass-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.5);
+  --primary: #e5333f;
+  --primary-foreground: #ffffff;
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+  --muted: #27272a;
   --muted-foreground: #a1a1aa;
-  --accent: #24242b;
-  --accent-foreground: #f4f4f5;
-  --destructive: #dc2626;
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   --success: #22c55e;
-  --success-foreground: #0b0b0f;
-  --warning: #fbbf24;
-  --warning-foreground: #0b0b0f;
+  --success-foreground: #052e16;
+  --warning: #e3a548;
+  --warning-foreground: #1a1614;
   --brand: #5ec8f2;
-  --brand-foreground: #0b0b0f;
-  --border: #2a2a31;
-  --input: #2a2a31;
-  --input-background: #17171c;
+  --brand-foreground: #0c1d26;
+  --amber: #e3a548;
+  --inverse: #000000;
+  --inverse-foreground: #fafafa;
+  --border: #27272a;
+  --input: #3f3f46;
+  --input-background: rgb(39 39 42 / 0.6);
   --switch-background: #3f3f46;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #5ec8f2;
-  --chart-1: #5ec8f2;
-  --chart-2: #f4f4f5;
-  --chart-3: #f87171;
-  --chart-4: #fbbf24;
+  --ring: #ef4444;
+  --chart-1: #ef4444;
+  --chart-2: #5ec8f2;
+  --chart-3: #e3a548;
+  --chart-4: #fafafa;
   --chart-5: #22c55e;
-  --sidebar: #0b0b0f;
-  --sidebar-foreground: #f4f4f5;
-  --sidebar-primary: #f4f4f5;
-  --sidebar-primary-foreground: #0b0b0f;
-  --sidebar-accent: #17171c;
-  --sidebar-accent-foreground: #f4f4f5;
-  --sidebar-border: #2a2a31;
-  --sidebar-ring: #5ec8f2;
+  --sidebar: rgb(24 24 27 / 0.6);
+  --sidebar-foreground: #a1a1aa;
+  --sidebar-primary: #ef4444;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgb(239 68 68 / 0.14);
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgb(255 255 255 / 0.1);
+  --sidebar-ring: #ef4444;
 }
 
 @theme inline {
-  --font-sans: 'Urbanist', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  --color-glass: var(--glass);
+  --color-glass-border: var(--glass-border);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
@@ -123,6 +140,9 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-amber: var(--amber);
+  --color-inverse: var(--inverse);
+  --color-inverse-foreground: var(--inverse-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-input-background: var(--input-background);
@@ -147,14 +167,28 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Frosted-glass surface of the lab website (GlassCard). */
+@utility glass {
+  background-color: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+}
+
+/* Red → amber gradient used for icon tiles and initials avatars. */
+@utility bg-brand-gradient {
+  background-image: linear-gradient(135deg, var(--primary), var(--amber));
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Urbanist', ui-sans-serif, system-ui, sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   }
 
   /**
@@ -167,11 +201,11 @@
   }
 
   h1 {
-    @apply text-2xl font-bold text-foreground;
+    @apply text-2xl font-extrabold tracking-tight text-foreground;
   }
 
   h2 {
-    @apply text-xl font-bold text-foreground;
+    @apply text-xl font-bold tracking-tight text-foreground;
   }
 
   h3 {

@@ -2,9 +2,10 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as authService from "@/services/auth";
 import { setSessionErrorHandler, tokenStorage } from "@/services/api";
+import { queryKeys } from "@/lib/queryKeys";
 import type { LoginPayload, Me, Permission, User } from "@/types/api";
 
-export const ME_QUERY_KEY = ["auth", "me"] as const;
+const ME_QUERY_KEY = queryKeys.me;
 
 interface AuthContextValue {
   user: Me | null;
