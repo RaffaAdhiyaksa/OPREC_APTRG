@@ -18,12 +18,18 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'nim' => $this->nim,
+            'phone' => $this->phone,
             'role' => $this->role,
             'is_coordinator' => $this->is_coordinator,
             'is_active' => $this->is_active,
             'must_change_password' => $this->must_change_password,
             'research_division' => $this->researchDivision?->only(['id', 'slug', 'name']),
-            'competition_divisions' => $this->competitionDivisions->map->only(['id', 'name', 'team_name']),
+            'competition_divisions' => $this->competitionDivisions->map(fn ($division) => [
+                'id' => $division->id,
+                'name' => $division->name,
+                'team_name' => $division->team_name,
+                'position' => $division->pivot->position,
+            ]),
             // UI hints only; the backend still authorizes every request.
             'permissions' => array_keys(array_filter([
                 'material.manage' => $staff,
@@ -32,6 +38,8 @@ class UserResource extends JsonResource
                 'announcement.send' => $this->isAdmin() || $this->isCoordinator(),
                 'user.manage' => $this->isAdmin(),
             ])),
+            'last_login_at' => $this->last_login_at,
+            'created_at' => $this->created_at,
             'unread_notifications_count' => $this->whenCounted('unreadNotifications'),
         ];
     }

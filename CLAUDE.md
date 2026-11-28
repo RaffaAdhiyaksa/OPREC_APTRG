@@ -94,7 +94,8 @@ The frontend only hides UI. The backend Policy/middleware is the real guard. Eve
 
 - Base path `/api/v1`. JSON only. Clients send `Accept: application/json`.
 - Auth: Sanctum **Bearer token** (`Authorization: Bearer <token>`). No cookie/stateful SPA auth, no CSRF endpoint. `config/sanctum.php` has `stateful = []` and `guard = []`. CORS (`config/cors.php`) allows `FRONTEND_URL` (default `http://localhost:5173`) with `supports_credentials = false`.
-- Login: `POST /api/v1/auth/login` with `email` or `nim` + `password`. There is no `/register`.
+- Login: `POST /api/v1/auth/login` with `{ login, password, device_name }`; `login` is the email or the NIM. There is no `/register`. Limits: 5/min per (login + IP) and 30/min per IP. Tokens expire after `SANCTUM_EXPIRATION` minutes (default 10080 = 7 days).
+- Validation messages are Indonesian (`lang/id/validation.php`); add new attribute names there.
 - Routes: plural kebab-case nouns (`/materials`, `/assignments/{assignment}/submissions`). Controllers: `Api\V1\{Model}Controller`, resourceful method names. Nested actions as sub-resources, e.g. `POST /assignments/{assignment}/grades/publish`.
 - JSON keys: `snake_case`. Every response goes through an API Resource.
 - Success envelope: `{ "data": ..., "meta"?: { pagination }, "message"?: "..." }`.

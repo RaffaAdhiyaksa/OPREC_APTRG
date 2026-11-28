@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Division;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\DatabaseNotification;
@@ -157,5 +158,36 @@ class AuthTest extends TestCase
             ->assertStatus(422)->assertJsonValidationErrors('password');
         $this->putJson('/api/v1/auth/password', ['current_password' => 'password', 'password' => 'BaruKuat2026', 'password_confirmation' => 'Mismatch2026'])
             ->assertStatus(422)->assertJsonValidationErrors('password');
+    }
+
+    public function test_one_ip_is_throttled_after_30_logins_across_different_accounts(): void
+    {
+        // Real accounts with a wrong password: avoids the slow cost-12 dummy hash for unknown logins.
+        $users = User::factory()->count(31)->for(Division::factory(), 'researchDivision')->create();
+
+        foreach ($users->take(30) as $user) {
+            $this->login($user->email, 'wrong-password')->assertStatus(422);
+        }
+
+        $this->login($users->last()->email, 'wrong-password')->assertStatus(429)->assertJsonPath('code', 'TOO_MANY_REQUESTS');
+    }
+
+    public function test_validation_messages_are_indonesian(): void
+    {
+        $this->postJson('/api/v1/auth/login', ['password' => 'x', 'device_name' => 'test'])
+            ->assertStatus(422)
+            ->assertJsonPath('errors.login.0', 'Email/NIM wajib diisi.');
+    }
+
+    public function test_token_expires_after_seven_days(): void
+    {
+        $this->assertSame(10080, config('sanctum.expiration'));
+        $token = User::factory()->create()->createToken('t')->plainTextToken;
+
+        $this->travel(10079)->minutes();
+        $this->withToken($token)->getJson('/api/v1/auth/me')->assertOk();
+
+        $this->travel(2)->minutes();
+        $this->freshRequest()->withToken($token)->getJson('/api/v1/auth/me')->assertUnauthorized();
     }
 }

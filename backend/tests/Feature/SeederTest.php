@@ -35,23 +35,24 @@ class SeederTest extends TestCase
 
     public function test_dummy_users_are_seeded_with_correct_role_division_and_flags(): void
     {
-        $this->assertSame(5, User::count());
+        $this->assertSame(6, User::count());
 
         $expected = [
-            'admin@aptrg.test' => [Role::Admin, null, false],
-            'koordinator@aptrg.test' => [Role::AsistenAktif, 'system', true],
-            'aktif@aptrg.test' => [Role::AsistenAktif, 'mechanic', false],
-            'magang1@aptrg.test' => [Role::AsistenMagang, 'system', false],
-            'magang2@aptrg.test' => [Role::AsistenMagang, 'mechanic', false],
+            'admin@aptrg.test' => [Role::Admin, null, false, false],
+            'koordinator@aptrg.test' => [Role::AsistenAktif, 'system', true, false],
+            'aktif@aptrg.test' => [Role::AsistenAktif, 'mechanic', false, false],
+            'magang1@aptrg.test' => [Role::AsistenMagang, 'system', false, false],
+            'magang2@aptrg.test' => [Role::AsistenMagang, 'mechanic', false, false],
+            'baru@aptrg.test' => [Role::AsistenMagang, 'system', false, true],
         ];
 
-        foreach ($expected as $email => [$role, $divisionSlug, $isCoordinator]) {
+        foreach ($expected as $email => [$role, $divisionSlug, $isCoordinator, $mustChangePassword]) {
             $user = User::where('email', $email)->sole();
             $this->assertSame($role, $user->role, $email);
             $this->assertSame($divisionSlug, $user->researchDivision?->slug, $email);
             $this->assertSame($isCoordinator, $user->is_coordinator, $email);
             $this->assertTrue($user->is_active, $email);
-            $this->assertFalse($user->must_change_password, $email);
+            $this->assertSame($mustChangePassword, $user->must_change_password, $email);
         }
 
         $koordinator = User::where('email', 'koordinator@aptrg.test')->sole();
@@ -63,7 +64,16 @@ class SeederTest extends TestCase
         $this->seed();
 
         $this->assertSame(8, Division::count());
-        $this->assertSame(5, User::count());
+        $this->assertSame(6, User::count());
         $this->assertDatabaseCount('competition_members', 1);
+    }
+
+    public function test_reseeding_keeps_division_state_changed_by_admin(): void
+    {
+        Division::where('slug', 'teknofest')->sole()->update(['is_active' => true]);
+
+        $this->seed();
+
+        $this->assertTrue(Division::where('slug', 'teknofest')->sole()->is_active);
     }
 }

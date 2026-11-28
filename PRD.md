@@ -217,7 +217,8 @@ Envelope error:
 | 404 | `NOT_FOUND` | Resource tidak ada atau di luar divisi user |
 | 409 | `DEADLINE_PASSED` / `GRADE_LOCKED` | Submit setelah deadline / submit ulang setelah nilai publish |
 | 413 | `PAYLOAD_TOO_LARGE` | Ditolak server sebelum Laravel |
-| 422 | `VALIDATION_ERROR` / `FILE_TOO_LARGE` | Validasi gagal |
+| 422 | `VALIDATION_ERROR` / `FILE_TOO_LARGE` | Validasi gagal (pesan bahasa Indonesia) |
+| 422 | `CANNOT_CHANGE_OWN_ROLE` / `CANNOT_DEACTIVATE_SELF` / `CANNOT_DELETE_SELF` / `CANNOT_RESET_SELF` / `LAST_ADMIN` / `NOT_ASISTEN_AKTIF` / `DIVISION_NOT_OPTIONAL` | Aturan bisnis admin; response juga berisi `errors` per field |
 | 429 | `TOO_MANY_REQUESTS` | Rate limit |
 
 FE: `401` memicu logout dan redirect ke `/login`. `403 PASSWORD_CHANGE_REQUIRED` redirect ke `/change-password`.
@@ -231,7 +232,7 @@ FE: `401` memicu logout dan redirect ke `/login`. `403 PASSWORD_CHANGE_REQUIRED`
 | `pwd.changed` | `EnsurePasswordChanged`: blok semua kecuali ganti password dan logout |
 | `role:admin` / `role:asisten_aktif,admin` / `role:asisten_magang` | `EnsureRole` |
 | `coordinator` | `EnsureCoordinator`: `asisten_aktif` dan `is_coordinator = true` |
-| `throttle:login` | 5 percobaan per menit per email + IP |
+| `throttle:login` | 5 percobaan per menit per (login + IP) dan 30 per menit per IP. Header `Retry-After` terbaca FE (CORS `exposed_headers`) |
 | `throttle:api` | 60 request per menit per user |
 
 Grup default endpoint terautentikasi: `auth:sanctum, active, pwd.changed`.
@@ -257,7 +258,7 @@ Grup default endpoint terautentikasi: `auth:sanctum, active, pwd.changed`.
 
 | Method | Path | Middleware | Keterangan |
 | --- | --- | --- | --- |
-| POST | `/auth/login` | `guest`, `throttle:login` | Login (`email` atau `nim` + `password`), terbitkan token |
+| POST | `/auth/login` | `throttle:login` | Login (`login` = email atau NIM, + `password`, `device_name`), terbitkan token (berlaku 7 hari, `SANCTUM_EXPIRATION`) |
 | POST | `/auth/logout` | `auth:sanctum` | Cabut token saat ini |
 | GET | `/auth/me` | `auth:sanctum, active` | Profil + izin (untuk route guard FE) + `unread_notifications_count` |
 | PUT | `/auth/password` | `auth:sanctum, active` | Ganti password (dikecualikan dari `pwd.changed`) |
@@ -271,17 +272,18 @@ Grup default endpoint terautentikasi: `auth:sanctum, active, pwd.changed`.
     "token": "12|f8Kq...",
     "token_type": "Bearer",
     "user": {
-      "id": 7, "name": "Ruddy", "email": "apip@aptrg.id", "nim": null,
-      "role": "asisten_aktif", "is_coordinator": true, "must_change_password": false,
+      "id": 7, "name": "Ruddy", "email": "apip@aptrg.id", "nim": null, "phone": null,
+      "role": "asisten_aktif", "is_coordinator": true, "is_active": true, "must_change_password": false,
       "research_division": { "id": 2, "slug": "system", "name": "System" },
       "competition_divisions": [ { "id": 5, "name": "Fixed Wing", "team_name": "Bangau Team", "position": null } ],
-      "permissions": ["material.manage", "assignment.manage", "grade.publish", "announcement.send"]
+      "permissions": ["material.manage", "assignment.manage", "grade.publish", "announcement.send"],
+      "last_login_at": "2026-11-28T03:00:00.000000Z", "created_at": "2026-11-20T01:00:00.000000Z"
     }
   }
 }
 ```
 
-Error: `422` (pesan generik "Email/NIM atau password salah"), `403 ACCOUNT_INACTIVE`, `429`. `permissions` dihitung server dari role + flag; FE memakainya untuk menu saja, bukan otorisasi.
+Objek `user` ini (`UserResource`) dipakai sama di semua endpoint yang mengembalikan user. Error: `422` (pesan generik "Email/NIM atau password salah."), `403 ACCOUNT_INACTIVE` (hanya jika password benar), `429`. `permissions` dihitung server dari role + flag; FE memakainya untuk menu saja, bukan otorisasi.
 
 `PUT /auth/password`: `current_password`, `password`, `password_confirmation`. Min 8 karakter, huruf + angka, beda dari lama. Sukses: `must_change_password = false`, token lain dicabut.
 
@@ -305,17 +307,61 @@ Grup default + `role:admin`.
 | GET | `/divisions` | Semua user login. Non-admin hanya divisi aktif |
 | PATCH | `/admin/divisions/{division}` | Toggle `is_active`, hanya `is_optional = true` (`422 DIVISION_NOT_OPTIONAL`) |
 
+`GET /admin/users`: query `search` (nama/email/NIM), `role`, `division_id`, `is_active` (`1`/`0`), `is_coordinator` (`1`/`0`), `page`, `per_page` (default 15, max 100). Urut nama. Response paginasi bawaan Laravel: `{ "data": [<UserResource>], "links": {...}, "meta": { "current_page", "per_page", "total", "last_page", ... } }`.
+
 `POST /admin/users` body: `name`, `email`, `nim`, `phone`, `role`, `research_division_id`, `is_coordinator`, `password` (nullable). Validasi:
 
+- `email` dan `nim` unik, termasuk terhadap user yang sudah dihapus (soft delete) → `422` "sudah digunakan".
 - `research_division_id` wajib jika role bukan admin, harus divisi `type = research`; admin dipaksa `null`.
 - `is_coordinator` hanya `true` untuk `asisten_aktif`; selain itu dipaksa `false`.
-- `password` `null` → server generate 12 karakter acak. Response `201` menyertakan `temporary_password` sekali saja (juga di reset password).
+- `password` `null` → server generate 12 karakter acak. `must_change_password` selalu `true`.
 
-`PUT /admin/users/{user}`: role diubah dari `asisten_aktif` membuat `is_coordinator = false` dan keanggotaan lomba dihapus. `422` jika admin menurunkan role dirinya sendiri atau admin terakhir.
+Response `201` (juga bentuk `POST /admin/users/{user}/reset-password`, status `200`):
 
-`PUT /admin/users/{user}/competition-divisions`: `{ "members": [ { "division_id": 5, "position": "Pilot" } ] }`. Hanya `asisten_aktif`, divisi `type = competition` dan `is_active = true`.
+```json
+{ "data": { "user": <UserResource>, "temporary_password": "Xk82-pLm4-Qa" }, "message": "User berhasil dibuat." }
+```
 
-`GET /admin/dashboard`: jumlah user per role + nonaktif, per divisi (aktif, magang, tugas, belum dinilai), pengumuman terbaru.
+`temporary_password` hanya muncul di response ini; `null` jika admin mengisi password sendiri. Reset password juga mencabut semua token user, dan ditolak untuk akun admin itu sendiri (`422 CANNOT_RESET_SELF`).
+
+`GET`/`PUT /admin/users/{user}` → `{ "data": <UserResource> }`. PUT: semua field opsional. Role diubah dari `asisten_aktif` membuat `is_coordinator = false` dan keanggotaan lomba dihapus.
+
+`PATCH /admin/users/{user}/status` `{ "is_active": false }` → `{ "data": <UserResource> }`. Nonaktif mencabut semua token user.
+
+`DELETE /admin/users/{user}` → `{ "message": "User berhasil dihapus." }`. Soft delete + cabut semua token.
+
+`PUT /admin/users/{user}/competition-divisions`: `{ "members": [ { "division_id": 5, "position": "Pilot" } ] }` → `{ "data": <UserResource> }`. Sync (mengganti seluruh keanggotaan di divisi aktif; `[]` = kosongkan). Keanggotaan di divisi opsional yang sedang nonaktif tidak bisa dikirim, tapi tetap disimpan. Hanya `asisten_aktif` (`422 NOT_ASISTEN_AKTIF`), divisi `type = competition` dan `is_active = true`.
+
+Proteksi (semua `422`, dengan `code` dan `errors` per field):
+
+```json
+{ "message": "Anda tidak bisa menonaktifkan akun sendiri.", "code": "CANNOT_DEACTIVATE_SELF", "errors": { "is_active": ["Anda tidak bisa menonaktifkan akun sendiri."] } }
+```
+
+| `code` | Field `errors` | Kapan |
+| --- | --- | --- |
+| `CANNOT_CHANGE_OWN_ROLE` | `role` | Admin mengubah role sendiri |
+| `CANNOT_DEACTIVATE_SELF` | `is_active` | Admin menonaktifkan diri |
+| `CANNOT_DELETE_SELF` | `user` | Admin menghapus diri |
+| `CANNOT_RESET_SELF` | `user` | Admin me-reset password sendiri; pakai `PUT /auth/password` |
+| `LAST_ADMIN` | `role` / `is_active` / `user` | Aksi akan menyisakan 0 admin aktif (hanya terjadi saat dua admin beraksi bersamaan) |
+
+`GET /divisions` → `{ "data": [<Division>] }`, urut `sort_order`. `<Division>` = `id, slug, name, type, team_name, is_optional, is_active, sort_order`, ditambah `members_count` **hanya untuk admin** (divisi riset: anggota riset; divisi lomba: anggota tim). Non-admin hanya menerima divisi aktif.
+
+`PATCH /admin/divisions/{division}` `{ "is_active": true }` → `{ "data": <Division> }`.
+
+`GET /admin/dashboard` (statistik tugas/nilai dan pengumuman terbaru menyusul di tahap berikutnya):
+
+```json
+{
+  "data": {
+    "users": { "admin": 1, "asisten_aktif": 2, "asisten_magang": 3, "inactive": 0 },
+    "divisions": [ { "division": { "id": 1, "slug": "mechanic", "name": "Mechanic" }, "asisten_aktif": 1, "asisten_magang": 1 } ]
+  }
+}
+```
+
+`users` menghitung semua user yang belum dihapus (aktif dan nonaktif); `inactive` adalah total user nonaktif. `divisions` hanya divisi riset.
 
 ### 7.3 Materi
 

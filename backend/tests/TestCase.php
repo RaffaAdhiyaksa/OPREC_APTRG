@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use RuntimeException;
 
@@ -19,5 +20,14 @@ abstract class TestCase extends BaseTestCase
         }
 
         return $app;
+    }
+
+    // Authenticates the next requests with a real Sanctum token. Forgets the guard first because
+    // the test app otherwise keeps the user resolved by an earlier request.
+    protected function actingAsToken(User $user): static
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withToken($user->createToken('test')->plainTextToken);
     }
 }

@@ -46,7 +46,8 @@ return [
     |
     */
 
-    'expiration' => env('SANCTUM_EXPIRATION') !== null ? (int) env('SANCTUM_EXPIRATION') : null,
+    // Minutes. 0 disables expiry.
+    'expiration' => (int) env('SANCTUM_EXPIRATION', 10080) ?: null,
 
     /*
     |--------------------------------------------------------------------------

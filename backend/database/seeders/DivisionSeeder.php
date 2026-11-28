@@ -22,7 +22,8 @@ class DivisionSeeder extends Seeder
         ];
 
         foreach ($divisions as $i => $division) {
-            Division::updateOrCreate(
+            // Create only: a reseed must never undo what an admin changed (e.g. Teknofest is_active).
+            Division::firstOrCreate(
                 ['slug' => $division['slug']],
                 $division + ['team_name' => null, 'is_optional' => false, 'is_active' => true, 'sort_order' => $i + 1],
             );

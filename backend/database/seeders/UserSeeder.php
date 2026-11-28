@@ -33,6 +33,8 @@ class UserSeeder extends Seeder
             ['email' => 'aktif@aptrg.test', 'name' => 'Asisten Aktif Mechanic', 'role' => Role::AsistenAktif, 'research_division_id' => $division['mechanic']],
             ['email' => 'magang1@aptrg.test', 'name' => 'Magang System', 'role' => Role::AsistenMagang, 'research_division_id' => $division['system']],
             ['email' => 'magang2@aptrg.test', 'name' => 'Magang Mechanic', 'role' => Role::AsistenMagang, 'research_division_id' => $division['mechanic']],
+            // Exercises the forced password-change flow.
+            ['email' => 'baru@aptrg.test', 'name' => 'Magang Baru', 'role' => Role::AsistenMagang, 'research_division_id' => $division['system'], 'must_change_password' => true],
         ];
 
         foreach ($users as $user) {
