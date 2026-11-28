@@ -32,14 +32,21 @@ class Assignment extends Model
     ];
 
     // withCount/loadCount spec for the staff `stats` block.
+    // Every count is limited to interns who are active and *currently* in the assignment's division,
+    // so an intern who moved division or was deactivated no longer skews the numbers.
     public static function statsCounts(): array
     {
+        $current = fn (Builder $q) => $q->whereHas('user', fn (Builder $u) => $u
+            ->where('role', Role::AsistenMagang)
+            ->where('is_active', true)
+            ->whereColumn('users.research_division_id', 'assignments.division_id'));
+
         return [
             'interns as total_interns',
-            'submissions as submitted',
-            'submissions as late' => fn (Builder $q) => $q->where('is_late', true),
-            'grades as graded_draft' => fn (Builder $q) => $q->where('status', GradeStatus::Draft),
-            'grades as graded_published' => fn (Builder $q) => $q->where('status', GradeStatus::Published),
+            'submissions as submitted' => $current,
+            'submissions as late' => fn (Builder $q) => $current($q)->where('is_late', true),
+            'grades as graded_draft' => fn (Builder $q) => $current($q)->where('status', GradeStatus::Draft),
+            'grades as graded_published' => fn (Builder $q) => $current($q)->where('status', GradeStatus::Published),
         ];
     }
 

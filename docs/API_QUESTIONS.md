@@ -74,11 +74,14 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
     - `POST /assignments/{id}/publish` pada tugas yang sudah published → `422 ALREADY_PUBLISHED` (mock mengembalikan 200 tanpa perubahan).
     - Akses ke materi/tugas di luar divisi (atau draft untuk magang) → `404`, termasuk PUT/DELETE/publish. Magang yang menulis di divisinya → `403`.
     - `PATCH /materials/reorder` dengan id yang tidak terlihat → `404`; id dari dua divisi (admin) → `422 errors.order`.
-    - `stats.submitted/late/graded_*` menghitung semua submission tugas itu (mock hanya menghitung magang yang masih di divisi tersebut). `total_interns` = magang aktif di divisi.
+    - `stats.*` hanya menghitung magang aktif yang saat ini di divisi tugas (sama dengan mock; diperbaiki di Tahap 7). `total_interns` = magang aktif di divisi.
     - `my_grade.score` berupa angka; `Assignment` juga menyertakan `updated_at`.
     - `embed_url` memakai `youtube-nocookie.com` (sama dengan mock).
   - `GET /admin/dashboard` sekarang menyertakan `pending_grading` (total) dan per divisi `assignments_published` serta `pending_grading`. **Nama berbeda dari mock** (`assignments`, `ungraded`): `assignments_published` hanya menghitung tugas published, dan `pending_grading` = submission tanpa nilai published (termasuk yang nilainya masih draft). `recent_announcements` belum ada (tahap pengumuman).
-  - `GET /assignments/{id}/submissions`, `<Grade>` versi staff, publish nilai, dan download belum ada; menyusul di Tahap 7 sesuai bentuk di atas.
+  - Tahap 7: `GET /assignments/{id}/submissions` mengikuti mock (`data[].user`, `submission`, `grade`; `meta` dengan 6 hitungan; tidak dipaginasi), ditambah filter `status`/`search`. `<Grade>` sama dengan mock (`score` angka).
+  - **`POST /assignments/{id}/grades/publish` berbeda dari mock**: `{ "data": { "published_count": 2 } }` (mock: `published`).
+  - `PUT /assignments/{id}/grades/{user}` → `200 { data: <Grade> }`, `POST /grades/{id}/unpublish` → `{ data: <Grade> }`, sama dengan mock.
+  - `GET /submissions/{id}/download` mengirim `Content-Disposition` dengan nama asli dan `X-Content-Type-Options: nosniff`.
 
 ## 2026-11-28 — Submission magang & `/me/grades`: asumsi mock (Tahap 7)
 - Temuan: bentuk respons berikut belum tertulis di PRD.
@@ -87,6 +90,12 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
   - `DELETE /assignments/{id}/submission` ditolak `409 DEADLINE_PASSED` setelah deadline dan `409 GRADE_LOCKED` bila nilai sudah publish.
   - `GET /me/grades` → `{ data: [{ id, assignment: { id, title, max_score }, score, feedback, published_at }], meta: { average, graded_count } }`. `average` dalam skala 0–100 (persentase dari `max_score`), dibulatkan 1 desimal, `null` bila belum ada nilai.
 - Sementara: mock di `src/services/mock/assignments.ts` mengikuti bentuk ini; FE melakukan pre-check ukuran dan ekstensi sebelum upload.
+- Jawaban backend (Tahap 7): sudah jalan, detail di PRD §7.5.
+  - `POST /assignments/{id}/submission`: `201` (baru) / `200` (ulang) `{ data: <Submission>, message }`. Error sesuai daftar di atas. `FILE_TOO_LARGE` juga membawa `meta: { max_file_size_mb, fallback: "drive_link" }`.
+  - `<Submission>` sama dengan mock, **ditambah `download_url`** (path API, `null` jika tanpa file).
+  - `DELETE` sesuai mock (`409 DEADLINE_PASSED` setelah deadline walau `allow_late`, `409 GRADE_LOCKED`, `404` jika belum submit).
+  - `GET /me/grades`: **`meta` berbeda dari mock**: `{ average, published_count, assignments_total }` (`published_count` menggantikan `graded_count`). `average` sama dengan mock (persentase 0–100, 1 desimal, `null` jika kosong).
+  - File yang melebihi `post_max_size` PHP ditolak sebagai `413 PAYLOAD_TOO_LARGE`.
 
 ## 2026-11-28 — Pengumuman: asumsi mock (Tahap 8)
 - Temuan: PRD §7.6 belum merinci bentuk respons pengumuman.

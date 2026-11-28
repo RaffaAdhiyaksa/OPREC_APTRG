@@ -25,6 +25,8 @@ class SubmissionResource extends JsonResource
             'note' => $this->note,
             'is_late' => $this->is_late,
             'submitted_at' => $this->submitted_at,
+            // API path (needs the Bearer token), not a public URL.
+            'download_url' => $this->file_path !== null ? "/api/v1/submissions/{$this->id}/download" : null,
         ];
     }
 }
