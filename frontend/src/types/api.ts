@@ -39,6 +39,8 @@ export interface User {
   avatar_url: string | null;
   last_login_at: string | null;
   created_at: string;
+  /** Set only on soft-deleted users (`GET /admin/users?trashed=only`). */
+  deleted_at: string | null;
 }
 
 /** `GET /auth/me` adds the unread badge count. */
@@ -158,6 +160,7 @@ export interface UserListParams {
   role?: Role;
   division_id?: number;
   is_active?: boolean;
+  trashed?: "only";
   page?: number;
   per_page?: number;
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { toast } from "sonner";
-import { FileUp, KeyRound, MoreHorizontal, Pencil, Plus, Power, Trash2, UserX, Users } from "lucide-react";
+import { FileUp, KeyRound, MoreHorizontal, Pencil, Plus, Power, RotateCcw, Trash2, UserX, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,9 +23,9 @@ import { CoordinatorBadge, InactiveBadge } from "@/components/shared/StatusBadge
 import { UserAvatar } from "@/components/shared/UserAvatar";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { useDeleteUser, useDivisions, useResetUserPassword, useSetUserActive, useUsers } from "@/hooks/queries/admin";
+import { useDeleteUser, useDivisions, useResetUserPassword, useRestoreUser, useSetUserActive, useUsers } from "@/hooks/queries/admin";
 import { formatRelative } from "@/lib/date";
-import { getErrorMessage } from "@/lib/errors";
+import { getErrorMessage, toApiError } from "@/lib/errors";
 import { ROLE_LABEL } from "@/lib/labels";
 import type { AdminUser, Role, TemporaryPasswordResult } from "@/types/api";
 import { ImportUsersDialog } from "./ImportUsersDialog";
@@ -33,7 +33,7 @@ import { TemporaryPasswordDialog } from "./TemporaryPasswordDialog";
 import { UserFormDialog } from "./UserFormDialog";
 
 type RoleFilter = Role | "all";
-type Confirm = { kind: "deactivate" | "activate" | "reset" | "delete"; user: AdminUser } | null;
+type Confirm = { kind: "deactivate" | "activate" | "reset" | "delete" | "restore"; user: AdminUser } | null;
 
 export default function UsersPage() {
   const me = useCurrentUser();
@@ -69,7 +69,8 @@ export default function UsersPage() {
     search: debouncedSearch || undefined,
     role: role === "all" ? undefined : role,
     division_id: divisionId === "all" ? undefined : Number(divisionId),
-    is_active: status === "all" ? undefined : status === "active",
+    is_active: status === "active" || status === "inactive" ? status === "active" : undefined,
+    trashed: status === "trashed" ? "only" : undefined,
     page,
   });
 
@@ -80,6 +81,7 @@ export default function UsersPage() {
   const setActive = useSetUserActive();
   const resetPassword = useResetUserPassword();
   const deleteUser = useDeleteUser();
+  const restoreUser = useRestoreUser();
 
   const closeForm = () => {
     setFormUser(undefined);
@@ -95,12 +97,19 @@ export default function UsersPage() {
       } else if (kind === "delete") {
         await deleteUser.mutateAsync(user.id);
         toast.success(`${user.name} dihapus.`);
+      } else if (kind === "restore") {
+        await restoreUser.mutateAsync(user.id);
+        toast.success(`${user.name} dipulihkan.`);
       } else {
         await setActive.mutateAsync({ id: user.id, isActive: kind === "activate" });
         toast.success(kind === "activate" ? `${user.name} diaktifkan.` : `${user.name} dinonaktifkan.`);
       }
     } catch (error) {
-      toast.error(getErrorMessage(error));
+      const { code, errors } = toApiError(error);
+      if (code === "RESTORE_CONFLICT") {
+        const field = errors?.nim ? `NIM ${user.nim}` : `Email ${user.email}`;
+        toast.error(`${field} sudah dipakai pengguna aktif lain. Ubah atau hapus pengguna itu dulu, lalu pulihkan akun ini.`);
+      } else toast.error(getErrorMessage(error));
       throw error;
     }
   };
@@ -124,6 +133,12 @@ export default function UsersPage() {
       description: "Akun dihapus dan tidak bisa masuk lagi. Riwayat pengumpulan dan nilai tetap tersimpan untuk arsip.",
       label: "Hapus",
       destructive: true,
+    },
+    restore: {
+      title: `Pulihkan ${confirm.user.name}?`,
+      description: "Akun kembali seperti sebelum dihapus dan bisa masuk lagi dengan password terakhirnya.",
+      label: "Pulihkan",
+      destructive: false,
     },
   }[confirm.kind];
 
@@ -185,6 +200,7 @@ export default function UsersPage() {
               <SelectItem value="all">Semua status</SelectItem>
               <SelectItem value="active">Aktif</SelectItem>
               <SelectItem value="inactive">Nonaktif</SelectItem>
+              <SelectItem value="trashed">Terhapus</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -231,7 +247,7 @@ export default function UsersPage() {
                 : users.data.data.map((u) => {
                     const self = u.id === me.id;
                     return (
-                      <TableRow key={u.id} className={u.is_active ? undefined : "opacity-60"}>
+                      <TableRow key={u.id} className={u.is_active && !u.deleted_at ? undefined : "opacity-60"}>
                         <TableCell className="pl-5">
                           <div className="flex items-center gap-3">
                             <UserAvatar name={u.name} />
@@ -252,9 +268,16 @@ export default function UsersPage() {
                           </div>
                         </TableCell>
                         <TableCell>{u.research_division?.name ?? "—"}</TableCell>
-                        <TableCell>{u.is_active ? <Badge variant="outline">Aktif</Badge> : <InactiveBadge />}</TableCell>
+                        <TableCell>
+                          {u.deleted_at ? <Badge variant="destructive">Terhapus</Badge> : u.is_active ? <Badge variant="outline">Aktif</Badge> : <InactiveBadge />}
+                        </TableCell>
                         <TableCell className="text-muted-foreground">{u.last_login_at ? formatRelative(u.last_login_at) : "Belum pernah"}</TableCell>
                         <TableCell className="pr-5 text-right">
+                          {u.deleted_at ? (
+                            <Button variant="outline" size="sm" onClick={() => setConfirm({ kind: "restore", user: u })}>
+                              <RotateCcw aria-hidden /> Pulihkan
+                            </Button>
+                          ) : (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon" aria-label={`Aksi untuk ${u.name}`}>
@@ -283,6 +306,7 @@ export default function UsersPage() {
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
+                          )}
                         </TableCell>
                       </TableRow>
                     );
