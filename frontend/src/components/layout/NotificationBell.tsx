@@ -33,7 +33,7 @@ export function NotificationBell() {
         >
           <Bell aria-hidden />
           {unread > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground ring-2 ring-white tabular-nums dark:ring-zinc-900">
+            <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground ring-2 ring-card tabular-nums">
               {unread > 99 ? "99+" : unread}
             </span>
           )}

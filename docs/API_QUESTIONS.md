@@ -63,3 +63,12 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
   - `DELETE /assignments/{id}/submission` ditolak `409 DEADLINE_PASSED` setelah deadline dan `409 GRADE_LOCKED` bila nilai sudah publish.
   - `GET /me/grades` → `{ data: [{ id, assignment: { id, title, max_score }, score, feedback, published_at }], meta: { average, graded_count } }`. `average` dalam skala 0–100 (persentase dari `max_score`), dibulatkan 1 desimal, `null` bila belum ada nilai.
 - Sementara: mock di `src/services/mock/assignments.ts` mengikuti bentuk ini; FE melakukan pre-check ukuran dan ekstensi sebelum upload.
+
+## 2026-11-28 — Pengumuman: asumsi mock (Tahap 8)
+- Temuan: PRD §7.6 belum merinci bentuk respons pengumuman.
+- Kebutuhan frontend:
+  - `<Announcement>` = `{ id, title, body, author: { id, name }, target: { division: { id, slug, name } | null, role: Role | null }, recipients_count, is_read, created_at }`. `is_read` = `true` untuk penulisnya sendiri.
+  - `GET /announcements` dan `/announcements/sent` → `{ "data": [...] }` (FE meminta `per_page=100`).
+  - Link notifikasi pengumuman: `/announcements?open={id}`. FE membuka dialog detail dari parameter ini dan memanggil `POST /announcements/{id}/read`.
+  - Perkiraan penerima di dialog admin dihitung FE dari `/admin/dashboard`. Bila backend menyediakan endpoint pratinjau penerima, FE akan beralih ke sana.
+- Sementara: mock di `src/services/mock/announcements.ts` mengikuti bentuk ini, termasuk pemaksaan target untuk koordinator.

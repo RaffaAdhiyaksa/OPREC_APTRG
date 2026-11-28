@@ -11,9 +11,10 @@ export function AppShell() {
       <AppSidebar />
       <SidebarInset className="relative z-10 min-w-0 bg-transparent">
         <Topbar />
-        <main className="mx-auto w-full max-w-7xl flex-1 space-y-8 px-4 pt-6 pb-14 md:px-6 lg:px-8">
+        {/* SidebarInset already renders the <main> landmark. */}
+        <div id="content" className="mx-auto w-full max-w-7xl flex-1 space-y-8 px-4 pt-6 pb-14 md:px-6 lg:px-8">
           <Outlet />
-        </main>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
