@@ -28,7 +28,7 @@ class MaterialController extends Controller
                 ->where('title', 'like', '%'.$request->search.'%')
                 ->orWhere('description', 'like', '%'.$request->search.'%')))
             ->orderBy('division_id')->orderBy('sort_order')->orderBy('id')
-            ->paginate(min(max($request->integer('per_page', 15), 1), 100))
+            ->paginate($this->perPage($request))
             ->withQueryString();
 
         return MaterialResource::collection($materials);

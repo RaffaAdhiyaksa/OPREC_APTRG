@@ -28,14 +28,21 @@ class GradeController extends Controller
             'feedback' => ['nullable', 'string', 'max:5000'],
         ]);
 
-        $grade = Grade::firstOrNew(['assignment_id' => $assignment->id, 'user_id' => $user->id]);
-        $grade->fill([
+        $values = [
             ...$data,
             'graded_by' => $request->user()->id,
             'submission_id' => $assignment->submissions()->where('user_id', $user->id)->value('id'),
-        ]);
-        $grade->status ??= GradeStatus::Draft;
-        $grade->save();
+        ];
+
+        // firstOrCreate falls back to createOrFirst: if a concurrent request inserted the first grade
+        // between our lookup and insert, the unique key violation is caught and that row is returned.
+        $grade = Grade::firstOrCreate(
+            ['assignment_id' => $assignment->id, 'user_id' => $user->id],
+            [...$values, 'status' => GradeStatus::Draft],
+        );
+        if (! $grade->wasRecentlyCreated) {
+            $grade->update($values);
+        }
 
         // A published grade stays published; the intern is told it changed.
         if ($grade->status === GradeStatus::Published && $grade->wasChanged(['score', 'feedback'])) {

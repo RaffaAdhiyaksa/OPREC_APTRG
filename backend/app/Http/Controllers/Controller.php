@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 abstract class Controller
 {
@@ -15,5 +16,11 @@ abstract class Controller
             'errors' => $field ? [$field => [$message]] : null,
             'meta' => $meta ?: null,
         ]), $status);
+    }
+
+    // ?per_page for paginated lists: default 15, clamped to 1..100 (CLAUDE.md §6).
+    protected function perPage(Request $request): int
+    {
+        return min(max($request->integer('per_page', 15), 1), 100);
     }
 }

@@ -32,7 +32,7 @@ class AssignmentController extends Controller
             ->when($request->due === 'upcoming', fn ($q) => $q->where('due_at', '>=', now()))
             ->when($request->due === 'past', fn ($q) => $q->where('due_at', '<', now()))
             ->orderBy('due_at')->orderBy('id')
-            ->paginate(min(max($request->integer('per_page', 15), 1), 100))
+            ->paginate($this->perPage($request))
             ->withQueryString();
 
         return AssignmentResource::collection($assignments);

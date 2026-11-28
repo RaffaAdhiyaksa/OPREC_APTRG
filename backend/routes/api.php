@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
+use App\Http\Controllers\Api\V1\AnnouncementController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\AssignmentController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DivisionController;
@@ -52,6 +54,22 @@ Route::prefix('v1')->group(function () {
             Route::post('/grades/{grade}/unpublish', 'unpublish');
         });
         Route::get('/me/grades', [GradeController::class, 'mine'])->middleware('role:asisten_magang');
+
+        Route::controller(AnnouncementController::class)->prefix('announcements')->group(function () {
+            Route::get('/', 'index');
+            Route::get('/sent', 'sent');
+            Route::post('/', 'store');
+            Route::get('/{announcement}', 'show');
+            Route::post('/{announcement}/read', 'read');
+            Route::delete('/{announcement}', 'destroy');
+        });
+
+        Route::controller(NotificationController::class)->prefix('notifications')->group(function () {
+            Route::get('/', 'index');
+            Route::get('/unread-count', 'unreadCount');
+            Route::post('/read-all', 'readAll');
+            Route::patch('/{id}/read', 'read');
+        });
 
         Route::prefix('admin')->middleware('role:admin')->group(function () {
             Route::get('/dashboard', DashboardController::class);

@@ -30,6 +30,7 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
 - Temuan: PRD §7.6 tidak menyebut bentuk respons endpoint ini.
 - Kebutuhan frontend: `{ "data": { "unread_count": 3 } }`.
 - Sementara: mock (`src/services/mock/notifications.ts`) mengikuti bentuk ini; lonceng polling 60 detik.
+- Jawaban backend (Tahap 8): **berbeda dari permintaan.** Bentuknya `{ "data": { "count": 3 } }` (keputusan owner), bukan `unread_count`. `GET /notifications` tetap menyertakan `meta.unread_count`, dan `/auth/me` tetap `unread_notifications_count`.
 
 ## 2026-11-28 — Menu per role: handoff vs PRD
 - Temuan: handoff F3 meminta menu Pengumuman hanya untuk koordinator dan tidak menyebut Materi/Tugas untuk admin. PRD §9.2–9.3 menulis admin punya "Materi & Tugas (mode pantau)" dan Asisten Aktif melihat Pengumuman ("kirim hanya jika koordinator"); admin juga bisa menargetkan pengumuman ke `asisten_aktif`.
@@ -105,3 +106,11 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
   - Link notifikasi pengumuman: `/announcements?open={id}`. FE membuka dialog detail dari parameter ini dan memanggil `POST /announcements/{id}/read`.
   - Perkiraan penerima di dialog admin dihitung FE dari `/admin/dashboard`. Bila backend menyediakan endpoint pratinjau penerima, FE akan beralih ke sana.
 - Sementara: mock di `src/services/mock/announcements.ts` mengikuti bentuk ini, termasuk pemaksaan target untuk koordinator.
+- Jawaban backend (Tahap 8): sudah jalan, detail di PRD §7.6.
+  - `<Announcement>` sama dengan mock, **ditambah `read_count`**. `is_read` selalu `true` untuk penulis.
+  - `GET /announcements` dan `/sent` memakai paginasi standar (`data`, `links`, `meta`); `per_page=100` didukung. `GET /announcements` juga menerima `unread=1`.
+  - Link notifikasi pengumuman: `/announcements?open={id}`, sama dengan mock. `POST /announcements/{id}/read` juga menandai notifikasi pengumuman itu sebagai dibaca.
+  - `recipients_count` = kolom tersimpan, diisi sekali saat dibuat (jumlah notifikasi terkirim ke user aktif yang cocok, tanpa penulis); tidak berubah jika audiens berubah.
+  - Penulis (misalnya koordinator, yang bukan target `asisten_magang`) tetap bisa membuka, membaca, dan menghapus pengumumannya sendiri; pengumuman itu muncul di `/sent`, bukan di `/announcements`.
+  - Belum ada endpoint pratinjau penerima; FE tetap memakai angka dari `/admin/dashboard`.
+  - `GET /admin/dashboard` sekarang berisi `recent_announcements` (3 terbaru) dengan bentuk `<Announcement>` yang sama.

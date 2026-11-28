@@ -126,7 +126,7 @@ Semua tabel punya `id` dan `timestamps`. Semua FK memakai `foreignId()->constrai
 5. **`assignments`**: `division_id` (FK), `created_by` (FK `users`), `title`, `description` (longText), `due_at` (datetime), `allow_late` (bool, default `false`), `max_file_size_mb` (unsigned tinyint, default `10`), `allowed_extensions` (json, nullable), `max_score` (unsigned smallint, default `100`), `status` enum(`draft`,`published`) default `draft`, `published_at` (nullable), `softDeletes`. Index (`division_id`, `status`, `due_at`).
 6. **`submissions`**: `assignment_id` (FK, cascade), `user_id` (FK), `file_path` (nullable), `file_name` (nullable), `file_size` (unsigned bigint, nullable), `mime_type` (nullable), `drive_link` (varchar 2048, nullable), `note` (text, nullable), `is_late` (bool, default `false`), `submitted_at`. Unique (`assignment_id`, `user_id`). CHECK: `file_path IS NOT NULL OR drive_link IS NOT NULL`.
 7. **`grades`**: `assignment_id` (FK, cascade), `user_id` (FK), `submission_id` (FK, nullable, nullOnDelete), `graded_by` (FK `users`), `score` (decimal 5,2), `feedback` (text, nullable), `status` enum(`draft`,`published`) default `draft`, `published_at` (nullable). Unique (`assignment_id`, `user_id`). Nilai terikat ke (tugas, magang), sehingga magang yang tidak mengumpulkan tetap bisa dinilai.
-8. **`announcements`**: `author_id` (FK `users`), `title`, `body` (text), `research_division_id` (FK, nullable; `null` = semua divisi), `target_role` enum(`admin`,`asisten_aktif`,`asisten_magang`) nullable (`null` = semua role).
+8. **`announcements`**: `author_id` (FK `users`), `title`, `body` (text), `research_division_id` (FK, nullable; `null` = semua divisi), `target_role` enum(`admin`,`asisten_aktif`,`asisten_magang`) nullable (`null` = semua role), `recipients_count` (unsigned int, default `0`; diisi saat dibuat = jumlah notifikasi terkirim).
 9. **`announcement_reads`**: `announcement_id` (FK, cascade), `user_id` (FK, cascade), `read_at`. Unique (`announcement_id`, `user_id`).
 
 Ditambah tabel bawaan Laravel/Sanctum: `password_reset_tokens`, `sessions`, `cache`, `jobs`, `personal_access_tokens`, `notifications` (database channel: `id` uuid, `type`, `notifiable` morph, `data` json, `read_at`).
@@ -350,13 +350,14 @@ Proteksi (semua `422`, dengan `code` dan `errors` per field):
 
 `PATCH /admin/divisions/{division}` `{ "is_active": true }` → `{ "data": <Division> }`.
 
-`GET /admin/dashboard` (pengumuman terbaru menyusul di tahap pengumuman):
+`GET /admin/dashboard`:
 
 ```json
 {
   "data": {
     "users": { "admin": 1, "asisten_aktif": 2, "asisten_magang": 3, "inactive": 0 },
     "pending_grading": 2,
+    "recent_announcements": [<Announcement>, "... (3 terbaru, bentuk sama dengan GET /announcements)"],
     "divisions": [
       { "division": { "id": 1, "slug": "mechanic", "name": "Mechanic" }, "asisten_aktif": 1, "asisten_magang": 1, "assignments_published": 3, "pending_grading": 2 }
     ]
@@ -530,36 +531,60 @@ Notifikasi nilai (tabel `notifications`): `type` `grade_published` (`title: "Nil
 
 ### 7.6 Pengumuman & Notifikasi
 
-| Method | Path | Policy | Keterangan |
+Grup default. Pengumuman terlihat jika (`research_division_id` = divisi user ATAU `null`) DAN (`target_role` = role user ATAU `null`); admin melihat semua; penulis selalu melihat pengumumannya sendiri. Selain itu `404`.
+
+| Method | Path | Akses | Keterangan |
 | --- | --- | --- | --- |
-| GET | `/announcements` | grup default | Yang menargetkan saya. Admin melihat semua |
-| GET | `/announcements/sent` | `create` | Riwayat yang saya kirim |
-| POST | `/announcements` | `create` (admin atau koordinator) | Kirim |
-| GET | `/announcements/{announcement}` | `view` | Detail |
-| DELETE | `/announcements/{announcement}` | `delete` | Hapus |
-| POST | `/announcements/{announcement}/read` | grup default | Tandai pengumuman dibaca (`announcement_reads`) |
-| GET | `/notifications` | grup default | Notifikasi saya, filter `unread=1`, paginasi |
-| GET | `/notifications/unread-count` | grup default | Badge lonceng (polling 60 detik) |
-| PATCH | `/notifications/{id}/read` | grup default | Tandai satu notifikasi dibaca |
-| POST | `/notifications/read-all` | grup default | Tandai semua notifikasi dibaca |
+| GET | `/announcements` | semua | Yang menargetkan saya (admin: semua). Filter `unread=1`. Terbaru dulu. Paginasi standar |
+| GET | `/announcements/sent` | admin, koordinator (lainnya `403`) | Yang saya kirim. Paginasi standar |
+| POST | `/announcements` | admin, koordinator (lainnya `403`) | `201 { data: <Announcement> }` |
+| GET | `/announcements/{announcement}` | terlihat / penulis | `{ data: <Announcement> }` |
+| POST | `/announcements/{announcement}/read` | terlihat / penulis | Idempoten; juga menandai notifikasi pengumuman itu milik saya sebagai dibaca. `{ message }` |
+| DELETE | `/announcements/{announcement}` | penulis atau admin (lainnya `403`/`404`) | Menghapus juga notifikasinya. `{ message }` |
+| GET | `/notifications` | milik sendiri | Filter `unread=1`. Terbaru dulu. Paginasi standar + `meta.unread_count` |
+| GET | `/notifications/unread-count` | milik sendiri | `{ data: { count } }` (badge lonceng, polling 60 detik) |
+| PATCH | `/notifications/{id}/read` | milik sendiri (lainnya `404`) | `{ data: <Notification> }` |
+| POST | `/notifications/read-all` | milik sendiri | `{ message }` |
 
-Admin: `{ "title": "...", "body": "...", "research_division_id": null, "target_role": "asisten_magang" }`. Koordinator: `{ "title": "...", "body": "..." }`; field target diabaikan, server memaksa `research_division_id` = divisi koordinator dan `target_role = asisten_magang`.
+Body `POST /announcements`: `title` (wajib, max 255), `body` (wajib, max 10000). Admin juga: `research_division_id` (nullable = semua divisi; harus divisi `type = research`) dan `target_role` (nullable = semua role). Koordinator: field target diabaikan, server memaksa `research_division_id` = divisi koordinator dan `target_role = asisten_magang`.
 
-Response menyertakan `target` (`division`, `role`), `author`, `recipients_count`.
+Penerima = semua user **aktif** yang cocok dengan target, kecuali penulis. Masing-masing menerima notifikasi `announcement` (database, sinkron).
 
-`GET /notifications` response:
+`<Announcement>`:
+
+```json
+{
+  "id": 14, "title": "Deadline Tugas 3 diperpanjang", "body": "Diperpanjang sampai Minggu 23.59.",
+  "author": { "id": 7, "name": "Ruddy" },
+  "target": { "division": { "id": 2, "slug": "system", "name": "System" }, "role": "asisten_magang" },
+  "recipients_count": 16, "read_count": 9, "is_read": false,
+  "created_at": "2026-11-28T05:00:00.000000Z"
+}
+```
+
+`recipients_count` = kolom tersimpan, diisi sekali saat pengumuman dibuat (jumlah notifikasi terkirim; tidak berubah jika audiens berubah). Pembuatan pengumuman dan semua notifikasinya ada dalam satu transaksi: jika satu notifikasi gagal, pengumuman ikut dibatalkan. `read_count` = jumlah penerima yang sudah membaca. `is_read` untuk user yang melihat; selalu `true` untuk penulis.
+
+`<Notification>` (`GET /notifications`):
 
 ```json
 {
   "data": [
-    { "id": "9b1e...", "type": "announcement", "title": "Deadline Tugas 3 diperpanjang", "excerpt": "Diperpanjang sampai...", "link": "/announcements/14", "read_at": null, "created_at": "2026-11-28T05:00:00Z" },
-    { "id": "a77c...", "type": "grade_published", "title": "Nilai Tugas 2 sudah keluar", "excerpt": "Skor: 90", "link": "/assignments/18", "read_at": "2026-11-27T09:00:00Z", "created_at": "2026-11-27T08:00:00Z" }
+    { "id": "9b1e...", "type": "announcement", "title": "Deadline Tugas 3 diperpanjang", "excerpt": "Diperpanjang sampai...", "link": "/announcements?open=14", "read_at": null, "created_at": "..." },
+    { "id": "a77c...", "type": "grade_published", "title": "Nilai Tugas 2 sudah keluar", "excerpt": "Skor: 90", "link": "/assignments/18", "read_at": "...", "created_at": "..." }
   ],
-  "meta": { "current_page": 1, "total": 23, "unread_count": 4 }
+  "links": { "...": "..." },
+  "meta": { "current_page": 1, "per_page": 15, "total": 23, "last_page": 2, "unread_count": 4 }
 }
 ```
 
-Tipe notifikasi: `announcement`, `assignment_published`, `grade_published`, `grade_updated`. `link` adalah path FE, bukan URL API.
+Payload tersimpan (`notifications.data`) seragam untuk semua tipe: `{ type, title, excerpt, link, announcement_id | assignment_id, ... }`. `link` adalah path FE.
+
+| `type` | `title` | `link` | Id tambahan |
+| --- | --- | --- | --- |
+| `announcement` | judul pengumuman | `/announcements?open={id}` | `announcement_id` |
+| `assignment_published` | `Tugas baru: <judul>` | `/assignments/{id}` | `assignment_id` |
+| `grade_published` | `Nilai <tugas> sudah keluar` | `/assignments/{id}` | `assignment_id`, `grade_id` |
+| `grade_updated` | `Nilai <tugas> diperbarui` | `/assignments/{id}` | `assignment_id`, `grade_id` |
 
 ---
 

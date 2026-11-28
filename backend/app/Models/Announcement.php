@@ -22,6 +22,7 @@ class Announcement extends Model
     {
         return [
             'target_role' => Role::class,
+            'recipients_count' => 'integer',
         ];
     }
 
@@ -36,6 +37,25 @@ class Announcement extends Model
         $query
             ->where(fn (Builder $q) => $q->whereNull('research_division_id')->orWhere('research_division_id', $user->research_division_id))
             ->where(fn (Builder $q) => $q->whereNull('target_role')->orWhere('target_role', $user->role));
+    }
+
+    // Adds is_read (for $viewer) and read_count. recipients_count is a stored column.
+    #[Scope]
+    protected function withViewerState(Builder $query, User $viewer): void
+    {
+        $query->with(['author:id,name', 'division:id,slug,name'])
+            ->withExists(['readers as is_read' => fn (Builder $q) => $q->whereKey($viewer->id)])
+            ->withCount('readers as read_count');
+    }
+
+    // Active users the announcement targets, never its author (PRD §5.26–5.27).
+    public function recipients(): Builder
+    {
+        return User::query()
+            ->where('is_active', true)
+            ->whereKeyNot($this->author_id)
+            ->when($this->research_division_id, fn (Builder $q, int $id) => $q->where('research_division_id', $id))
+            ->when($this->target_role, fn (Builder $q, Role $role) => $q->where('role', $role));
     }
 
     public function author(): BelongsTo

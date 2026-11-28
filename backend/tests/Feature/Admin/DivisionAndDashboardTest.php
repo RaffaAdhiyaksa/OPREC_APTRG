@@ -94,6 +94,7 @@ class DivisionAndDashboardTest extends TestCase
                     'assignments_published' => 0,
                     'pending_grading' => 0,
                 ])->all(),
+                'recent_announcements' => [],
             ]]);
     }
 
