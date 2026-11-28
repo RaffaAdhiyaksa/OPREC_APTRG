@@ -109,6 +109,19 @@ class SubmissionTest extends TestCase
         $this->submit(['file' => UploadedFile::fake()->create('ok.pdf', 10, 'application/pdf')])->assertCreated();
     }
 
+    public function test_submission_is_throttled_to_10_per_minute_per_user(): void
+    {
+        foreach (range(1, 10) as $_) {
+            $this->submit(['drive_link' => self::DRIVE])->assertSuccessful();
+        }
+
+        $this->submit(['drive_link' => self::DRIVE])->assertStatus(429)->assertJsonPath('code', 'TOO_MANY_REQUESTS');
+
+        // The limit is per user: another intern is not affected.
+        $other = User::factory()->magang()->create(['research_division_id' => $this->system->id]);
+        $this->actingAsToken($other)->post($this->url(), ['drive_link' => self::DRIVE], ['Accept' => 'application/json'])->assertCreated();
+    }
+
     public function test_body_over_php_post_max_size_returns_413_json(): void
     {
         // ValidatePostSize throws this before routing when Content-Length exceeds post_max_size.

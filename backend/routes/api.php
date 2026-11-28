@@ -43,7 +43,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('assignments', AssignmentController::class);
 
         Route::middleware('role:asisten_magang')->controller(SubmissionController::class)->group(function () {
-            Route::post('/assignments/{assignment}/submission', 'store');
+            Route::post('/assignments/{assignment}/submission', 'store')->middleware('throttle:submission');
             Route::get('/assignments/{assignment}/submission', 'show');
             Route::delete('/assignments/{assignment}/submission', 'destroy');
         });
