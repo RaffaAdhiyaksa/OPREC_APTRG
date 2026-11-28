@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateActiveStatusRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -147,6 +148,30 @@ class UserController extends Controller
 
             return response()->json(['message' => 'User berhasil dihapus.']);
         });
+    }
+
+    // POST /admin/users/{user}/restore (route binds withTrashed).
+    public function restore(User $user): JsonResponse|UserResource
+    {
+        if (! $user->trashed()) {
+            return $this->reject('User tidak dalam status terhapus.', 'NOT_DELETED', 'user');
+        }
+
+        // The email/NIM may have been reused while the account was deleted (unique among active users only).
+        foreach (['email' => 'Email', 'nim' => 'NIM'] as $field => $label) {
+            if ($user->{$field} !== null && User::where($field, $user->{$field})->exists()) {
+                return $this->reject("{$label} sudah dipakai user lain. Ubah dulu user tersebut sebelum memulihkan akun ini.", 'RESTORE_CONFLICT', $field);
+            }
+        }
+
+        try {
+            $user->restore();
+        } catch (UniqueConstraintViolationException) {
+            // Someone reused the email/NIM between the check above and the restore.
+            return $this->reject('Email atau NIM sudah dipakai user lain.', 'RESTORE_CONFLICT', 'email');
+        }
+
+        return new UserResource($user->load(self::RELATIONS));
     }
 
     private function withPassword(User $user, ?string $temporaryPassword, string $message, int $status = 200): JsonResponse

@@ -16,8 +16,8 @@ class UpdateUserRequest extends FormRequest
 
         return [
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('users')->ignore($user)],
-            'nim' => ['sometimes', 'nullable', 'string', 'max:30', Rule::unique('users')->ignore($user)],
+            'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('users')->ignore($user)->withoutTrashed()],
+            'nim' => ['sometimes', 'nullable', 'string', 'max:30', Rule::unique('users')->ignore($user)->withoutTrashed()],
             'phone' => ['sometimes', 'nullable', 'string', 'max:30'],
             'role' => ['sometimes', 'required', Rule::enum(Role::class)],
             // Required for non-admins when sent, or when the user has none yet (e.g. admin becoming asisten).

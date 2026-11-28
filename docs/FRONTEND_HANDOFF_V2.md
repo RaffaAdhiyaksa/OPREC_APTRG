@@ -86,6 +86,12 @@ Ini hasil audit service FE terhadap route backend, ditambah semua perubahan Taha
 - Token berlaku 7 hari. Setelah itu request apa pun dapat 401: hapus token dan arahkan ke `/login`.
 - Pesan validasi sekarang bahasa Indonesia. Tampilkan apa adanya.
 - `POST /admin/users` dan `POST /admin/users/{id}/reset-password` mengembalikan `{ data: { user, temporary_password } }`. Reset password akun sendiri ditolak `422 CANNOT_RESET_SELF`: menu itu dibuat disabled untuk baris akun sendiri.
+- **Baru (Tahap 10):** `UserResource` berisi `avatar_url` (URL lengkap atau `null`).
+- **Baru:** `PUT /auth/profile` untuk halaman Profil. Kirim `FormData` sebagai **`POST /auth/profile` dengan field `_method=PUT`** (PHP tidak membaca multipart pada PUT). Field opsional `name`, `phone`, `avatar` (jpg/png/webp, maks 2 MB). Email, role, divisi tidak bisa diubah. Respons `{ data: <UserResource> }`; perbarui cache `/auth/me` dengan data ini.
+- **Berubah:** email/NIM user yang sudah dihapus kini boleh dipakai lagi saat membuat user baru (sebelumnya 422).
+- **Baru:** `POST /admin/users/{id}/restore` memulihkan user terhapus → `{ data: <UserResource> }`. `422 RESTORE_CONFLICT` (`errors.email`/`errors.nim`) jika email/NIM sudah dipakai user aktif; `422 NOT_DELETED` jika user tidak terhapus. List `GET /admin/users` tetap tidak menampilkan user terhapus.
+- **Baru:** `POST /admin/users/import` (FormData `file`, CSV header `name,email,nim,phone,role,division_slug`, maks 200 baris). Semua-atau-tidak. Gagal: `422 IMPORT_INVALID` dengan `errors` dikunci nomor baris file (`{"3": ["Email sudah digunakan."]}`) atau `IMPORT_TOO_LARGE`. Sukses `201 { data: { created_count, users: [{ name, email, temporary_password }] } }`; tampilkan daftar password sekali (seperti dialog password sementara) dan sediakan tombol salin. Import 200 baris bisa memakan ~40 detik: tampilkan loading dan jangan memakai timeout Axios yang pendek.
+- **Baru:** `POST /assignments/{id}/submission` dibatasi 10 per menit per user (`429 TOO_MANY_REQUESTS`, header `Retry-After`).
 
 ### 4.4 Materi & tugas
 
@@ -132,6 +138,8 @@ Semua masuk ke `ApiErrorCode`. Kode yang tidak dikenali tetap tampil lewat `mess
 ### 4.8 Endpoint backend yang belum dipakai FE (opsional)
 
 `GET /admin/users/{id}`, `PUT /admin/users/{id}/competition-divisions` (Fase 2), `GET /materials/{id}`, `GET /assignments/{id}/submission`, `GET /announcements/{id}`. Pakai jika halaman memerlukannya, misalnya membuka detail pengumuman dari link notifikasi.
+
+Baru di Tahap 10 dan belum dipakai FE: `PUT /auth/profile` (halaman Profil), `POST /admin/users/{id}/restore`, `POST /admin/users/import` (tombol "Import CSV" di halaman Pengguna). Detail di 4.3.
 
 ## 5. Sisa item review sebelumnya
 

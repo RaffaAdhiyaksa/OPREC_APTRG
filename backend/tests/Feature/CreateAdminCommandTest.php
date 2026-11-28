@@ -42,7 +42,8 @@ class CreateAdminCommandTest extends TestCase
 
     public function test_rejects_existing_or_invalid_email(): void
     {
-        User::factory()->create(['email' => 'ada@aptrg.id'])->delete();
+        // Taken by an active user (a deleted user's email is reusable, see UserReuseTest).
+        User::factory()->create(['email' => 'ada@aptrg.id']);
 
         $this->artisan('lms:create-admin', ['name' => 'X', 'email' => 'ada@aptrg.id'])->assertFailed();
         $this->artisan('lms:create-admin', ['name' => 'X', 'email' => 'bukan-email'])->assertFailed();

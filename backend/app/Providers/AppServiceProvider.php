@@ -28,5 +28,8 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(5)->by('account:'.Str::lower((string) $request->input('login')).'|'.$request->ip()),
             Limit::perMinute(30)->by('ip:'.$request->ip()),
         ]);
+
+        // Each submission can carry a 50 MB upload; 10 per minute per intern is plenty for retries.
+        RateLimiter::for('submission', fn (Request $request) => Limit::perMinute(10)->by('submission:'.$request->user()?->id));
     }
 }

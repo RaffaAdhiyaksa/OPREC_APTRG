@@ -228,7 +228,10 @@ php artisan lms:create-admin "Nama Admin" admin@aptrg.id
 sudo chown -R deploy:www-data storage bootstrap/cache
 sudo chmod -R ug+rwX storage bootstrap/cache
 
-# 8. Cache konfigurasi dan route (setelah .env final)
+# 8. Link publik untuk avatar (storage/app/public -> public/storage)
+php artisan storage:link
+
+# 9. Cache konfigurasi dan route (setelah .env final)
 php artisan config:cache
 php artisan route:cache
 ```

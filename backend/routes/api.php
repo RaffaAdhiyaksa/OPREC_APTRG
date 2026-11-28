@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
+use App\Http\Controllers\Api\V1\Admin\UserImportController;
 use App\Http\Controllers\Api\V1\AnnouncementController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\AssignmentController;
@@ -32,6 +33,7 @@ Route::prefix('v1')->group(function () {
 
     // Default group for every feature endpoint.
     Route::middleware(['auth:sanctum', 'active', 'pwd.changed'])->group(function () {
+        Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
         Route::get('/divisions', [DivisionController::class, 'index']);
 
         Route::patch('/materials/reorder', [MaterialController::class, 'reorder']);
@@ -41,7 +43,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('assignments', AssignmentController::class);
 
         Route::middleware('role:asisten_magang')->controller(SubmissionController::class)->group(function () {
-            Route::post('/assignments/{assignment}/submission', 'store');
+            Route::post('/assignments/{assignment}/submission', 'store')->middleware('throttle:submission');
             Route::get('/assignments/{assignment}/submission', 'show');
             Route::delete('/assignments/{assignment}/submission', 'destroy');
         });
@@ -73,6 +75,8 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('admin')->middleware('role:admin')->group(function () {
             Route::get('/dashboard', DashboardController::class);
+            // Outside the UserController group: there, a plain string action would be read as a method name.
+            Route::post('/users/import', UserImportController::class);
 
             Route::controller(UserController::class)->prefix('users')->group(function () {
                 Route::get('/', 'index');
@@ -80,6 +84,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{user}', 'show');
                 Route::put('/{user}', 'update');
                 Route::delete('/{user}', 'destroy');
+                Route::post('/{user}/restore', 'restore')->withTrashed();
                 Route::patch('/{user}/status', 'updateStatus');
                 Route::post('/{user}/reset-password', 'resetPassword');
                 Route::put('/{user}/competition-divisions', 'syncCompetitionDivisions');

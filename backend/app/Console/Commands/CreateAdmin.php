@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 // First admin on a fresh server (the seeders never create accounts in production).
 class CreateAdmin extends Command
@@ -22,10 +23,10 @@ class CreateAdmin extends Command
             'email' => $this->argument('email') ?? $this->ask('Email'),
         ];
 
-        // unique counts soft-deleted users too, matching POST /admin/users.
+        // Unique among non-deleted users only (same rule as POST /admin/users and the DB index).
         $validator = Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->withoutTrashed()],
         ]);
         if ($validator->fails()) {
             foreach ($validator->errors()->all() as $error) {
