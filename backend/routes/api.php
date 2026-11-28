@@ -32,6 +32,7 @@ Route::prefix('v1')->group(function () {
 
     // Default group for every feature endpoint.
     Route::middleware(['auth:sanctum', 'active', 'pwd.changed'])->group(function () {
+        Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
         Route::get('/divisions', [DivisionController::class, 'index']);
 
         Route::patch('/materials/reorder', [MaterialController::class, 'reorder']);

@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\UpdatePasswordRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -51,6 +54,26 @@ class AuthController extends Controller
     public function me(Request $request): UserResource
     {
         return new UserResource($request->user()->loadCount('unreadNotifications'));
+    }
+
+    // PUT /auth/profile. Multipart, so clients send POST with _method=PUT (PHP does not parse PUT bodies).
+    public function updateProfile(UpdateProfileRequest $request): UserResource
+    {
+        $user = $request->user();
+        $data = $request->safe()->only(['name', 'phone']);
+        $old = $user->avatar_path;
+
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $data['avatar_path'] = $file->storeAs('avatars', Str::uuid().'.'.$file->extension(), 'public');
+        }
+
+        $user->update($data);
+        if ($old && isset($data['avatar_path'])) {
+            Storage::disk('public')->delete($old);
+        }
+
+        return new UserResource($user);
     }
 
     public function updatePassword(UpdatePasswordRequest $request): JsonResponse
