@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
+use App\Http\Controllers\Api\V1\Admin\UserImportController;
 use App\Http\Controllers\Api\V1\AnnouncementController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\AssignmentController;
@@ -74,6 +75,8 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('admin')->middleware('role:admin')->group(function () {
             Route::get('/dashboard', DashboardController::class);
+            // Outside the UserController group: there, a plain string action would be read as a method name.
+            Route::post('/users/import', UserImportController::class);
 
             Route::controller(UserController::class)->prefix('users')->group(function () {
                 Route::get('/', 'index');
