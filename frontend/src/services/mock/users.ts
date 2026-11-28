@@ -140,6 +140,11 @@ export const mockUsers: UsersService = {
     return fail(422, "VALIDATION_ERROR", "Import CSV tidak tersedia di mode mock. Hapus 'users' dari VITE_MOCK_DOMAINS.");
   },
 
+  async restore() {
+    await delay();
+    return fail(422, "VALIDATION_ERROR", "Pulihkan user tidak tersedia di mode mock. Hapus 'users' dari VITE_MOCK_DOMAINS.");
+  },
+
   async create(payload) {
     await delay(450);
     requireAdmin();

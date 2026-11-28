@@ -14,7 +14,7 @@ import { useDivisions } from "@/hooks/queries/admin";
 import { useDeleteMaterial, useMaterials, useReorderMaterials } from "@/hooks/queries/materials";
 import { useAuth, useCurrentUser } from "@/hooks/useAuth";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { getErrorMessage } from "@/lib/errors";
+import { getErrorMessage, toApiError } from "@/lib/errors";
 import type { Material, MaterialSourceType } from "@/types/api";
 import { MaterialCard } from "./MaterialCard";
 import { MaterialFormDialog } from "./MaterialFormDialog";
@@ -62,7 +62,18 @@ export default function MaterialsPage() {
   const move = (items: Material[], index: number, dir: -1 | 1) => {
     const ids = items.map((m) => m.id);
     [ids[index], ids[index + dir]] = [ids[index + dir], ids[index]];
-    reorder.mutate(ids, { onError: (e) => toast.error(getErrorMessage(e)) });
+    reorder.mutate(ids, {
+      onError: (e) => {
+        const { status } = toApiError(e);
+        toast.error(
+          status === 404
+            ? "Sebagian materi sudah dihapus atau tidak bisa diakses. Urutan dikembalikan dan daftar dimuat ulang."
+            : status === 422
+              ? "Urutan hanya bisa diubah untuk materi dalam satu divisi. Urutan dikembalikan."
+              : `${getErrorMessage(e)} Urutan dikembalikan.`,
+        );
+      },
+    });
   };
 
   const filtered = Boolean(term) || source !== "all";

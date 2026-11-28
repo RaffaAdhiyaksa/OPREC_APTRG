@@ -21,6 +21,8 @@ export interface UsersService {
   setActive(id: number, isActive: boolean): Promise<AdminUser>;
   resetPassword(id: number): Promise<TemporaryPasswordResult>;
   remove(id: number): Promise<void>;
+  /** 422 RESTORE_CONFLICT when an active user took the email/NIM meanwhile. */
+  restore(id: number): Promise<AdminUser>;
   /** CSV `name,email,nim,phone,role,division_slug`, all rows or none. */
   importCsv(file: File): Promise<UserImportResult>;
 }
@@ -53,6 +55,10 @@ const realUsers: UsersService = {
   },
   async remove(id) {
     await api.delete(`/admin/users/${id}`);
+  },
+  async restore(id) {
+    const { data } = await api.post<DataResponse<AdminUser>>(`/admin/users/${id}/restore`);
+    return data.data;
   },
   async importCsv(file) {
     const form = new FormData();

@@ -70,6 +70,11 @@ export function useDeleteUser() {
   return useMutation({ mutationFn: (id: number) => usersService.remove(id), onSuccess: invalidate });
 }
 
+export function useRestoreUser() {
+  const invalidate = useInvalidateUsers();
+  return useMutation({ mutationFn: (id: number) => usersService.restore(id), onSuccess: invalidate });
+}
+
 export function useImportUsers() {
   const invalidate = useInvalidateUsers();
   return useMutation({ mutationFn: (file: File) => usersService.importCsv(file), onSuccess: invalidate });

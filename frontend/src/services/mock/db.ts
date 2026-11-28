@@ -383,6 +383,7 @@ export function toAdminUser(u: UserRow): AdminUser {
     avatar_url: null,
     last_login_at: u.last_login_at,
     created_at: u.created_at,
+    deleted_at: u.deleted_at,
   };
 }
 
