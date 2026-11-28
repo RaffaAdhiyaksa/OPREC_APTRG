@@ -25,6 +25,7 @@ class AssignmentPublished extends Notification
     public function toArray(object $notifiable): array
     {
         return [
+            'type' => 'assignment_published',
             'title' => 'Tugas baru: '.$this->assignment->title,
             'excerpt' => Str::limit($this->assignment->description, 120),
             'link' => '/assignments/'.$this->assignment->id,

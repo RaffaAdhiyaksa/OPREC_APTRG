@@ -35,6 +35,7 @@ class GradeNotification extends Notification
         $title = $this->grade->assignment->title;
 
         return [
+            'type' => $this->type,
             'title' => $this->type === 'grade_published' ? "Nilai {$title} sudah keluar" : "Nilai {$title} diperbarui",
             'excerpt' => 'Skor: '.(float) $this->grade->score,
             'link' => '/assignments/'.$this->grade->assignment_id,
