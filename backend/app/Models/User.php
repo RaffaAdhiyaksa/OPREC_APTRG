@@ -27,6 +27,13 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
+    // Mirror the DB defaults so a freshly created model (and its API response) has them too.
+    protected $attributes = [
+        'is_coordinator' => false,
+        'is_active' => true,
+        'must_change_password' => true,
+    ];
+
     protected function casts(): array
     {
         return [
@@ -70,6 +77,17 @@ class User extends Authenticatable
     public function isCoordinator(): bool
     {
         return $this->isAktif() && $this->is_coordinator;
+    }
+
+    // True if removing this user's admin access would leave zero active admins. Call inside a
+    // transaction: lockForUpdate makes two admins demoting each other at once wait for each other.
+    public function isLastActiveAdmin(): bool
+    {
+        return $this->isAdmin() && $this->is_active && ! static::where('role', Role::Admin)
+            ->where('is_active', true)
+            ->whereKeyNot($this->getKey())
+            ->lockForUpdate()
+            ->exists();
     }
 
     #[Scope]

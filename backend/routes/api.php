@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\DashboardController;
+use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\DivisionController;
 use Illuminate\Support\Facades\Route;
 
 // All endpoints live under /api/v1 and return JSON only.
@@ -21,8 +24,25 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    // Default group for every following feature endpoint.
+    // Default group for every feature endpoint.
     Route::middleware(['auth:sanctum', 'active', 'pwd.changed'])->group(function () {
-        //
+        Route::get('/divisions', [DivisionController::class, 'index']);
+
+        Route::prefix('admin')->middleware('role:admin')->group(function () {
+            Route::get('/dashboard', DashboardController::class);
+
+            Route::controller(UserController::class)->prefix('users')->group(function () {
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::get('/{user}', 'show');
+                Route::put('/{user}', 'update');
+                Route::delete('/{user}', 'destroy');
+                Route::patch('/{user}/status', 'updateStatus');
+                Route::post('/{user}/reset-password', 'resetPassword');
+                Route::put('/{user}/competition-divisions', 'syncCompetitionDivisions');
+            });
+
+            Route::patch('/divisions/{division}', [DivisionController::class, 'update']);
+        });
     });
 });
