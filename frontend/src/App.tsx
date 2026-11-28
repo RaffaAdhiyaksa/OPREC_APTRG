@@ -1,12 +1,20 @@
-import logo from "@/assets/aptrg_logo.png";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "next-themes";
+import { RouterProvider } from "react-router";
+import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/hooks/useAuth";
+import { queryClient } from "@/lib/queryClient";
+import { router } from "@/routes/router";
 
-// Temporary placeholder. Routing (React Router) and pages are added in the feature phase.
 export default function App() {
   return (
-    <main className="flex min-h-full flex-col items-center justify-center gap-4 bg-background p-6 text-foreground">
-      <img src={logo} alt="APTRG" className="h-20 w-auto" />
-      <h1 className="text-2xl font-bold">APTRG LMS</h1>
-      <p className="text-sm text-muted-foreground">Frontend scaffold siap. Fitur menyusul.</p>
-    </main>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+        <Toaster position="top-right" richColors closeButton />
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
