@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DivisionController;
+use App\Http\Controllers\Api\V1\MaterialController;
 use Illuminate\Support\Facades\Route;
 
 // All endpoints live under /api/v1 and return JSON only.
@@ -27,6 +28,10 @@ Route::prefix('v1')->group(function () {
     // Default group for every feature endpoint.
     Route::middleware(['auth:sanctum', 'active', 'pwd.changed'])->group(function () {
         Route::get('/divisions', [DivisionController::class, 'index']);
+
+        Route::patch('/materials/reorder', [MaterialController::class, 'reorder']);
+        Route::apiResource('materials', MaterialController::class);
+
 
         Route::prefix('admin')->middleware('role:admin')->group(function () {
             Route::get('/dashboard', DashboardController::class);
