@@ -67,4 +67,13 @@ class SeederTest extends TestCase
         $this->assertSame(6, User::count());
         $this->assertDatabaseCount('competition_members', 1);
     }
+
+    public function test_reseeding_keeps_division_state_changed_by_admin(): void
+    {
+        Division::where('slug', 'teknofest')->sole()->update(['is_active' => true]);
+
+        $this->seed();
+
+        $this->assertTrue(Division::where('slug', 'teknofest')->sole()->is_active);
+    }
 }

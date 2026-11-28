@@ -101,8 +101,12 @@ class UserController extends Controller
         });
     }
 
-    public function resetPassword(User $user): JsonResponse
+    public function resetPassword(Request $request, User $user): JsonResponse
     {
+        if ($user->is($request->user())) {
+            return $this->reject('Gunakan PUT /api/v1/auth/password untuk mengganti password sendiri.', 'CANNOT_RESET_SELF', 'user');
+        }
+
         $temporaryPassword = Str::password(12);
 
         $user->update(['password' => $temporaryPassword, 'must_change_password' => true]);

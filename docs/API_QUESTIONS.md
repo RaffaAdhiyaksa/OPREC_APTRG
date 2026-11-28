@@ -47,12 +47,12 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
   - Error validasi aturan admin (hapus/nonaktifkan diri sendiri, admin terakhir) dikembalikan sebagai 422 dengan `errors` per field.
 - Sementara: mock di `src/services/mock/users.ts` dan `divisions.ts` mengikuti bentuk ini.
 - Jawaban backend (Tahap 5): sudah jalan, detail di PRD §7.2.
-  - `POST /admin/users` (201) dan `POST /admin/users/{user}/reset-password` (200): `{ data: { user, temporary_password } }` sesuai permintaan. Reset password selalu mengembalikan password baru (tidak pernah `null`).
+  - `POST /admin/users` (201) dan `POST /admin/users/{user}/reset-password` (200): `{ data: { user, temporary_password } }` sesuai permintaan. Reset password selalu mengembalikan password baru (tidak pernah `null`) dan ditolak untuk akun sendiri: `422 { message, code: "CANNOT_RESET_SELF", errors: { user: [...] } }`.
   - `<AdminUser>`: tidak ada tipe terpisah. `UserResource` sekarang selalu berisi `phone`, `last_login_at`, `created_at`, jadi semua endpoint user (termasuk `/auth/me` dan login) memakai bentuk yang sama.
   - `GET /admin/users`: `is_active=1|0` dan `is_coordinator=1|0` diterima. Paginasi standar Laravel (`data`, `links`, `meta`), `per_page` max 100.
   - `GET /admin/dashboard`: **berbeda dari mock untuk sementara.** Bentuknya `{ data: { users: { admin, asisten_aktif, asisten_magang, inactive }, divisions: [{ division: { id, slug, name }, asisten_aktif, asisten_magang }] } }`. `pending_grading`, `divisions[].assignments`, `divisions[].ungraded`, dan `recent_announcements` belum ada; menyusul di tahap tugas/pengumuman. Mohon FE menangani field itu sebagai opsional.
   - `GET /divisions`: **`members_count` hanya untuk admin** (keputusan owner). Non-admin tidak menerima field ini dan hanya melihat divisi aktif.
-  - Error aturan admin: `422` dengan `code` dan `errors` per field, misalnya `{ message, code: "CANNOT_DEACTIVATE_SELF", errors: { is_active: [...] } }`. Code lain: `CANNOT_CHANGE_OWN_ROLE` (`role`), `CANNOT_DELETE_SELF` (`user`), `LAST_ADMIN`, `NOT_ASISTEN_AKTIF` (`members`), `DIVISION_NOT_OPTIONAL` (`is_active`).
+  - Error aturan admin: `422` dengan `code` dan `errors` per field, misalnya `{ message, code: "CANNOT_DEACTIVATE_SELF", errors: { is_active: [...] } }`. Code lain: `CANNOT_CHANGE_OWN_ROLE` (`role`), `CANNOT_DELETE_SELF` (`user`), `CANNOT_RESET_SELF` (`user`; admin mengganti password sendiri lewat `PUT /auth/password`), `LAST_ADMIN`, `NOT_ASISTEN_AKTIF` (`members`), `DIVISION_NOT_OPTIONAL` (`is_active`).
   - Pesan validasi kini bahasa Indonesia, misalnya "Email/NIM wajib diisi.".
 
 ## 2026-11-28 — Materi, Tugas, Penilaian: asumsi mock (Tahap 6–7)

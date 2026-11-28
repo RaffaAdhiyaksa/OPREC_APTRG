@@ -179,6 +179,20 @@ class AdminUserTest extends TestCase
         $this->assertSame(0, $user->tokens()->count());
     }
 
+    public function test_admin_cannot_reset_own_password(): void
+    {
+        $passwordHash = $this->admin->password;
+
+        $this->postJson("/api/v1/admin/users/{$this->admin->id}/reset-password")
+            ->assertStatus(422)
+            ->assertJsonPath('code', 'CANNOT_RESET_SELF')
+            ->assertJsonValidationErrors('user');
+
+        $this->assertSame($passwordHash, $this->admin->fresh()->password);
+        $this->assertFalse($this->admin->fresh()->must_change_password);
+        $this->assertSame(1, $this->admin->tokens()->count());
+    }
+
     public function test_sync_competition_divisions(): void
     {
         $user = User::factory()->aktif()->create();

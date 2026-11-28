@@ -218,7 +218,7 @@ Envelope error:
 | 409 | `DEADLINE_PASSED` / `GRADE_LOCKED` | Submit setelah deadline / submit ulang setelah nilai publish |
 | 413 | `PAYLOAD_TOO_LARGE` | Ditolak server sebelum Laravel |
 | 422 | `VALIDATION_ERROR` / `FILE_TOO_LARGE` | Validasi gagal (pesan bahasa Indonesia) |
-| 422 | `CANNOT_CHANGE_OWN_ROLE` / `CANNOT_DEACTIVATE_SELF` / `CANNOT_DELETE_SELF` / `LAST_ADMIN` / `NOT_ASISTEN_AKTIF` / `DIVISION_NOT_OPTIONAL` | Aturan bisnis admin; response juga berisi `errors` per field |
+| 422 | `CANNOT_CHANGE_OWN_ROLE` / `CANNOT_DEACTIVATE_SELF` / `CANNOT_DELETE_SELF` / `CANNOT_RESET_SELF` / `LAST_ADMIN` / `NOT_ASISTEN_AKTIF` / `DIVISION_NOT_OPTIONAL` | Aturan bisnis admin; response juga berisi `errors` per field |
 | 429 | `TOO_MANY_REQUESTS` | Rate limit |
 
 FE: `401` memicu logout dan redirect ke `/login`. `403 PASSWORD_CHANGE_REQUIRED` redirect ke `/change-password`.
@@ -322,7 +322,7 @@ Response `201` (juga bentuk `POST /admin/users/{user}/reset-password`, status `2
 { "data": { "user": <UserResource>, "temporary_password": "Xk82-pLm4-Qa" }, "message": "User berhasil dibuat." }
 ```
 
-`temporary_password` hanya muncul di response ini; `null` jika admin mengisi password sendiri. Reset password juga mencabut semua token user.
+`temporary_password` hanya muncul di response ini; `null` jika admin mengisi password sendiri. Reset password juga mencabut semua token user, dan ditolak untuk akun admin itu sendiri (`422 CANNOT_RESET_SELF`).
 
 `GET`/`PUT /admin/users/{user}` → `{ "data": <UserResource> }`. PUT: semua field opsional. Role diubah dari `asisten_aktif` membuat `is_coordinator = false` dan keanggotaan lomba dihapus.
 
@@ -343,6 +343,7 @@ Proteksi (semua `422`, dengan `code` dan `errors` per field):
 | `CANNOT_CHANGE_OWN_ROLE` | `role` | Admin mengubah role sendiri |
 | `CANNOT_DEACTIVATE_SELF` | `is_active` | Admin menonaktifkan diri |
 | `CANNOT_DELETE_SELF` | `user` | Admin menghapus diri |
+| `CANNOT_RESET_SELF` | `user` | Admin me-reset password sendiri; pakai `PUT /auth/password` |
 | `LAST_ADMIN` | `role` / `is_active` / `user` | Aksi akan menyisakan 0 admin aktif (hanya terjadi saat dua admin beraksi bersamaan) |
 
 `GET /divisions` → `{ "data": [<Division>] }`, urut `sort_order`. `<Division>` = `id, slug, name, type, team_name, is_optional, is_active, sort_order`, ditambah `members_count` **hanya untuk admin** (divisi riset: anggota riset; divisi lomba: anggota tim). Non-admin hanya menerima divisi aktif.
