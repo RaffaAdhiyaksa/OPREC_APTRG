@@ -87,7 +87,7 @@ The frontend only hides UI. The backend Policy/middleware is the real guard. Eve
    - A coordinator's announcement always targets `research_division_id` = the coordinator's division and `target_role = asisten_magang`. The server forces both; ignore any target sent by the client.
    - Admin may target one division or broadcast globally (`research_division_id = null`), optionally narrowed by `target_role` (`null` = all roles).
    - Visibility uses `Announcement::visibleTo($user)`: admin sees all; others see rows where (`research_division_id` = their division OR `null`) AND (`target_role` = their role OR `null`). Read status lives in `announcement_reads`.
-7. **Notifications:** in-app only, Laravel `notifications` table (database channel). Types: `announcement`, `assignment_published`, `grade_published`, `grade_updated`. The frontend polls the unread count every 60 seconds. No email, no WebSocket.
+7. **Notifications:** in-app only, Laravel `notifications` table (database channel). Types: `announcement`, `assignment_published`, `grade_published`, `grade_updated`, `deadline_reminder`. Every payload is `{ type, title, excerpt, link, announcement_id | assignment_id }` (`link` = frontend path). Notifications are sent synchronously (no `ShouldQueue`). The frontend polls the unread count every 60 seconds. No email, no WebSocket.
 8. **Admin content:** admin may create materials/assignments in any division and must send `division_id`.
 
 ## 6. API conventions
@@ -126,3 +126,12 @@ The frontend only hides UI. The backend Policy/middleware is the real guard. Eve
 - After a change: run `npm run build` (frontend) and `php artisan test` (backend) and report the result honestly.
 - Never commit `.env` files or secrets.
 - Never mass-update users (`User::query()->update()`, `User::where(...)->update()`). It skips the `saving` event that enforces the RBAC invariants. Always load the model and use `save()` / `update()` per model.
+- CI (`.github/workflows/ci.yml`) runs on every pull request and push to `main`: backend `php artisan test` on MySQL 8 and frontend `npm run build`. Keep both green; never add secrets to the workflow.
+
+## 10. Operations
+
+- `php artisan lms:create-admin {name?} {email?}`: creates an admin with a one-time 16-character temporary password and `must_change_password = true`. The only way to create the first account in production.
+- `php artisan db:seed --force` in production creates the 8 divisions only; `UserSeeder` refuses to run outside `local`/`testing`.
+- `php artisan lms:remind-deadlines`: scheduled hourly (`routes/console.php`, needs cron `schedule:run`). Sends `deadline_reminder` once per intern per assignment due within 24 hours that the intern has not submitted.
+- All `/api/*` responses carry `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer` (`SecurityHeaders` middleware).
+- Deployment steps, `.env` production, PHP/Nginx limits, cron, and backups: `docs/DEPLOY.md`.

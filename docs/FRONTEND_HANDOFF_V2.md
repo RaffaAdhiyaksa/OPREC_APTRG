@@ -119,7 +119,8 @@ Ini hasil audit service FE terhadap route backend, ditambah semua perubahan Taha
 - `GET /announcements/sent` (admin/koordinator): ditambah `recipients_count` dan `read_count`.
 - `POST /announcements`: admin memilih target (`research_division_id` nullable, `target_role` nullable). Koordinator **tidak** mengirim target: server memaksa ke magang di divisinya. Asisten aktif non-koordinator dapat 403. Respons 201 dengan `recipients_count`.
 - `POST /announcements/{id}/read`: tandai dibaca. Idempoten. Notifikasi terkait ikut ditandai dibaca.
-- Notifikasi (`GET /notifications`): `{ id, type, title, excerpt, link, read_at, created_at }`. `type`: `announcement`, `assignment_published`, `grade_published`, `grade_updated`. `link` adalah path FE (misalnya `/assignments/21`), langsung dipakai untuk navigasi. List membawa `meta.unread_count`.
+- Notifikasi (`GET /notifications`): `{ id, type, title, excerpt, link, read_at, created_at }`. `type`: `announcement`, `assignment_published`, `grade_published`, `grade_updated`, `deadline_reminder`. `link` adalah path FE (misalnya `/assignments/21`), langsung dipakai untuk navigasi. List membawa `meta.unread_count`.
+- **Tipe baru `deadline_reminder` (Tahap 9):** dikirim otomatis setiap jam ke magang yang belum mengumpulkan tugas dengan deadline dalam 24 jam. Payload sama: `title` = `Deadline: <judul tugas>`, `excerpt` menyebut batas waktu (WIB), `link` = `/assignments/{id}`. **Wajib** ditambahkan ke `NotificationType` di `src/types/api.ts` dan ke peta ikon di `components/shared/NotificationItem.tsx` (misalnya ikon jam/alarm) **sebelum** backend Tahap 9 dideploy: `ICON[n.type]` untuk tipe yang tidak dikenal bernilai `undefined` dan merender komponen kosong yang membuat halaman error.
 - Lonceng: polling `GET /notifications/unread-count` setiap 60 detik (`data.count`).
 
 ### 4.7 Kode error lengkap
