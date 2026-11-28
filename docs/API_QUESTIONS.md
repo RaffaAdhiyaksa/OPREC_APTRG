@@ -31,3 +31,14 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
 - Temuan: handoff F3 meminta menu Pengumuman hanya untuk koordinator dan tidak menyebut Materi/Tugas untuk admin. PRD §9.2–9.3 menulis admin punya "Materi & Tugas (mode pantau)" dan Asisten Aktif melihat Pengumuman ("kirim hanya jika koordinator"); admin juga bisa menargetkan pengumuman ke `asisten_aktif`.
 - Kebutuhan frontend: konfirmasi. Frontend mengikuti PRD (PRD menang bila bertentangan).
 - Sementara: semua Asisten Aktif melihat feed Pengumuman; tombol "Buat" hanya muncul dengan permission `announcement.send`. Admin punya menu Materi dan Tugas.
+
+## 2026-11-28 — Admin: bentuk respons yang diasumsikan mock (Tahap 5)
+- Temuan: PRD §7.2 belum merinci beberapa bentuk respons.
+- Kebutuhan frontend:
+  - `POST /admin/users` dan `POST /admin/users/{user}/reset-password` → `{ "data": { "user": <AdminUser>, "temporary_password": "..." | null } }`. `temporary_password` `null` bila admin mengisi password sendiri.
+  - `<AdminUser>` = UserResource + `phone`, `last_login_at`, `created_at`.
+  - `GET /admin/users` menerima `is_active=1|0` dan mengembalikan `meta` paginasi standar.
+  - `GET /admin/dashboard` → `{ users: { admin, asisten_aktif, asisten_magang, inactive }, pending_grading, divisions: [{ division, asisten_aktif, asisten_magang, assignments, ungraded }], recent_announcements: [<Announcement>] }`. "Belum dinilai" = submission tanpa nilai sama sekali.
+  - `GET /divisions` → setiap divisi menyertakan `members_count`.
+  - Error validasi aturan admin (hapus/nonaktifkan diri sendiri, admin terakhir) dikembalikan sebagai 422 dengan `errors` per field.
+- Sementara: mock di `src/services/mock/users.ts` dan `divisions.ts` mengikuti bentuk ini.

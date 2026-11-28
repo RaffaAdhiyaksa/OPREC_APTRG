@@ -32,11 +32,11 @@ export function PageHeader({
         {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
       {stats && stats.length > 0 && (
-        <dl className="flex flex-wrap gap-x-10 gap-y-4">
+        <dl className="flex flex-wrap gap-x-8 gap-y-4 xl:flex-nowrap">
           {stats.map((stat) => (
             <div key={stat.label} className="flex items-baseline gap-2">
-              <dd className="text-5xl font-light tabular-nums tracking-tight">{stat.value}</dd>
-              <dt className="flex flex-col text-sm text-muted-foreground">
+              <dd className="text-4xl font-light tabular-nums tracking-tight sm:text-5xl">{stat.value}</dd>
+              <dt className="flex flex-col text-sm whitespace-nowrap text-muted-foreground">
                 {stat.hint}
                 <span>{stat.label}</span>
               </dt>
@@ -49,11 +49,11 @@ export function PageHeader({
 }
 
 /** Section title with an underlined count, like "New Leads 7 Leads" in the reference. */
-export function SectionTitle({ title, count, unit, actions }: { title: string; count?: number; unit?: string; actions?: ReactNode }) {
+export function SectionTitle({ id, title, count, unit, actions }: { id?: string; title: string; count?: number; unit?: string; actions?: ReactNode }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-baseline gap-3">
-        <h2 className="text-xl font-bold tracking-tight">{title}</h2>
+        <h2 id={id} className="text-xl font-bold tracking-tight">{title}</h2>
         {count !== undefined && (
           <span className="text-sm text-muted-foreground underline decoration-1 underline-offset-4">
             {count} {unit}
