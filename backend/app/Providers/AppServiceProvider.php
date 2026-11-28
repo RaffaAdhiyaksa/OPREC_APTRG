@@ -23,8 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        RateLimiter::for('login', fn (Request $request) => Limit::perMinute(5)->by(
-            Str::lower((string) $request->input('login')).'|'.$request->ip()
-        ));
+        // Per account+IP stops guessing one password; per IP stops spraying many accounts.
+        RateLimiter::for('login', fn (Request $request) => [
+            Limit::perMinute(5)->by('account:'.Str::lower((string) $request->input('login')).'|'.$request->ip()),
+            Limit::perMinute(30)->by('ip:'.$request->ip()),
+        ]);
     }
 }

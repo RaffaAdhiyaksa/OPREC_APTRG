@@ -22,8 +22,8 @@ return [
 
     'allowed_headers' => ['*'],
 
-    // Lets the SPA read the filename of downloaded submissions.
-    'exposed_headers' => ['Content-Disposition'],
+    // Lets the SPA read download filenames and login throttle state.
+    'exposed_headers' => ['Content-Disposition', 'Retry-After', 'X-RateLimit-Limit', 'X-RateLimit-Remaining'],
 
     'max_age' => 0,
 
