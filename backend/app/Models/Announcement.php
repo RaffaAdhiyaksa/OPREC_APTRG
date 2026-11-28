@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Notifications\DatabaseNotification;
 
 #[Fillable(['author_id', 'title', 'body', 'research_division_id', 'target_role'])]
 class Announcement extends Model
@@ -23,6 +22,7 @@ class Announcement extends Model
     {
         return [
             'target_role' => Role::class,
+            'recipients_count' => 'integer',
         ];
     }
 
@@ -39,17 +39,13 @@ class Announcement extends Model
             ->where(fn (Builder $q) => $q->whereNull('target_role')->orWhere('target_role', $user->role));
     }
 
-    // Adds is_read (for $viewer), read_count and recipients_count (= notifications actually sent).
+    // Adds is_read (for $viewer) and read_count. recipients_count is a stored column.
     #[Scope]
     protected function withViewerState(Builder $query, User $viewer): void
     {
         $query->with(['author:id,name', 'division:id,slug,name'])
             ->withExists(['readers as is_read' => fn (Builder $q) => $q->whereKey($viewer->id)])
-            ->withCount('readers as read_count')
-            ->addSelect(['recipients_count' => DatabaseNotification::query()
-                ->selectRaw('count(*)')
-                ->where('type', 'announcement')
-                ->whereColumn('data->announcement_id', 'announcements.id')]);
+            ->withCount('readers as read_count');
     }
 
     // Active users the announcement targets, never its author (PRD §5.26–5.27).

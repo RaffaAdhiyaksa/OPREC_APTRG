@@ -8,7 +8,10 @@ use App\Models\Division;
 use App\Models\User;
 use App\Notifications\AnnouncementPublished;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\Events\NotificationSending;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
+use RuntimeException;
 use Tests\TestCase;
 
 class AnnouncementTest extends TestCase
@@ -96,6 +99,28 @@ class AnnouncementTest extends TestCase
         Notification::assertSentTo([$otherAdmin, $this->coordinator, $this->aktif, $this->magang, $this->magangMech], AnnouncementPublished::class);
         Notification::assertNotSentTo($this->admin, AnnouncementPublished::class);
         Notification::assertCount(5);
+    }
+
+    public function test_recipients_count_is_stored_at_creation(): void
+    {
+        $id = $this->announce($this->admin, ['research_division_id' => $this->system->id])->assertCreated()->assertJsonPath('data.recipients_count', 3)->json('data.id');
+
+        // coordinator, aktif and magang of System; admin is the author and has no division.
+        $this->assertDatabaseHas('announcements', ['id' => $id, 'recipients_count' => 3]);
+
+        // Later changes to the audience do not rewrite history.
+        User::factory()->magang()->create(['research_division_id' => $this->system->id]);
+        $this->getJson("/api/v1/announcements/{$id}")->assertJsonPath('data.recipients_count', 3);
+    }
+
+    public function test_failed_notification_rolls_back_the_announcement(): void
+    {
+        Event::listen(NotificationSending::class, fn () => throw new RuntimeException('mail server down'));
+
+        $this->announce($this->admin)->assertStatus(500);
+
+        $this->assertDatabaseCount('announcements', 0);
+        $this->assertDatabaseCount('notifications', 0);
     }
 
     public function test_visibility_per_division_and_role(): void

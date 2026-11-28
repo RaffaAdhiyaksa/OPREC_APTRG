@@ -58,8 +58,16 @@ class AnnouncementController extends Controller
             ? ['research_division_id' => $request->validated('research_division_id'), 'target_role' => $request->validated('target_role')]
             : ['research_division_id' => $user->research_division_id, 'target_role' => Role::AsistenMagang];
 
-        $announcement = Announcement::create([...$request->safe()->only(['title', 'body']), ...$target, 'author_id' => $user->id]);
-        Notification::send($announcement->recipients()->get(), new AnnouncementPublished($announcement));
+        // One transaction: if any notification fails, the announcement is rolled back too.
+        $announcement = DB::transaction(function () use ($request, $target, $user) {
+            $announcement = new Announcement([...$request->safe()->only(['title', 'body']), ...$target, 'author_id' => $user->id]);
+            $recipients = $announcement->recipients()->get();
+            $announcement->recipients_count = $recipients->count();
+            $announcement->save();
+            Notification::send($recipients, new AnnouncementPublished($announcement));
+
+            return $announcement;
+        });
 
         return $this->present($announcement, $request)->response()->setStatusCode(201);
     }

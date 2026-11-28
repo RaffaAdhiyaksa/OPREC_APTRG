@@ -110,7 +110,7 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
   - `<Announcement>` sama dengan mock, **ditambah `read_count`**. `is_read` selalu `true` untuk penulis.
   - `GET /announcements` dan `/sent` memakai paginasi standar (`data`, `links`, `meta`); `per_page=100` didukung. `GET /announcements` juga menerima `unread=1`.
   - Link notifikasi pengumuman: `/announcements?open={id}`, sama dengan mock. `POST /announcements/{id}/read` juga menandai notifikasi pengumuman itu sebagai dibaca.
-  - `recipients_count` = jumlah notifikasi yang benar-benar dikirim (user aktif yang cocok, tanpa penulis).
+  - `recipients_count` = kolom tersimpan, diisi sekali saat dibuat (jumlah notifikasi terkirim ke user aktif yang cocok, tanpa penulis); tidak berubah jika audiens berubah.
   - Penulis (misalnya koordinator, yang bukan target `asisten_magang`) tetap bisa membuka, membaca, dan menghapus pengumumannya sendiri; pengumuman itu muncul di `/sent`, bukan di `/announcements`.
   - Belum ada endpoint pratinjau penerima; FE tetap memakai angka dari `/admin/dashboard`.
   - `GET /admin/dashboard` sekarang berisi `recent_announcements` (3 terbaru) dengan bentuk `<Announcement>` yang sama.
