@@ -102,8 +102,9 @@ class AdminUserTest extends TestCase
             ->assertStatus(422)->assertJsonValidationErrors('research_division_id');
         $this->postJson('/api/v1/admin/users', ['name' => 'X', 'email' => 'x@aptrg.test', 'role' => 'superuser'])
             ->assertStatus(422)->assertJsonValidationErrors('role');
-        // Email of a soft-deleted user is still taken.
-        $this->postJson('/api/v1/admin/users', ['name' => 'X', 'email' => 'dupe@aptrg.test', 'role' => 'admin'])
+        // An active user's email is taken (a deleted user's is not, see UserReuseTest).
+        User::factory()->create(['email' => 'taken@aptrg.test']);
+        $this->postJson('/api/v1/admin/users', ['name' => 'X', 'email' => 'taken@aptrg.test', 'role' => 'admin'])
             ->assertStatus(422)->assertJsonPath('errors.email.0', 'Email sudah digunakan.');
     }
 

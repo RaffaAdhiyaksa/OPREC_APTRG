@@ -14,9 +14,9 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            // unique() also counts soft-deleted users, so a reused email gets 422 instead of a DB error.
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')],
-            'nim' => ['nullable', 'string', 'max:30', Rule::unique('users')],
+            // Unique among non-deleted users: a deleted account frees its email/NIM (DB index on active_email/active_nim).
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->withoutTrashed()],
+            'nim' => ['nullable', 'string', 'max:30', Rule::unique('users')->withoutTrashed()],
             'phone' => ['nullable', 'string', 'max:30'],
             'role' => ['required', Rule::enum(Role::class)],
             'research_division_id' => [

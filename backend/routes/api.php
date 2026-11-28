@@ -81,6 +81,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{user}', 'show');
                 Route::put('/{user}', 'update');
                 Route::delete('/{user}', 'destroy');
+                Route::post('/{user}/restore', 'restore')->withTrashed();
                 Route::patch('/{user}/status', 'updateStatus');
                 Route::post('/{user}/reset-password', 'resetPassword');
                 Route::put('/{user}/competition-divisions', 'syncCompetitionDivisions');
