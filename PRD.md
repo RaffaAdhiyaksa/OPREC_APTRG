@@ -585,6 +585,21 @@ Payload tersimpan (`notifications.data`) seragam untuk semua tipe: `{ type, titl
 | `assignment_published` | `Tugas baru: <judul>` | `/assignments/{id}` | `assignment_id` |
 | `grade_published` | `Nilai <tugas> sudah keluar` | `/assignments/{id}` | `assignment_id`, `grade_id` |
 | `grade_updated` | `Nilai <tugas> diperbarui` | `/assignments/{id}` | `assignment_id`, `grade_id` |
+| `deadline_reminder` | `Deadline: <judul>` (excerpt menyebut batas waktu dalam WIB) | `/assignments/{id}` | `assignment_id` |
+
+`deadline_reminder` dikirim oleh `php artisan lms:remind-deadlines` (terjadwal setiap jam) ke Asisten Magang **aktif** di divisi tugas `published` yang `due_at`-nya dalam 24 jam ke depan dan belum mengumpulkan. Satu magang hanya menerima satu pengingat per tugas.
+
+### 7.7 Operasional (CLI)
+
+| Perintah | Fungsi |
+| --- | --- |
+| `php artisan lms:create-admin {name?} {email?}` | Membuat admin dengan password sementara 16 karakter (ditampilkan sekali) dan `must_change_password = true`. Menolak email yang sudah dipakai (termasuk user terhapus). Satu-satunya cara membuat akun pertama di production. |
+| `php artisan db:seed --force` | Di production hanya membuat 8 divisi; akun dummy hanya untuk `local`/`testing`. |
+| `php artisan lms:remind-deadlines` | Pengingat deadline (lihat di atas). Dijadwalkan per jam; server butuh cron `* * * * * php artisan schedule:run`. |
+
+Semua respons `/api/*` membawa header `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`.
+
+CI GitHub Actions (`.github/workflows/ci.yml`) menjalankan `php artisan test` (MySQL 8) dan `npm run build` di setiap pull request dan push ke `main`. Panduan deploy: `docs/DEPLOY.md`.
 
 ---
 
