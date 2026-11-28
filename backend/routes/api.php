@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
+use App\Http\Controllers\Api\V1\AssignmentController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DivisionController;
 use App\Http\Controllers\Api\V1\MaterialController;
@@ -32,6 +33,8 @@ Route::prefix('v1')->group(function () {
         Route::patch('/materials/reorder', [MaterialController::class, 'reorder']);
         Route::apiResource('materials', MaterialController::class);
 
+        Route::post('/assignments/{assignment}/publish', [AssignmentController::class, 'publish']);
+        Route::apiResource('assignments', AssignmentController::class);
 
         Route::prefix('admin')->middleware('role:admin')->group(function () {
             Route::get('/dashboard', DashboardController::class);

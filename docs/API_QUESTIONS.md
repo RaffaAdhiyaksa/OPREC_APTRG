@@ -67,6 +67,18 @@ Format: lihat `docs/FRONTEND_HANDOFF.md` bagian 10.
   - `GET /submissions/{id}/download` → header `Content-Disposition` dengan nama file asli (sudah di `exposed_headers`).
   - Dashboard Asisten Aktif memakai `stats.total_interns` untuk "Jumlah Magang" karena belum ada endpoint jumlah magang per divisi untuk non-admin. Jika divisi belum punya tugas, angka menjadi 0.
 - Sementara: mock di `src/services/mock/materials.ts` dan `assignments.ts` mengikuti bentuk ini.
+- Jawaban backend (Tahap 6, materi & tugas; submission/penilaian menyusul di Tahap 7):
+  - `GET /materials` dan `GET /assignments` memakai paginasi standar Laravel (`data`, `links`, `meta`). `per_page=100` (maksimum) didukung, jadi `data.data` di frontend tetap jalan.
+  - `Material` dan `Assignment` mengikuti bentuk mock (`division`, `author`, `embed_url`, `stats` termasuk `late`, `is_overdue`, `can_submit`, `my_submission`, `my_grade`). Detail di PRD §7.3–7.4.
+  - **Beda dengan mock:**
+    - `POST /assignments/{id}/publish` pada tugas yang sudah published → `422 ALREADY_PUBLISHED` (mock mengembalikan 200 tanpa perubahan).
+    - Akses ke materi/tugas di luar divisi (atau draft untuk magang) → `404`, termasuk PUT/DELETE/publish. Magang yang menulis di divisinya → `403`.
+    - `PATCH /materials/reorder` dengan id yang tidak terlihat → `404`; id dari dua divisi (admin) → `422 errors.order`.
+    - `stats.submitted/late/graded_*` menghitung semua submission tugas itu (mock hanya menghitung magang yang masih di divisi tersebut). `total_interns` = magang aktif di divisi.
+    - `my_grade.score` berupa angka; `Assignment` juga menyertakan `updated_at`.
+    - `embed_url` memakai `youtube-nocookie.com` (sama dengan mock).
+  - `GET /admin/dashboard` sekarang menyertakan `pending_grading` (total) dan per divisi `assignments_published` serta `pending_grading`. **Nama berbeda dari mock** (`assignments`, `ungraded`): `assignments_published` hanya menghitung tugas published, dan `pending_grading` = submission tanpa nilai published (termasuk yang nilainya masih draft). `recent_announcements` belum ada (tahap pengumuman).
+  - `GET /assignments/{id}/submissions`, `<Grade>` versi staff, publish nilai, dan download belum ada; menyusul di Tahap 7 sesuai bentuk di atas.
 
 ## 2026-11-28 — Submission magang & `/me/grades`: asumsi mock (Tahap 7)
 - Temuan: bentuk respons berikut belum tertulis di PRD.

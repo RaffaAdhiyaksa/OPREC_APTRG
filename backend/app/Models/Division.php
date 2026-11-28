@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 #[Fillable(['slug', 'name', 'type', 'team_name', 'is_optional', 'is_active', 'sort_order'])]
 class Division extends Model
@@ -44,6 +45,11 @@ class Division extends Model
     public function assignments(): HasMany
     {
         return $this->hasMany(Assignment::class);
+    }
+
+    public function submissions(): HasManyThrough
+    {
+        return $this->hasManyThrough(Submission::class, Assignment::class);
     }
 
     public function announcements(): HasMany

@@ -218,7 +218,7 @@ Envelope error:
 | 409 | `DEADLINE_PASSED` / `GRADE_LOCKED` | Submit setelah deadline / submit ulang setelah nilai publish |
 | 413 | `PAYLOAD_TOO_LARGE` | Ditolak server sebelum Laravel |
 | 422 | `VALIDATION_ERROR` / `FILE_TOO_LARGE` | Validasi gagal (pesan bahasa Indonesia) |
-| 422 | `CANNOT_CHANGE_OWN_ROLE` / `CANNOT_DEACTIVATE_SELF` / `CANNOT_DELETE_SELF` / `CANNOT_RESET_SELF` / `LAST_ADMIN` / `NOT_ASISTEN_AKTIF` / `DIVISION_NOT_OPTIONAL` | Aturan bisnis admin; response juga berisi `errors` per field |
+| 422 | `CANNOT_CHANGE_OWN_ROLE` / `CANNOT_DEACTIVATE_SELF` / `CANNOT_DELETE_SELF` / `CANNOT_RESET_SELF` / `LAST_ADMIN` / `NOT_ASISTEN_AKTIF` / `DIVISION_NOT_OPTIONAL` / `ALREADY_PUBLISHED` | Aturan bisnis; response juga berisi `errors` per field |
 | 429 | `TOO_MANY_REQUESTS` | Rate limit |
 
 FE: `401` memicu logout dan redirect ke `/login`. `403 PASSWORD_CHANGE_REQUIRED` redirect ke `/change-password`.
@@ -350,46 +350,96 @@ Proteksi (semua `422`, dengan `code` dan `errors` per field):
 
 `PATCH /admin/divisions/{division}` `{ "is_active": true }` → `{ "data": <Division> }`.
 
-`GET /admin/dashboard` (statistik tugas/nilai dan pengumuman terbaru menyusul di tahap berikutnya):
+`GET /admin/dashboard` (pengumuman terbaru menyusul di tahap pengumuman):
 
 ```json
 {
   "data": {
     "users": { "admin": 1, "asisten_aktif": 2, "asisten_magang": 3, "inactive": 0 },
-    "divisions": [ { "division": { "id": 1, "slug": "mechanic", "name": "Mechanic" }, "asisten_aktif": 1, "asisten_magang": 1 } ]
+    "pending_grading": 2,
+    "divisions": [
+      { "division": { "id": 1, "slug": "mechanic", "name": "Mechanic" }, "asisten_aktif": 1, "asisten_magang": 1, "assignments_published": 3, "pending_grading": 2 }
+    ]
   }
 }
 ```
 
-`users` menghitung semua user yang belum dihapus (aktif dan nonaktif); `inactive` adalah total user nonaktif. `divisions` hanya divisi riset.
+`users` menghitung semua user yang belum dihapus (aktif dan nonaktif); `inactive` adalah total user nonaktif. `divisions` hanya divisi riset. `assignments_published` = tugas published (tidak dihapus). `pending_grading` = submission yang belum punya nilai published (belum dinilai atau masih draft); angka di level atas adalah jumlah semua divisi.
 
 ### 7.3 Materi
 
-Scope otomatis: Aktif dan Magang hanya divisi risetnya. Admin mengirim `division_id` atau melihat semua.
+Grup default. Visibilitas (satu aturan untuk list, detail, dan tulis): Aktif dan Magang hanya divisi risetnya; Magang hanya `is_published = true`; Admin semua divisi. Resource yang tidak terlihat → `404 NOT_FOUND`. Magang yang menulis di divisinya → `403 FORBIDDEN`.
 
-| Method | Path | Policy | Keterangan |
-| --- | --- | --- | --- |
-| GET | `/materials` | `viewAny` | Filter `source_type`, `search`, `division_id` (admin) |
-| GET | `/materials/{material}` | `view` | Detail |
-| POST | `/materials` | `role:asisten_aktif,admin`, `create` | Buat |
-| PUT | `/materials/{material}` | `update` | Ubah |
-| DELETE | `/materials/{material}` | `delete` | Hapus |
-| PATCH | `/materials/reorder` | `create` | `{ "order": [12, 9, 10] }`, semua id satu divisi (`422` jika tidak) |
+| Method | Path | Keterangan |
+| --- | --- | --- |
+| GET | `/materials` | Filter `source_type`, `search` (judul/deskripsi), `division_id` (admin). Urut divisi lalu `sort_order`. Paginasi standar (`per_page` max 100) |
+| GET | `/materials/{material}` | `{ data: <Material> }` |
+| POST | `/materials` | Asisten Aktif / Admin. `201 { data: <Material> }` |
+| PUT | `/materials/{material}` | Semua field opsional. `{ data: <Material> }` |
+| DELETE | `/materials/{material}` | `{ message }` (hapus permanen) |
+| PATCH | `/materials/reorder` | `{ "order": [12, 9, 10] }` → `sort_order` = posisi (1, 2, 3). Id yang tidak terlihat → `404`; id dari lebih dari satu divisi (admin) → `422` (`errors.order`) |
 
-`POST /materials`: `title`, `description`, `url`, `is_published`. `division_id` diisi server dari divisi pembuat (admin wajib mengirim). `source_type` dideteksi dari host. Response menyertakan `embed_url` untuk YouTube, `division`, `author`.
+Body POST/PUT: `title` (wajib, max 255), `description` (nullable, max 5000), `url` (wajib, hanya `http`/`https`, max 2048), `is_published` (default `true`), `division_id` (wajib untuk admin, divisi `type = research`; diabaikan untuk Asisten Aktif, server memakai divisinya). `source_type` dari client selalu diabaikan. Divisi materi tidak bisa dipindah lewat PUT. Materi baru ditaruh di urutan terakhir divisinya.
+
+`source_type` dihitung server dari host (setelah membuang `www.`/`m.`): `youtube.com`/`youtu.be` → `youtube`, `drive.google.com`/`docs.google.com` → `drive`, lainnya → `other`. `embed_url` untuk YouTube (`watch?v=`, `youtu.be/`, `shorts/`, `embed/`) berbentuk `https://www.youtube-nocookie.com/embed/{id}`; `null` untuk lainnya.
+
+```json
+{
+  "data": {
+    "id": 12, "division": { "id": 2, "slug": "system", "name": "System" },
+    "title": "Pengenalan Pixhawk", "description": "Tonton sebelum praktikum.",
+    "source_type": "youtube", "url": "https://youtu.be/dQw4w9WgXcQ",
+    "embed_url": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+    "sort_order": 4, "is_published": true, "author": { "id": 7, "name": "Ruddy" },
+    "created_at": "2026-11-28T03:00:00.000000Z", "updated_at": "2026-11-28T03:00:00.000000Z"
+  }
+}
+```
 
 ### 7.4 Tugas
 
-| Method | Path | Policy | Keterangan |
-| --- | --- | --- | --- |
-| GET | `/assignments` | `viewAny` | Filter `status`, `search`, `due` (`upcoming`/`past`) |
-| GET | `/assignments/{assignment}` | `view` | Untuk magang menyertakan `my_submission`, `my_grade` |
-| POST | `/assignments` | `role:asisten_aktif,admin`, `create` | Buat (default `draft`) |
-| PUT | `/assignments/{assignment}` | `update` | Ubah |
-| POST | `/assignments/{assignment}/publish` | `update` | Publish + notifikasi magang |
-| DELETE | `/assignments/{assignment}` | `delete` | Soft delete |
+Grup default. Visibilitas sama seperti materi; Magang hanya `status = published`. Tugas yang dihapus (soft delete) → `404`.
 
-`division_id` diisi server dari divisi pembuat; admin boleh membuat di divisi mana pun dan wajib mengirim `division_id` (berlaku juga untuk materi). Validasi create: `due_at` di masa depan, `max_file_size_mb` 1–50, `allowed_extensions` subset whitelist, `max_score` ≥ 1. Tampilan Aktif menyertakan `stats` (`total_interns`, `submitted`, `graded_draft`, `graded_published`). Tampilan Magang menyertakan `is_overdue`, `can_submit` (dari deadline, `allow_late`, status nilai), `my_submission`, `my_grade` (selalu `null` selama draft), tanpa `stats`.
+| Method | Path | Keterangan |
+| --- | --- | --- |
+| GET | `/assignments` | Filter `status`, `search` (judul), `due` (`upcoming` = `due_at >= sekarang`, `past`), `division_id` (admin). Urut `due_at` naik. Paginasi standar |
+| GET | `/assignments/{assignment}` | `{ data: <Assignment> }` |
+| POST | `/assignments` | Asisten Aktif / Admin. Selalu `draft`. `201 { data: <Assignment> }` |
+| PUT | `/assignments/{assignment}` | Semua field opsional; `status` diabaikan (pakai `/publish`) |
+| POST | `/assignments/{assignment}/publish` | `status = published`, `published_at`, notifikasi `assignment_published` ke semua Asisten Magang **aktif** di divisi tugas. Sudah published → `422 ALREADY_PUBLISHED` (`errors.status`) |
+| DELETE | `/assignments/{assignment}` | Soft delete. `{ message }` |
+
+Body POST/PUT: `title` (wajib, max 255), `description` (wajib), `due_at` (wajib; harus di masa depan **hanya saat create**), `allow_late` (default `false`), `max_file_size_mb` (1–`LMS_MAX_UPLOAD_MB`, default 10; batas global 50), `allowed_extensions` (nullable, subset `pdf, zip, rar, doc, docx, ppt, pptx, png, jpg, jpeg`; `null` = semua), `max_score` (1–1000, default 100), `status` (hanya `draft` saat create), `division_id` (wajib untuk admin, divisi riset; diabaikan untuk Asisten Aktif). Divisi tugas tidak bisa dipindah lewat PUT.
+
+`<Assignment>` untuk Asisten Aktif / Admin:
+
+```json
+{
+  "id": 21, "division": { "id": 2, "slug": "system", "name": "System" },
+  "title": "Tugas 3 – Wiring Diagram", "description": "...", "due_at": "2026-12-05T16:59:59.000000Z",
+  "allow_late": false, "max_file_size_mb": 10, "allowed_extensions": ["pdf", "zip"], "max_score": 100,
+  "status": "published", "published_at": "2026-11-28T04:00:00.000000Z", "author": { "id": 7, "name": "Ruddy" },
+  "created_at": "...", "updated_at": "...",
+  "stats": { "total_interns": 16, "submitted": 12, "late": 1, "graded_draft": 5, "graded_published": 7 }
+}
+```
+
+`total_interns` = Asisten Magang aktif di divisi tugas. `submitted`, `late`, `graded_*` menghitung semua submission/nilai tugas itu.
+
+`<Assignment>` untuk Asisten Magang: field dasar yang sama **tanpa** `stats`, ditambah:
+
+```json
+{
+  "is_overdue": false,
+  "can_submit": true,
+  "my_submission": { "id": 88, "method": "file", "file_name": "wiring.pdf", "file_size": 4194304, "mime_type": "application/pdf", "drive_link": null, "note": null, "is_late": false, "submitted_at": "..." },
+  "my_grade": null
+}
+```
+
+`my_grade` hanya berisi nilai milik magang itu sendiri yang sudah `published` (`{ id, score, feedback, status, published_at, graded_by { id, name }, updated_at }`, `score` berupa angka); selain itu `null`. Nilai draft tidak pernah dikirim. `can_submit` = tugas published DAN (deadline belum lewat ATAU `allow_late`) DAN nilai belum published. `method` = `file` | `drive` | `both`.
+
+Notifikasi `assignment_published` (tabel `notifications`, `type = "assignment_published"`): `data = { title: "Tugas baru: <judul>", excerpt, link: "/assignments/{id}", assignment_id }`.
 
 ### 7.5 Submission Hybrid & Penilaian
 
