@@ -107,7 +107,8 @@ The frontend only hides UI. The backend Policy/middleware is the real guard. Eve
 ## 7. Naming
 
 - DB: plural snake_case tables, `{singular}_id` foreign keys (actor FKs: `created_by`, `graded_by`, `author_id`), enums as strings matching PRD values exactly (`research`/`competition`, `youtube`/`drive`/`other`, `draft`/`published`).
-- PHP: PSR-12, `Model`, `ModelController`, `StoreModelRequest`/`UpdateModelRequest`, `ModelResource`, `ModelPolicy`.
+- PHP: PSR-12, `Model`, `ModelController`, `StoreModelRequest`/`UpdateModelRequest`, `ModelResource`, `ModelPolicy`. One `StoreModelRequest` may serve POST and PUT/PATCH when update only makes the fields optional (e.g. `StoreMaterialRequest`); its `authorize()` runs the policy so interns get 403/404 before validation.
+- Visibility lives in one model scope `visibleTo(User)` (Material, Assignment, Announcement); policies reuse it for `view` and return `Response::denyAsNotFound()`.
 - TypeScript: components and pages `PascalCase.tsx` (`MaterialListPage.tsx`), hooks `useCamelCase.ts`, services `camelCase.ts`, types in `src/types/`. Import with the `@/` alias.
 
 ## 8. Frontend rules

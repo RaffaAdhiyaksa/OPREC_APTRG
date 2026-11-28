@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\Assignment;
 use App\Models\Division;
+use App\Models\Grade;
+use App\Models\Submission;
 use App\Models\User;
 use Database\Seeders\DivisionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -79,15 +82,39 @@ class DivisionAndDashboardTest extends TestCase
         User::factory()->magang()->create(['research_division_id' => $mechanic->id, 'is_active' => false]);
         User::factory()->magang()->create(['research_division_id' => $mechanic->id])->delete();
 
-        $response = $this->actingAsToken($admin)->getJson('/api/v1/admin/dashboard')
+        $this->actingAsToken($admin)->getJson('/api/v1/admin/dashboard')
             ->assertOk()
             ->assertExactJson(['data' => [
                 'users' => ['admin' => 1, 'asisten_aktif' => 1, 'asisten_magang' => 3, 'inactive' => 1],
+                'pending_grading' => 0,
                 'divisions' => collect(['mechanic', 'system', 'gcs', 'non-technical'])->map(fn ($slug) => [
                     'division' => $this->division($slug)->only(['id', 'slug', 'name']),
                     'asisten_aktif' => $slug === 'system' ? 1 : 0,
                     'asisten_magang' => ['system' => 2, 'mechanic' => 1][$slug] ?? 0,
+                    'assignments_published' => 0,
+                    'pending_grading' => 0,
                 ])->all(),
             ]]);
+    }
+
+    public function test_dashboard_counts_published_assignments_and_pending_grading(): void
+    {
+        $system = $this->division('system');
+        $published = Assignment::factory()->published()->create(['division_id' => $system->id]);
+        Assignment::factory()->create(['division_id' => $system->id]);
+        Assignment::factory()->published()->create(['division_id' => $system->id])->delete();
+
+        Submission::factory()->create(['assignment_id' => $published->id]); // no grade yet
+        $draftGraded = Submission::factory()->create(['assignment_id' => $published->id]);
+        Grade::factory()->create(['assignment_id' => $published->id, 'user_id' => $draftGraded->user_id]);
+        $done = Submission::factory()->create(['assignment_id' => $published->id]);
+        Grade::factory()->published()->create(['assignment_id' => $published->id, 'user_id' => $done->user_id]);
+
+        $data = $this->actingAsToken(User::factory()->admin()->create())->getJson('/api/v1/admin/dashboard')->assertOk()->json('data');
+        $row = collect($data['divisions'])->firstWhere('division.slug', 'system');
+
+        $this->assertSame(1, $row['assignments_published']);
+        $this->assertSame(2, $row['pending_grading']);
+        $this->assertSame(2, $data['pending_grading']);
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\AssignmentStatus;
+use App\Enums\GradeStatus;
+use App\Enums\Role;
 use Database\Factories\AssignmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -21,6 +23,42 @@ class Assignment extends Model
 {
     /** @use HasFactory<AssignmentFactory> */
     use HasFactory, SoftDeletes;
+
+    protected $attributes = [
+        'allow_late' => false,
+        'max_file_size_mb' => 10,
+        'max_score' => 100,
+        'status' => 'draft',
+    ];
+
+    // withCount/loadCount spec for the staff `stats` block.
+    public static function statsCounts(): array
+    {
+        return [
+            'interns as total_interns',
+            'submissions as submitted',
+            'submissions as late' => fn (Builder $q) => $q->where('is_late', true),
+            'grades as graded_draft' => fn (Builder $q) => $q->where('status', GradeStatus::Draft),
+            'grades as graded_published' => fn (Builder $q) => $q->where('status', GradeStatus::Published),
+        ];
+    }
+
+    public function isOverdue(): bool
+    {
+        return $this->due_at->isPast();
+    }
+
+    // Same visibility rule as Material::visibleTo, with interns limited to published assignments.
+    #[Scope]
+    protected function visibleTo(Builder $query, User $user): void
+    {
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        $query->where('division_id', $user->research_division_id)
+            ->when($user->isMagang(), fn (Builder $q) => $q->where('status', AssignmentStatus::Published));
+    }
 
     protected function casts(): array
     {
@@ -65,5 +103,13 @@ class Assignment extends Model
     public function grades(): HasMany
     {
         return $this->hasMany(Grade::class);
+    }
+
+    // Active asisten_magang of the assignment's division: stats denominator and notification recipients.
+    public function interns(): HasMany
+    {
+        return $this->hasMany(User::class, 'research_division_id', 'division_id')
+            ->where('role', Role::AsistenMagang)
+            ->where('is_active', true);
     }
 }
